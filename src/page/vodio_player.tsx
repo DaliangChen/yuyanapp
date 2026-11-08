@@ -29,31 +29,42 @@ export function VideoPlayerPage()
 
   return (
     <>
-      <div style={{ display: 'flex', flexDirection: 'row', width: '100%', height: '100%' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateAreas: `
+                            "video sidebar"
+                            "control sidebar"
+                            `,
+          gridTemplateColumns: '1fr 600px',
+          gridTemplateRows: '1fr 60px',
+          width: '100%',
+          height: '100%',
+        }}
+      >
         <div
           style={{
-            flex: 1,
-            minWidth: 0,
+            gridArea: 'video',
             display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
             alignItems: 'center',
-            height: '100%',
-            padding: 10,
+            justifyContent: 'center',
+            padding: '10px',
           }}
         >
           <video
+            controls
             src={url}
             ref={videoRef}
-            controls
-            style={{ width: '100%', height: '100%', objectFit: 'contain', flex: 1 }}
+            style={{ width: '100%', objectFit: 'contain', borderRadius: '10px' }}
           />
-          <div style={{ width: '100%', height: 60 }}>
-            控制区域
-          </div>
         </div>
-        <div style={{ width: 600 }}>
-          123
+
+        <div style={{ gridArea: 'control' }}>
+          控制区域
+        </div>
+
+        <div style={{ gridArea: 'sidebar', height: '100%' }}>
+          右侧合并的长面板 (123)
         </div>
       </div>
     </>
