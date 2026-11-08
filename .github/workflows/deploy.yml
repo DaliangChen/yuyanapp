@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main] # 如果你的主分支叫 master，请改成 master
+    branches: [build]
 
 # 设置 GitHub Actions 的权限
 permissions:
