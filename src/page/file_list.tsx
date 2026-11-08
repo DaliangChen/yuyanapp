@@ -35,7 +35,7 @@ export function FileListPage()
       </table>
     </>
   )
-}
+}  
 
 async function on_click_open(file_info: FileInfo)
 {
