@@ -8,7 +8,7 @@ export type FileInfo = {
 
 export default //
 {
-  /**
+  /**  
    * 显示页面
    */
   show_page: signal<'select_folder' | 'file_list' | 'video_player'>('select_folder'),
