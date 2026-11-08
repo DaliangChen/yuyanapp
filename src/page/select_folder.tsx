@@ -15,7 +15,7 @@ export function SelectFolderPage()
         }}
       >
         <button onClick={on_click_select_folder}>
-          选择文件夹
+          Select Folder
         </button>
       </div>
     </>
@@ -27,14 +27,30 @@ async function on_click_select_folder()
   try
   {
     let f = await window.showDirectoryPicker()
+
     for await (const [name, handle] of f.entries())
     {
-      if (handle.kind === 'file')
+      if (handle.kind === 'directory') continue
+      if (!name.endsWith('.srt') && !name.endsWith('.mp4')) continue
+
+      let file_base_name = name.replace(/\.[^/.]+$/, '')
+
+      if (!appv.file_map.value[file_base_name])
       {
-        appv.file_map.value[name] = handle
+        appv.file_map.value[file_base_name] = { handle, has_srt: false, has_mp4: false }
+      }
+
+      if (name.endsWith('.srt'))
+      {
+        appv.file_map.value[file_base_name].has_srt = true
+      }
+
+      if (name.endsWith('.mp4'))
+      {
+        appv.file_map.value[file_base_name].has_mp4 = true
       }
     }
-    appv.show_page_index.value = 'file_list'
+    appv.show_page.value = 'file_list'
   } catch (error)
   {
   }
