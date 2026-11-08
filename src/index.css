@@ -11,6 +11,10 @@ body,
   box-sizing: border-box;
 }
 
+body{
+  background-color: #f3f3f3;
+}
+
 :root,
 :host {
   --pico-font-size: 100%;
