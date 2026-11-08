@@ -7,6 +7,10 @@ body,
   height: 100vh;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 :root,
 :host {
   --pico-font-size: 100%;
