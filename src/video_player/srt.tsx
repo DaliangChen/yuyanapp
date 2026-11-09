@@ -119,6 +119,59 @@ export function calculateSentenceWeight(text: string, wordStat: Record<string, W
 }
 
 /**
+ * 查找上一个实际可播放/未被自动跳过的句子索引
+ * 若开启跳过逻辑，跳过所有生词度低于 threshold 的句子，精确定位“刚刚播放完的上一句”
+ */
+export function findPrevPlayableIndex(
+  subs: Array<{ text1?: string; text?: string }>,
+  currentIdx: number,
+  isAutoSkip: boolean,
+  threshold: number,
+  wordStat: Record<string, WordStatItem>,
+): number
+{
+  if (currentIdx <= 0) return -1
+  if (!isAutoSkip) return currentIdx - 1
+
+  for (let i = currentIdx - 1; i >= 0; i--)
+  {
+    const text = subs[i].text1 ?? subs[i].text ?? ''
+    const weight = calculateSentenceWeight(text, wordStat)
+    if (weight >= threshold)
+    {
+      return i
+    }
+  }
+  return 0
+}
+
+/**
+ * 查找下一个实际可播放/未被自动跳过的句子索引
+ */
+export function findNextPlayableIndex(
+  subs: Array<{ text1?: string; text?: string }>,
+  currentIdx: number,
+  isAutoSkip: boolean,
+  threshold: number,
+  wordStat: Record<string, WordStatItem>,
+): number
+{
+  if (currentIdx < 0 || currentIdx >= subs.length - 1) return -1
+  if (!isAutoSkip) return currentIdx + 1
+
+  for (let i = currentIdx + 1; i < subs.length; i++)
+  {
+    const text = subs[i].text1 ?? subs[i].text ?? ''
+    const weight = calculateSentenceWeight(text, wordStat)
+    if (weight >= threshold)
+    {
+      return i
+    }
+  }
+  return -1
+}
+
+/**
  * 单词根据 fail 比例动态计算深浅颜色（素雅白底版本）
  * fail 越多，偏向赭石暖砖红；pass 则淡灰
  */
@@ -218,13 +271,23 @@ export function SrtPart()
     }
   }
 
-  const prevSub = activeIndex > 0 ? pairedSubtitles[activeIndex - 1] : null
-  const currSub = activeIndex >= 0 && activeIndex < pairedSubtitles.length ? pairedSubtitles[activeIndex] : null
-  const nextSub = activeIndex >= 0 && activeIndex + 1 < pairedSubtitles.length ? pairedSubtitles[activeIndex + 1] : null
-
   const wordStat = video_list.data.value.word_stat || {}
+  const isAutoSkip = video_player.auto_skip_familiar.value
+  const threshold = video_player.skip_threshold.value
+
+  // 上一句：如果在自动跳过模式下，取上一个未被跳过、刚刚播放过的上一句
+  const prevIdx = findPrevPlayableIndex(pairedSubtitles, activeIndex, isAutoSkip, threshold, wordStat)
+  const prevSub = prevIdx !== -1 && prevIdx < activeIndex ? pairedSubtitles[prevIdx] : null
+
+  // 当前句
+  const currSub = activeIndex >= 0 && activeIndex < pairedSubtitles.length ? pairedSubtitles[activeIndex] : null
+
+  // 下一句：如果在自动跳过模式下，取下一个真正会播的句子
+  const nextIdx = findNextPlayableIndex(pairedSubtitles, activeIndex, isAutoSkip, threshold, wordStat)
+  const nextSub = nextIdx !== -1 ? pairedSubtitles[nextIdx] : null
+
   const currWeight = currSub ? calculateSentenceWeight(currSub.text1, wordStat) : 0
-  const isAutoSkipActive = video_player.auto_skip_familiar.value && currWeight < video_player.skip_threshold.value
+  const isAutoSkipActive = isAutoSkip && currWeight < threshold
 
   const onWordClick = (word: string, sentence: string) =>
   {
@@ -343,7 +406,7 @@ export function SrtPart()
 
       {/* 3-Sentence Subtitle Box - 素雅温润白底微磨砂字幕盒 */}
       <div className='w-[min(96%,820px)] max-h-[46vh] bg-white/94 backdrop-blur-md border border-slate-200/90 shadow-lg rounded-2xl p-3.5 sm:p-4 text-slate-800 flex flex-col gap-2 pointer-events-auto'>
-        {/* 1. 上一句 */}
+        {/* 1. 上一句 (在跳过模式下为刚刚播放完的上一句) */}
         {prevSub && (
           <div
             onClick={() => video_player.player.value?.seekTo(prevSub.start, true)}
@@ -371,7 +434,7 @@ export function SrtPart()
           <div
             onClick={() => video_player.player.value?.seekTo(currSub.start, true)}
             className='flex items-baseline gap-3 cursor-pointer py-2 px-3 rounded-xl bg-slate-50/90 border-l-4 border-slate-700 transition-colors hover:bg-slate-100/80 shadow-2xs'
-            title='点击重播这一句 (按 → 或 滚轮向后勾：掌握下一句；按 ← 或 滚轮向前推：生词重播)'
+            title='点击重播这一句 (按 → 或 滚轮向后勾：掌握当前句跳下一句；按 ← 或 滚轮向前推：上一句记生词并重播)'
           >
             <div className='flex flex-col gap-1 items-center shrink-0 select-none'>
               <span className='text-[11px] text-slate-800 bg-slate-200/70 px-2 py-0.5 rounded font-medium'>
