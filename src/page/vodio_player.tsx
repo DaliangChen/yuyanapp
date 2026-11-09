@@ -1,10 +1,19 @@
-import { useState } from 'preact/hooks'
-import { useRef } from 'preact/hooks'
-
 export function VideoPlayerPage()
 {
-  const [url] = useState('')
-  const videoRef = useRef<HTMLVideoElement>(null)
+  // useEffect(() =>
+  // {
+  //   appv.video_player.value = YouTubePlayer('player-1', { playerVars: { autoplay: 1 } })
+  //   appv.video_player.value.loadVideoById('d1nIWPQ9yek').then(() =>
+  //   {
+  //     console.log('video loaded')
+  //     appv.video_player.value?.playVideo()
+  //   })
+  //   return () =>
+  //   {
+  //     appv.video_player.value?.destroy()
+  //     appv.video_player.value = null
+  //   }
+  // }, [])
 
   return (
     <>
@@ -30,12 +39,7 @@ export function VideoPlayerPage()
             padding: '10px',
           }}
         >
-          <video
-            controls
-            src={url}
-            ref={videoRef}
-            style={{ width: '100%', objectFit: 'contain', borderRadius: '10px' }}
-          />
+          <div id='player-1' style={{ width: '100%', borderRadius: '10px' }} />
         </div>
 
         <div style={{ gridArea: 'control' }}>

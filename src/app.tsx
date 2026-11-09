@@ -6,8 +6,8 @@ export function App()
 {
   return (
     <>
-      {appv.show_page.value === 'video_list' && <VideoListPage />}
-      {appv.show_page.value === 'video_player' && <VideoPlayerPage />}
+      {appv.app.show_page.value === 'video_list' && <VideoListPage />}
+      {appv.app.show_page.value === 'video_player' && <VideoPlayerPage />}
     </>
   )
 }
