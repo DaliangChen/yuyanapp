@@ -22,10 +22,9 @@ const on_click_confirm = () =>
 
   if (!add_value || !add_value.video_id) throw new InfoError('Video Id is required')
 
-  if (!video_list.data.value.videos.some(video => video.video_id === add_value.video_id))
-  {
-    video_list.data.value.videos.push(add_value)
-  }
+  const data = video_list.data.value.videos.find(video => video.video_id === add_value.video_id)
+  if (data) data.note = add_value.note
+  else video_list.data.value.videos.push(add_value)
 
   video_list.data.value = { ...video_list.data.value }
   video_list.add_data.value = null
