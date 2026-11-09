@@ -1,22 +1,8 @@
 import { useEffect } from 'preact/hooks'
 import YouTubePlayer from 'youtube-player'
+import { ControlPart } from './control'
+import { PlayerPart } from './player'
 import { video_player } from './value'
-
-function useInit()
-{
-  useEffect(() =>
-  {
-    video_player.player.value = YouTubePlayer('video_player', { playerVars: { autoplay: 0 } })
-    video_player.player.value?.loadVideoById(video_player.video_info.value.video_id)
-    // video_player.player.value.addEventListener('', on_time)
-
-    return () =>
-    {
-      video_player.player.value?.destroy()
-      video_player.player.value = null
-    }
-  }, [])
-}
 
 export function VideoPlayerPage()
 {
@@ -37,26 +23,34 @@ export function VideoPlayerPage()
           height: '100%',
         }}
       >
-        <div
-          style={{
-            gridArea: 'video',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '10px',
-          }}
-        >
-          <div id='video_player' style={{ width: '100%', borderRadius: '10px' }} />
-        </div>
+        <PlayerPart />
+        <ControlPart />
 
-        <div style={{ gridArea: 'control' }}>
-          控制区域
-        </div>
-
-        <div style={{ gridArea: 'sidebar', height: '100%' }}>
+        <div style={{ gridArea: 'sidebar', height: '100%', padding: '10px' }}>
           右侧合并的长面板 (123)
         </div>
       </div>
     </>
   )
+}
+
+function useInit()
+{
+  useEffect(() =>
+  {
+    video_player.player.value = YouTubePlayer('video_player', { playerVars: { autoplay: 0 } })
+    video_player.player.value?.loadVideoById(video_player.video_info.value.video_id)
+
+    const interval_id = setInterval(async () =>
+    {
+      video_player.current_time.value = await video_player.player.value?.getCurrentTime() ?? 0
+    }, 100)
+
+    return () =>
+    {
+      video_player.player.value?.destroy()
+      video_player.player.value = null
+      clearInterval(interval_id)
+    }
+  }, [])
 }

@@ -6,4 +6,5 @@ export const video_player = //
   {
     player: signal<YouTubePlayer | null>(null),
     video_info: signal<VideoInfo | null>(null),
+    current_time: signal<number>(0),
   }
