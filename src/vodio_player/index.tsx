@@ -2,22 +2,16 @@ import { useEffect } from 'preact/hooks'
 import YouTubePlayer from 'youtube-player'
 import { video_player } from './value'
 
-function on_time()
-{
-  app.show_page.value = 'video_list'
-}
-
 function useInit()
 {
   useEffect(() =>
   {
     video_player.player.value = YouTubePlayer('video_player', { playerVars: { autoplay: 0 } })
     video_player.player.value?.loadVideoById(video_player.video_info.value.video_id)
-    video_player.player.value.addEventListener('', on_time)
+    // video_player.player.value.addEventListener('', on_time)
 
     return () =>
     {
-      video_player.player.value?.removeEventListener('onStateChange', on_time)
       video_player.player.value?.destroy()
       video_player.player.value = null
     }

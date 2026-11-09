@@ -1,4 +1,4 @@
-import { app, type VideoInfo } from '../appv'
+import { app, LogicError, type VideoInfo } from '../appv'
 import { video_player } from '../vodio_player/value'
 import { video_list } from './value'
 
@@ -14,6 +14,33 @@ const on_click_play = (video: VideoInfo) =>
   app.show_page.value = 'video_player'
 }
 
+const fetch_youtube_subtitle = async (video_id: string) =>
+{
+  let [handle] = await window.showOpenFilePicker(
+    {
+      multiple: false,
+      types: [
+        {
+          description: 'VTT',
+          accept: {
+            'text/vtt': ['.vtt'],
+          },
+        },
+      ],
+    },
+  )
+
+  const file = await handle.getFile()
+  const srt_text = await file.text()
+
+  const video = video_list.data.value.videos.find(v => v.video_id === video_id)
+  if (!video) throw new LogicError()
+
+  video.srt = srt_text
+  video.update_time = Date.now()
+  video_list.data.value = { ...video_list.data.value }
+}
+
 export function TablePart()
 {
   return (
@@ -21,7 +48,7 @@ export function TablePart()
       <thead>
         <tr>
           <th scope='col' style={{ width: '200px' }}>Video Id</th>
-          <th scope='col' style={{ width: '70px' }}>Srt</th>
+          <th scope='col' style={{ width: '100px' }}>Srt</th>
           <th scope='col'>Note</th>
           <th scope='col' style={{ width: '1px' }}>Action</th>
         </tr>
@@ -29,17 +56,32 @@ export function TablePart()
       <tbody>
         {video_list.data.value.videos.sort((a, b) => b.update_time - a.update_time).map((video, index) => (
           <tr key={index}>
-            <td>{video.video_id}</td>
-            <td>{video.srt ? '✓' : '✗'}</td>
+            <td>
+              <a
+                href='#'
+                onClick={() =>
+                  on_click_play(video)}
+              >
+                Play
+              </a>
+              &nbsp;&nbsp;
+              {video.video_id}
+            </td>
+            <td>
+              {video.srt ? '✓' : (
+                <>
+                  <a
+                    href='#'
+                    onClick={() => fetch_youtube_subtitle(video.video_id)}
+                  >
+                    Load
+                  </a>
+                </>
+              )}
+            </td>
             <td>{video.note}</td>
             <td>
               <div style={{ display: 'flex', gap: '10px' }}>
-                <a
-                  href='#'
-                  onClick={() => on_click_play(video)}
-                >
-                  Play
-                </a>
                 <a href='#' onClick={() => video_list.add_data.value = { video_info: video, status: 'edit' }}>
                   Edit
                 </a>
