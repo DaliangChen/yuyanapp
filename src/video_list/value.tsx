@@ -1,5 +1,5 @@
 import { effect, signal } from '@preact/signals'
-import type { VideoInfo } from '../appv'
+import type { VideoInfo, WordStatItem } from '../appv'
 
 const STORAGE_KEY = 'yuyan_app_data'
 
@@ -57,7 +57,7 @@ export const video_list = //
 
     data: signal<{
       videos: VideoInfo[]
-      word_stat: Record<string, { success: number; fail: number }>
+      word_stat: Record<string, WordStatItem>
     }>(loadInitialData()),
 
     add_data: signal<{ video_info: VideoInfo; status: 'add' | 'edit' } | null>(null),

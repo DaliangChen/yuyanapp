@@ -8,6 +8,12 @@ export type VideoInfo = {
   update_time: number
 }
 
+export type WordStatItem = {
+  success: number
+  fail: number
+  pass?: boolean
+}
+
 export class InfoError extends Error
 {
   constructor(message: string)
@@ -33,6 +39,6 @@ export function default_never(x: never): never
 
 export const app = //
   {
-    show_page: signal<'video_list' | 'video_player'>('video_list'),
+    show_page: signal<'video_list' | 'video_player' | 'vocabulary'>('video_list'),
     err_info: signal<string | null>(null),
   }

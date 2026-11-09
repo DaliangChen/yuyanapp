@@ -2,6 +2,7 @@ import { useEffect } from 'preact/hooks'
 import { app, InfoError, LogicError } from './appv'
 import { VideoListPage } from './video_list'
 import { VideoPlayerPage } from './video_player'
+import { VocabularyPage } from './vocabulary'
 
 export function App()
 {
@@ -11,6 +12,7 @@ export function App()
     <>
       {app.show_page.value === 'video_list' && <VideoListPage />}
       {app.show_page.value === 'video_player' && <VideoPlayerPage />}
+      {app.show_page.value === 'vocabulary' && <VocabularyPage />}
 
       <ErrorInfo />
     </>

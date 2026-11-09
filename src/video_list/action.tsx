@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks'
+import { app } from '../appv'
 import { video_list } from './value'
 
 const on_click_add_video = () =>
@@ -108,22 +108,7 @@ const on_click_import_data = async () =>
 
 export function ActionPart()
 {
-  const [showVocab, setShowVocab] = useState(false)
-  const words = Object.entries(video_list.data.value.word_stat || {})
-    .sort(([, a], [, b]) => b.fail - a.fail)
-
-  const pronounce = (word: string) => {
-    if ('speechSynthesis' in window) {
-      const u = new SpeechSynthesisUtterance(word)
-      u.lang = 'en-US'
-      window.speechSynthesis.speak(u)
-    }
-  }
-
-  const deleteWord = (word: string) => {
-    delete video_list.data.value.word_stat[word]
-    video_list.data.value = { ...video_list.data.value }
-  }
+  const totalWords = Object.keys(video_list.data.value.word_stat || {}).length
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -137,9 +122,9 @@ export function ActionPart()
       <div style={{ display: 'flex', gap: '8px' }}>
         <button
           className='outline secondary'
-          onClick={() => setShowVocab(true)}
+          onClick={() => app.show_page.value = 'vocabulary'}
         >
-          📖 Vocabulary ({words.length})
+          📖 Vocabulary ({totalWords})
         </button>
         <button className='outline' onClick={on_click_export_data}>
           Export Data
@@ -154,80 +139,6 @@ export function ActionPart()
           + Add Video
         </button>
       </div>
-
-      {showVocab && (
-        <dialog open>
-          <article style={{ maxWidth: '600px', width: '90vw' }}>
-            <header>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h4 style={{ margin: 0 }}>📖 My Vocabulary Book ({words.length})</h4>
-                <button
-                  className='outline secondary'
-                  style={{ margin: 0, padding: '2px 8px' }}
-                  onClick={() => setShowVocab(false)}
-                >
-                  ✕
-                </button>
-              </div>
-            </header>
-
-            {words.length === 0 ? (
-              <p style={{ color: '#888', textAlign: 'center', padding: '20px 0' }}>
-                No vocabulary words saved yet. Click any word in the subtitle during video playback to mark as known or review!
-              </p>
-            ) : (
-              <div style={{ maxHeight: '380px', overflowY: 'auto' }}>
-                <table style={{ width: '100%', fontSize: '14px' }}>
-                  <thead>
-                    <tr>
-                      <th>Word</th>
-                      <th>Known</th>
-                      <th>Need Review</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {words.map(([word, stat]) => (
-                      <tr key={word}>
-                        <td>
-                          <strong>{word}</strong>
-                          <button
-                            className='outline secondary'
-                            style={{ margin: '0 0 0 6px', padding: '1px 5px', fontSize: '11px' }}
-                            onClick={() => pronounce(word)}
-                          >
-                            🔊
-                          </button>
-                        </td>
-                        <td style={{ color: '#2e7d32' }}>{stat.success}</td>
-                        <td style={{ color: stat.fail > 0 ? '#d32f2f' : '#666' }}>{stat.fail}</td>
-                        <td>
-                          <a
-                            href='#'
-                            style={{ color: '#999', fontSize: '12px' }}
-                            onClick={(e) => {
-                              e.preventDefault()
-                              deleteWord(word)
-                            }}
-                          >
-                            Remove
-                          </a>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            <footer>
-              <button className='outline' onClick={() => setShowVocab(false)}>
-                Close
-              </button>
-            </footer>
-          </article>
-        </dialog>
-      )}
     </div>
   )
 }
