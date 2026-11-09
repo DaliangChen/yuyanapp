@@ -8,7 +8,8 @@ const on_click_add_video = () =>
   video_list.add_data.value = {
     video_info: {
       video_id: '',
-      srt: '',
+      srt_1: '',
+      srt_2: '',
       note: '',
       update_time: Date.now(),
     },

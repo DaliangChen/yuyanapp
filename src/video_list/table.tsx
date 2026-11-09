@@ -9,7 +9,8 @@ export function TablePart()
       <thead>
         <tr>
           <th scope='col' style={{ width: '200px' }}>Video Id</th>
-          <th scope='col' style={{ width: '100px' }}>Srt</th>
+          <th scope='col' style={{ width: '100px' }}>Srt 1</th>
+          <th scope='col' style={{ width: '100px' }}>Srt 2</th>
           <th scope='col'>Note</th>
           <th scope='col' style={{ width: '1px' }}>Action</th>
         </tr>
@@ -29,8 +30,15 @@ export function TablePart()
               {video.video_id}
             </td>
             <td>
-              {video.srt ? '✓' : (
-                <a onClick={() => on_click_load(video.video_id)}>
+              {video.srt_1 ? '✓' : (
+                <a onClick={() => on_click_load(video.video_id, 'srt_1')}>
+                  Load
+                </a>
+              )}
+            </td>
+            <td>
+              {video.srt_2 ? '✓' : (
+                <a onClick={() => on_click_load(video.video_id, 'srt_2')}>
                   Load
                 </a>
               )}
@@ -58,16 +66,17 @@ function on_click_edit(video: VideoInfo)
   video_list.add_data.value = { video_info: video, status: 'edit' }
 }
 
-async function on_click_load(video_id: string)
+async function on_click_load(video_id: string, srt_type: 'srt_1' | 'srt_2')
 {
   let [handle] = await window.showOpenFilePicker(
     {
       multiple: false,
       types: [
         {
-          description: 'VTT',
+          description: 'VTT / SRT',
           accept: {
             'text/vtt': ['.vtt'],
+            'text/srt': ['.srt'],
           },
         },
       ],
@@ -80,7 +89,8 @@ async function on_click_load(video_id: string)
   const video = video_list.data.value.videos.find(v => v.video_id === video_id)
   if (!video) throw new LogicError()
 
-  video.srt = srt_text
+  if (srt_type === 'srt_1') video.srt_1 = srt_text
+  else video.srt_2 = srt_text
   video.update_time = Date.now()
   video_list.data.value = { ...video_list.data.value }
 }

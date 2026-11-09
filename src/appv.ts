@@ -2,7 +2,8 @@ import { signal } from '@preact/signals'
 
 export type VideoInfo = {
   video_id: string
-  srt: string
+  srt_1: string
+  srt_2: string
   note: string
   update_time: number
 }
