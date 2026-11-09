@@ -1,7 +1,7 @@
 import { useEffect } from 'preact/hooks'
-import { app, InfoError } from './appv'
-import { VideoListPage } from './page/video_list'
-import { VideoPlayerPage } from './page/vodio_player'
+import { app, InfoError, LogicError } from './appv'
+import { VideoListPage } from './video_list'
+import { VideoPlayerPage } from './vodio_player'
 
 export function App()
 {
@@ -54,14 +54,14 @@ function useOnError()
   {
     const handle_promise_rejection = (event: PromiseRejectionEvent) =>
     {
-      if (event.reason instanceof InfoError)
+      if (event.reason instanceof InfoError || event.reason instanceof LogicError)
       {
         app.err_info.value = event.reason.message
         event.preventDefault()
         return
       }
 
-      console.log(event)
+      console.error(event)
       app.err_info.value = 'Unknown PromiseRejection: ' + event.reason
     }
 
@@ -69,14 +69,14 @@ function useOnError()
 
     const handle_error = (event: ErrorEvent) =>
     {
-      if (event.error instanceof InfoError)
+      if (event.error instanceof InfoError || event.error instanceof LogicError)
       {
         app.err_info.value = event.error.message
         event.preventDefault()
         return
       }
 
-      console.log(event)
+      console.error(event)
       app.err_info.value = 'Unknown Error: ' + event.error.message
     }
     window.addEventListener('error', handle_error)

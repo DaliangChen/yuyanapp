@@ -1,6 +1,6 @@
 import { signal } from '@preact/signals'
 
-export type FileInfo = {
+export type VideoInfo = {
   video_id: string
   srt?: string
   note?: string

@@ -1,9 +1,9 @@
 import { signal } from '@preact/signals'
 import type { YouTubePlayer } from 'youtube-player/dist/types'
-import type { FileInfo } from '../appv'
+import type { VideoInfo } from '../appv'
 
 export const video_player = //
   {
     player: signal<YouTubePlayer | null>(null),
-    file_info: signal<FileInfo | null>(null),
+    file_info: signal<VideoInfo | null>(null),
   }

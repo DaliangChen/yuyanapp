@@ -1,0 +1,63 @@
+import type { ChangeEvent } from 'preact/compat'
+import { InfoError } from '../appv'
+import { video_list } from './value'
+
+const on_change_video_id = (e: ChangeEvent<HTMLInputElement>) =>
+{
+  if (!video_list.add_data.value) return
+  video_list.add_data.value.video_id = e.currentTarget.value
+}
+
+const on_change_note = (e: ChangeEvent<HTMLTextAreaElement>) =>
+{
+  if (!video_list.add_data.value) return
+  video_list.add_data.value.note = e.currentTarget.value
+}
+
+const on_click_cancel = () => video_list.add_data.value = null
+const on_click_confirm = () =>
+{
+  const v = video_list.add_data.value
+
+  if (!v || !v.video_id) throw new InfoError('Video Id is required')
+
+  if (video_list.data.value.videos.some(video => video.video_id === v.video_id))
+  {
+    throw new InfoError('Video already exists')
+  }
+
+  video_list.data.value.videos.push(v)
+  video_list.data.value = { ...video_list.data.value }
+  video_list.add_data.value = null
+}
+
+export function AddPart()
+{
+  return (
+    <dialog open={video_list.add_data.value !== null}>
+      <article>
+        <h4>Add Video</h4>
+        <form>
+          <fieldset>
+            <label>
+              Video Id
+              <input value={video_list.add_data.value?.video_id} onInput={on_change_video_id} />
+            </label>
+            <label>
+              Note
+              <textarea value={video_list.add_data.value?.note} onInput={on_change_note} />
+            </label>
+          </fieldset>
+        </form>
+        <footer>
+          <button className='outline' onClick={on_click_cancel}>
+            Cancel
+          </button>
+          <button className='outline' onClick={on_click_confirm}>
+            Confirm
+          </button>
+        </footer>
+      </article>
+    </dialog>
+  )
+}
