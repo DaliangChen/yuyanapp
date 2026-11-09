@@ -1,8 +1,99 @@
+import { useEffect, useRef } from 'preact/hooks'
+import { video_player } from './value'
+
+interface SubtitleItem
+{
+  start: number
+  end: number
+  text: string
+}
+
+function parseSRT(srt: string): SubtitleItem[]
+{
+  const pattern = /(\d{2}:\d{2}:\d{2}[,.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,.]\d{3})\s*\n([\s\S]*?)(?=\n\s*\n|$)/g
+  const results: SubtitleItem[] = []
+  let match
+
+  const timeToSeconds = (timeStr: string) =>
+  {
+    const [h, m, sMs] = timeStr.replace(',', '.').split(':')
+    const [s, ms] = sMs.split('.')
+    return parseInt(h) * 3600 + parseInt(m) * 60 + parseInt(s) + parseInt(ms || '0') / 1000
+  }
+
+  while ((match = pattern.exec(srt)) !== null)
+  {
+    results.push({
+      start: timeToSeconds(match[1]),
+      end: timeToSeconds(match[2]),
+      text: match[3].replace(/<[^>]+>/g, '').trim(), // 去除可能的 HTML 标签
+    })
+  }
+  return results
+}
+
 export function SrtPart()
 {
+  const activeRef = useRef<HTMLDivElement>(null)
+
+  const rawSubtitles = parseSRT(video_player.video_info.value.srt_1 ?? '')
+
+  const subtitles = rawSubtitles.map(node => ({
+    start: node.start,
+    end: node.end,
+    text: node.text,
+  }))
+
+  const activeIndex = subtitles.findIndex(
+    sub => video_player.current_time.value >= sub.start && video_player.current_time.value <= sub.end,
+  )
+
+  useEffect(() =>
+  {
+    if (activeRef.current)
+    {
+      activeRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+    }
+  }, [activeIndex])
+
   return (
     <div style={{ gridArea: 'sidebar', height: '100%', padding: '10px' }}>
-      右侧合并的长面板 (123)
+      <div
+        style={{
+          height: '400px',
+          overflowY: 'auto',
+          padding: '12px',
+          background: '#1e1e1e',
+          color: '#fff',
+          borderRadius: '8px',
+        }}
+      >
+        {subtitles.map((sub, index) =>
+        {
+          const isActive = index === activeIndex
+          return (
+            <div
+              key={index}
+              ref={isActive ? activeRef : null}
+              //   onClick={() => onSeek(sub.start)}
+              style={{
+                padding: '8px 12px',
+                margin: '4px 0',
+                cursor: 'pointer',
+                borderRadius: '4px',
+                backgroundColor: isActive ? '#3399ff' : 'transparent',
+                color: isActive ? '#fff' : '#aaa',
+                transition: 'background 0.2s, color 0.2s',
+              }}
+            >
+              {sub.text}
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
