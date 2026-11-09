@@ -2,7 +2,7 @@ import { useEffect } from 'preact/hooks'
 import { useState } from 'preact/hooks'
 import { useRef } from 'preact/hooks'
 import appv from '../appv'
-
+ 
 export function VideoPlayerPage()
 {
   const [url, set_url] = useState('')
