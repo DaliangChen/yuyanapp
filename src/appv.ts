@@ -1,25 +1,44 @@
 import { signal } from '@preact/signals'
 
-export type FileInfo = {
-  handle: FileSystemFileHandle
-  has_srt: boolean
-  has_mp4: boolean
+export type VideoInfo = {
+  video_id: string
+  srt_1: string
+  srt_2: string
+  note: string
+  update_time: number
 }
 
-export default //
+export type WordStatItem = {
+  success: number
+  fail: number
+  pass?: boolean
+}
+
+export class InfoError extends Error
 {
-  /**
-   * 显示页面
-   */
-  show_page: signal<'select_folder' | 'file_list' | 'video_player'>('select_folder'),
-
-  /**
-   * 当前打开的文件句柄
-   */
-  current_file_handle: signal<FileInfo | null>(null),
-
-  /**
-   * 选择的文件夹句柄
-   */
-  file_map: signal<{ [file_name: string]: FileInfo }>({}),
+  constructor(message: string)
+  {
+    super(message)
+    this.name = 'InfoError'
+  }
 }
+
+export class LogicError extends Error
+{
+  constructor()
+  {
+    super('Logic Error')
+    this.name = 'LogicError'
+  }
+}
+
+export function default_never(x: never): never
+{
+  return x as never
+}
+
+export const app = //
+  {
+    show_page: signal<'video_list' | 'video_player' | 'vocabulary'>('video_list'),
+    err_info: signal<string | null>(null),
+  }
