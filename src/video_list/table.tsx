@@ -20,8 +20,8 @@ export function TablePart()
       <thead>
         <tr>
           <th scope='col' style={{ width: '220px' }}>Video Id</th>
-          <th scope='col' style={{ width: '100px' }}>Srt 1</th>
-          <th scope='col' style={{ width: '100px' }}>Srt 2</th>
+          <th scope='col' style={{ width: '120px' }}>Srt 1</th>
+          <th scope='col' style={{ width: '120px' }}>Srt 2</th>
           <th scope='col'>Note</th>
           <th scope='col' style={{ width: '120px' }}>Action</th>
         </tr>
