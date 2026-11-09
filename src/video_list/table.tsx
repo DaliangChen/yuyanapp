@@ -9,75 +9,111 @@ export function TablePart()
   if (sortedVideos.length === 0)
   {
     return (
-      <div style={{ textAlign: 'center', padding: '40px 20px', color: '#666' }}>
-        <p>No videos found. Click <strong>"Add Video"</strong> above to add one, or import your saved JSON data.</p>
+      <div className='flex flex-col items-center justify-center p-12 bg-white rounded-xl border border-slate-200/80 text-center shadow-2xs'>
+        <div className='text-3xl mb-2 text-slate-300'>🎬</div>
+        <p className='text-sm font-medium text-slate-700'>暂无学习视频</p>
+        <p className='text-xs text-slate-400 mt-1'>
+          点击上方 “+ 添加视频” 录入 YouTube 视频或导入本地学习数据。
+        </p>
       </div>
     )
   }
 
   return (
-    <table>
-      <thead>
-        <tr>
-          <th scope='col' style={{ width: '220px' }}>Video Id</th>
-          <th scope='col' style={{ width: '120px' }}>Srt 1</th>
-          <th scope='col' style={{ width: '120px' }}>Srt 2</th>
-          <th scope='col'>Note</th>
-          <th scope='col' style={{ width: '120px' }}>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {sortedVideos.map((video) => (
-          <tr key={video.video_id}>
-            <td>
-              <a
-                href='#'
-                onClick={(e) => {
-                  e.preventDefault()
-                  on_click_play(video)
-                }}
-              >
-                ▶ Play
-              </a>
-              &nbsp;&nbsp;
-              <code>{video.video_id}</code>
-            </td>
-            <td>
-              {video.srt_1 ? '✓ Loaded' : (
-                <a href='#' onClick={(e) => { e.preventDefault(); on_click_load(video.video_id, 'srt_1'); }}>
-                  Load
-                </a>
-              )}
-            </td>
-            <td>
-              {video.srt_2 ? '✓ Loaded' : (
-                <a href='#' onClick={(e) => { e.preventDefault(); on_click_load(video.video_id, 'srt_2'); }}>
-                  Load
-                </a>
-              )}
-            </td>
-            <td>{video.note || <em style={{ color: '#999' }}>No note</em>}</td>
-            <td>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <a href='#' onClick={(e) => { e.preventDefault(); on_click_edit(video); }}>
-                  Edit
-                </a>
-                <a
-                  href='#'
-                  style={{ color: '#d32f2f' }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    on_click_delete(video.video_id);
-                  }}
-                >
-                  Delete
-                </a>
-              </div>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div className='bg-white rounded-xl border border-slate-200/80 shadow-2xs overflow-hidden'>
+      <div className='overflow-x-auto'>
+        <table className='w-full text-left text-xs'>
+          <thead className='bg-slate-50/80 text-slate-500 font-medium border-b border-slate-200'>
+            <tr>
+              <th scope='col' className='py-3.5 px-4 w-[240px]'>视频 ID / 播放</th>
+              <th scope='col' className='py-3.5 px-4 w-[110px]'>主字幕 (Srt 1)</th>
+              <th scope='col' className='py-3.5 px-4 w-[110px]'>副字幕 (Srt 2)</th>
+              <th scope='col' className='py-3.5 px-4'>备注说明</th>
+              <th scope='col' className='py-3.5 px-4 w-[120px] text-right'>操作</th>
+            </tr>
+          </thead>
+          <tbody className='divide-y divide-slate-100 text-slate-700'>
+            {sortedVideos.map((video) => (
+              <tr key={video.video_id} className='hover:bg-slate-50/60 transition-colors'>
+                <td className='py-3.5 px-4'>
+                  <div className='flex items-center gap-2.5'>
+                    <button
+                      type='button'
+                      onClick={() => on_click_play(video)}
+                      className='inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors cursor-pointer'
+                      title='开始全屏学习播放'
+                    >
+                      <span>▶</span>
+                      <span>播放</span>
+                    </button>
+                    <code className='text-[11px] font-mono text-slate-500 bg-slate-100/70 px-1.5 py-0.5 rounded'>
+                      {video.video_id}
+                    </code>
+                  </div>
+                </td>
+                <td className='py-3.5 px-4'>
+                  {video.srt_1 ? (
+                    <span className='inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded'>
+                      ✓ 已加载
+                    </span>
+                  ) : (
+                    <button
+                      type='button'
+                      onClick={() => on_click_load(video.video_id, 'srt_1')}
+                      className='text-[11px] text-slate-500 hover:text-slate-800 underline decoration-slate-300 underline-offset-2 cursor-pointer'
+                    >
+                      载入字幕
+                    </button>
+                  )}
+                </td>
+                <td className='py-3.5 px-4'>
+                  {video.srt_2 ? (
+                    <span className='inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded'>
+                      ✓ 已加载
+                    </span>
+                  ) : (
+                    <button
+                      type='button'
+                      onClick={() => on_click_load(video.video_id, 'srt_2')}
+                      className='text-[11px] text-slate-500 hover:text-slate-800 underline decoration-slate-300 underline-offset-2 cursor-pointer'
+                    >
+                      载入字幕
+                    </button>
+                  )}
+                </td>
+                <td className='py-3.5 px-4 text-slate-600'>
+                  {video.note ? (
+                    <span className='line-clamp-1' title={video.note}>
+                      {video.note}
+                    </span>
+                  ) : (
+                    <span className='text-slate-400 italic text-[11px]'>无备注</span>
+                  )}
+                </td>
+                <td className='py-3.5 px-4 text-right'>
+                  <div className='flex items-center justify-end gap-3'>
+                    <button
+                      type='button'
+                      onClick={() => on_click_edit(video)}
+                      className='text-slate-500 hover:text-slate-900 transition-colors cursor-pointer text-xs'
+                    >
+                      编辑
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() => on_click_delete(video.video_id)}
+                      className='text-rose-500 hover:text-rose-700 transition-colors cursor-pointer text-xs'
+                    >
+                      删除
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   )
 }
 

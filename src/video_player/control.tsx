@@ -20,55 +20,34 @@ export function ControlPart()
   const totalWords = Object.keys(video_list.data.value.word_stat || {}).length
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '10px 18px',
-        backgroundColor: '#0f172a',
-        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-        color: '#ffffff',
-        zIndex: 20,
-        gap: '12px',
-      }}
-    >
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+    <div className='flex flex-wrap items-center justify-between px-5 py-3 bg-slate-950/95 border-t border-white/10 text-white z-20 gap-3 text-xs'>
+      {/* Left controls */}
+      <div className='flex items-center gap-3'>
         <button
-          className='outline'
-          style={{
-            minWidth: '95px',
-            margin: 0,
-            borderColor: '#38bdf8',
-            color: '#38bdf8',
-            padding: '6px 14px',
-          }}
+          type='button'
           onClick={on_toggle_play}
+          className='inline-flex items-center justify-center min-w-[76px] px-3 py-1.5 font-medium text-slate-100 bg-white/10 hover:bg-white/15 rounded-lg border border-white/10 transition-colors cursor-pointer'
         >
           {isPlaying ? '⏸ 暂停' : '▶ 播放'}
         </button>
 
         {/* Auto-skip mastered sentences toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className='flex items-center gap-2'>
           <button
-            className={isAutoSkip ? '' : 'outline secondary'}
-            style={{
-              margin: 0,
-              padding: '6px 12px',
-              fontSize: '13px',
-              backgroundColor: isAutoSkip ? '#0284c7' : 'transparent',
-              borderColor: isAutoSkip ? '#0284c7' : '#475569',
-              color: isAutoSkip ? '#ffffff' : '#94a3b8',
-            }}
-            title='开启后，全熟或生词占比低于阈值的字幕句会自动快进跳过'
+            type='button'
             onClick={() => (video_player.auto_skip_familiar.value = !video_player.auto_skip_familiar.value)}
+            className={`inline-flex items-center px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors cursor-pointer ${
+              isAutoSkip
+                ? 'bg-sky-950 text-sky-300 border-sky-800'
+                : 'bg-transparent text-slate-400 border-white/10 hover:text-slate-200'
+            }`}
+            title='开启后，全熟或生词占比低于阈值的字幕句会自动快进跳过'
           >
-            ⏭ 自动跳过熟句：{isAutoSkip ? '已开启' : '已关闭'}
+            ⏭ 自动跳过熟句：{isAutoSkip ? '开' : '关'}
           </button>
 
           {isAutoSkip && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#94a3b8' }}>
+            <div className='flex items-center gap-1.5 text-slate-400' title='生词度低于此比例自动跳过 (默认 0.20 即 20%)'>
               <span>阈值:</span>
               <input
                 type='number'
@@ -81,56 +60,43 @@ export function ControlPart()
                   const val = parseFloat(e.currentTarget.value)
                   if (!isNaN(val)) video_player.skip_threshold.value = Math.max(0, Math.min(1, val))
                 }}
-                style={{
-                  width: '64px',
-                  margin: 0,
-                  padding: '2px 6px',
-                  fontSize: '12px',
-                  backgroundColor: '#1e293b',
-                  color: '#ffffff',
-                  border: '1px solid #475569',
-                  borderRadius: '4px',
-                }}
-                title='生词权重低于此比例即判定为熟句跳过 (默认 0.20，即 20%)'
+                className='w-14 px-1.5 py-1 text-xs bg-slate-900 border border-white/15 rounded text-slate-200 focus:outline-none focus:border-sky-400 text-center font-mono'
               />
             </div>
           )}
         </div>
 
         <span
-          style={{
-            fontSize: '13px',
-            color: '#94a3b8',
-            maxWidth: '320px',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
+          className='text-slate-400 max-w-[260px] truncate hidden md:inline-block'
           title={videoNote}
         >
           {videoNote}
         </span>
       </div>
 
-      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+      {/* Right navigation buttons */}
+      <div className='flex items-center gap-2.5'>
         <button
-          className='outline secondary'
-          style={{ margin: 0, padding: '6px 12px', fontSize: '13px', color: '#38bdf8', borderColor: '#0284c7' }}
+          type='button'
           onClick={() =>
           {
             video_player.player.value?.pauseVideo()
             app.show_page.value = 'vocabulary'
           }}
+          className='inline-flex items-center gap-1.5 px-3 py-1.5 font-medium text-slate-300 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors cursor-pointer'
         >
-          📖 生词本 ({totalWords})
+          <span>📖 生词本</span>
+          <span className='px-1.5 py-0.2 rounded-full bg-white/10 text-slate-300 font-mono text-[11px]'>
+            {totalWords}
+          </span>
         </button>
 
         <button
-          className='outline secondary'
-          style={{ margin: 0, padding: '6px 14px', color: '#cbd5e1', borderColor: '#475569' }}
+          type='button'
           onClick={on_click_go_to_list}
+          className='inline-flex items-center px-3 py-1.5 text-slate-400 hover:text-slate-200 bg-transparent hover:bg-white/5 border border-white/10 rounded-lg transition-colors cursor-pointer'
         >
-          ← 返回视频列表
+          ← 返回列表
         </button>
       </div>
     </div>

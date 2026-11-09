@@ -9,40 +9,45 @@ export function App()
   useOnError()
 
   return (
-    <>
+    <div className='min-h-screen w-full bg-[#f8fafc] text-slate-800 antialiased selection:bg-slate-200'>
       {app.show_page.value === 'video_list' && <VideoListPage />}
       {app.show_page.value === 'video_player' && <VideoPlayerPage />}
       {app.show_page.value === 'vocabulary' && <VocabularyPage />}
 
       <ErrorInfo />
-    </>
+    </div>
   )
 }
 
 /*************************************************************************************
- * 错误提示组件，可以被全局错误处理使用，也可以被其他组件手动触发
+ * 错误提示组件：素雅模态框，替代原生 dialog 丑陋样式
  */
 
 function ErrorInfo()
 {
+  if (!app.err_info.value) return null
+
   return (
-    <dialog open={app.err_info.value !== null}>
-      <article>
-        <header>
-          <p>
-            <strong>Error</strong>
-          </p>
-        </header>
-        <p>
+    <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs'>
+      <div className='w-full max-w-md bg-white rounded-xl shadow-xl border border-slate-200 p-6 flex flex-col gap-4'>
+        <div className='flex items-center gap-2 text-rose-600 font-semibold text-base'>
+          <span className='w-2 h-2 rounded-full bg-rose-500'></span>
+          <span>提示信息</span>
+        </div>
+        <p className='text-sm text-slate-600 leading-relaxed break-words'>
           {app.err_info.value}
         </p>
-        <footer>
-          <button className='outline' onClick={() => app.err_info.value = null}>
-            Confirm
+        <div className='flex justify-end pt-2 border-t border-slate-100'>
+          <button
+            type='button'
+            className='px-4 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer'
+            onClick={() => (app.err_info.value = null)}
+          >
+            我知道了
           </button>
-        </footer>
-      </article>
-    </dialog>
+        </div>
+      </div>
+    </div>
   )
 }
 
