@@ -27,6 +27,9 @@ export function TablePart()
             <td style={{ width: '1px' }}>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <a href='#'>Play</a>
+                <a href='#' onClick={() => video_list.add_data.value = video}>
+                  Edit
+                </a>
                 <a href='#' onClick={() => delete_video(index)}>
                   Delete
                 </a>

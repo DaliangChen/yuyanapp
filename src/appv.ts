@@ -2,8 +2,8 @@ import { signal } from '@preact/signals'
 
 export type VideoInfo = {
   video_id: string
-  srt?: string
-  note?: string
+  srt: string
+  note: string
 }
 
 export class InfoError extends Error

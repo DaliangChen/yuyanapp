@@ -12,7 +12,7 @@ const on_click_add_video = () =>
   }
 }
 
-const on_click_create_data = async () =>
+const on_click_export_data = async () =>
 {
   const handle = await window.showSaveFilePicker({
     suggestedName: 'yuyan_data.json',
@@ -33,7 +33,7 @@ const on_click_create_data = async () =>
   await writable.close()
 }
 
-const on_click_upload_data = async () =>
+const on_click_import_data = async () =>
 {
   const [handle] = await window.showOpenFilePicker({
     types: [{
@@ -60,11 +60,11 @@ export function ActionPart()
   return (
     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'end' }}>
       <div style={{ width: '500px' }} role='group'>
-        <button className='outline' onClick={on_click_create_data}>
-          Create Data
+        <button className='outline' onClick={on_click_export_data}>
+          Export Data
         </button>
-        <button className='outline' onClick={on_click_upload_data}>
-          Upload Data
+        <button className='outline' onClick={on_click_import_data}>
+          Import Data
         </button>
         <button
           className='outline'

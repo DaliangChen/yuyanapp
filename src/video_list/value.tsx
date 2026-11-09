@@ -13,13 +13,7 @@ export const video_list = //
       word_stat: {},
     }),
 
-    add_data: signal<
-      {
-        video_id: string
-        srt: string
-        note: string
-      } | null
-    >(null),
+    add_data: signal<VideoInfo | null>(null),
   }
 
 effect(() =>

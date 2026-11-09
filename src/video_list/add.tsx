@@ -15,18 +15,18 @@ const on_change_note = (e: ChangeEvent<HTMLTextAreaElement>) =>
 }
 
 const on_click_cancel = () => video_list.add_data.value = null
+
 const on_click_confirm = () =>
 {
-  const v = video_list.add_data.value
+  const add_value = video_list.add_data.value
 
-  if (!v || !v.video_id) throw new InfoError('Video Id is required')
+  if (!add_value || !add_value.video_id) throw new InfoError('Video Id is required')
 
-  if (video_list.data.value.videos.some(video => video.video_id === v.video_id))
+  if (!video_list.data.value.videos.some(video => video.video_id === add_value.video_id))
   {
-    throw new InfoError('Video already exists')
+    video_list.data.value.videos.push(add_value)
   }
 
-  video_list.data.value.videos.push(v)
   video_list.data.value = { ...video_list.data.value }
   video_list.add_data.value = null
 }
