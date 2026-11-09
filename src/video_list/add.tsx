@@ -1,17 +1,18 @@
 import type { ChangeEvent } from 'preact/compat'
 import { InfoError } from '../appv'
+import { default_never } from '../util'
 import { video_list } from './value'
 
 const on_change_video_id = (e: ChangeEvent<HTMLInputElement>) =>
 {
   if (!video_list.add_data.value) return
-  video_list.add_data.value.video_id = e.currentTarget.value
+  video_list.add_data.value.video_info.video_id = e.currentTarget.value
 }
 
 const on_change_note = (e: ChangeEvent<HTMLTextAreaElement>) =>
 {
   if (!video_list.add_data.value) return
-  video_list.add_data.value.note = e.currentTarget.value
+  video_list.add_data.value.video_info.note = e.currentTarget.value
 }
 
 const on_click_cancel = () => video_list.add_data.value = null
@@ -20,11 +21,24 @@ const on_click_confirm = () =>
 {
   const add_value = video_list.add_data.value
 
-  if (!add_value || !add_value.video_id) throw new InfoError('Video Id is required')
+  if (!add_value || !add_value.video_info.video_id) throw new InfoError('Video Id is required')
 
-  const data = video_list.data.value.videos.find(video => video.video_id === add_value.video_id)
-  if (data) data.note = add_value.note
-  else video_list.data.value.videos.push(add_value)
+  switch (add_value.status)
+  {
+    case 'add':
+      const has_same_id = video_list.data.value.videos.some(video => video.video_id === add_value.video_info.video_id)
+      if (has_same_id) throw new InfoError('Video Id already exists')
+      video_list.data.value.videos.push({ ...add_value.video_info })
+      break
+
+    case 'edit':
+      const video = video_list.data.value.videos.find(video => video.video_id === add_value.video_info.video_id)
+      if (!video) throw new InfoError('Video Id not found')
+      break
+
+    default:
+      default_never(add_value.status)
+  }
 
   video_list.data.value = { ...video_list.data.value }
   video_list.add_data.value = null
@@ -40,11 +54,11 @@ export function AddPart()
           <fieldset>
             <label>
               Video Id
-              <input value={video_list.add_data.value?.video_id} onInput={on_change_video_id} />
+              <input value={video_list.add_data.value?.video_info.video_id} onInput={on_change_video_id} />
             </label>
             <label>
               Note
-              <textarea value={video_list.add_data.value?.note} onInput={on_change_note} />
+              <textarea value={video_list.add_data.value?.video_info.note} onInput={on_change_note} />
             </label>
           </fieldset>
         </form>

@@ -6,9 +6,12 @@ const on_click_add_video = () =>
   if (!video_list.data_file_handle.value) throw new LogicError()
 
   video_list.add_data.value = {
-    video_id: '',
-    srt: '',
-    note: '',
+    video_info: {
+      video_id: '',
+      srt: '',
+      note: '',
+    },
+    status: 'add',
   }
 }
 

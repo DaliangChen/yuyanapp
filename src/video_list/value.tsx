@@ -13,7 +13,7 @@ export const video_list = //
       word_stat: {},
     }),
 
-    add_data: signal<VideoInfo | null>(null),
+    add_data: signal<{ video_info: VideoInfo; status: 'add' | 'edit' } | null>(null),
   }
 
 effect(() =>
