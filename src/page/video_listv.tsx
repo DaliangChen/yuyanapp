@@ -1,5 +1,5 @@
 import { signal } from '@preact/signals'
-import { type FileInfo, InfoError } from '../appv'
+import { type FileInfo } from '../appv'
 
 export const video_list = //
   {
@@ -13,51 +13,11 @@ export const video_list = //
       word_stat: {},
     }),
 
-    async on_click_create_data()
-    {
-      const handle = await window.showSaveFilePicker({
-        suggestedName: 'yuyan_data.json',
-        types: [
-          {
-            description: 'Json',
-            accept: {
-              'application/json': ['.json'],
-            },
-          },
-        ],
-      })
-
-      video_list.data_file_handle.value = handle
-
-      const writable = await handle.createWritable()
-      await writable.write(JSON.stringify(video_list.data.value, null, 2))
-      await writable.close()
-    },
-
-    async on_click_upload_data()
-    {
-      const [handle] = await window.showOpenFilePicker({
-        types: [{
-          description: 'Json',
-          accept: {
-            'application/json': ['.json'],
-          },
-        }],
-        multiple: false,
-      })
-
-      video_list.data_file_handle.value = handle
-
-      const file = await handle.getFile()
-      const text = await file.text()
-      video_list.data.value = JSON.parse(text)
-
-      if (!video_list.data.value.videos) video_list.data.value.videos = []
-      if (!video_list.data.value.word_stat) video_list.data.value.word_stat = {}
-    },
-
-    async on_click_add_video()
-    {
-      if (!video_list.data_file_handle.value) throw new InfoError('Please create or upload data file first.')
-    },
+    add_data: signal<
+      {
+        video_id: string
+        srt: string
+        note: string
+      } | null
+    >(null),
   }
