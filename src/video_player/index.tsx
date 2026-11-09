@@ -19,33 +19,83 @@ export function VideoPlayerPage()
   }
 
   const hud = video_player.hud_message.value
+  const totalWords = Object.keys(video_list.data.value.word_stat || {}).length
+  const videoNote = video_player.video_info.value?.note || video_player.video_info.value?.video_id || ''
+
+  const onBack = () =>
+  {
+    video_player.player.value?.pauseVideo()
+    app.show_page.value = 'video_list'
+  }
 
   return (
-    <div className='flex flex-col w-screen h-screen bg-slate-950 overflow-hidden select-none'>
-      {/* Video stage with overlaid 3-sentence subtitle box & HUD */}
-      <div className='relative flex-1 w-full h-full overflow-hidden flex items-center justify-center bg-black'>
-        <PlayerPart />
-
-        {/* HUD Notification Toast - 素雅磨砂悬浮通知 */}
-        {hud && (
-          <div
-            className={`absolute top-6 left-1/2 -translate-x-1/2 z-30 px-5 py-2 rounded-full text-xs font-medium tracking-wide shadow-lg border backdrop-blur-md transition-all duration-200 flex items-center gap-2 pointer-events-none ${
-              hud.type === 'success'
-                ? 'bg-slate-900/90 text-emerald-400 border-emerald-500/30'
-                : hud.type === 'fail'
-                ? 'bg-slate-900/90 text-amber-300 border-amber-500/30'
-                : 'bg-slate-900/90 text-sky-300 border-sky-500/30'
-            }`}
+    <div className='max-w-5xl mx-auto px-4 py-6 sm:py-8 min-h-screen flex flex-col gap-4 text-slate-800'>
+      {/* Top Header - 与列表页和生词本完全统一的素雅头部 */}
+      <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-slate-200'>
+        <div>
+          <button
+            type='button'
+            onClick={onBack}
+            className='inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors mb-1.5 cursor-pointer'
           >
-            {hud.text}
+            ← 返回视频列表
+          </button>
+          <div className='flex items-center gap-2.5'>
+            <h1 className='text-lg font-semibold tracking-tight text-slate-900 truncate max-w-md' title={videoNote}>
+              {videoNote}
+            </h1>
+            <code className='text-[11px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded'>
+              {video_player.video_info.value.video_id}
+            </code>
           </div>
-        )}
+        </div>
 
-        <SrtPart />
+        <div className='flex items-center gap-2'>
+          <button
+            type='button'
+            onClick={() =>
+            {
+              video_player.player.value?.pauseVideo()
+              app.show_page.value = 'vocabulary'
+            }}
+            className='inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg shadow-2xs transition-colors cursor-pointer'
+          >
+            <span>📖 生词本</span>
+            <span className='px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-600 font-mono text-[11px]'>
+              {totalWords}
+            </span>
+          </button>
+        </div>
       </div>
 
-      {/* Clean bottom controls */}
-      <ControlPart />
+      {/* Main Video & Subtitle Card - 素雅大卡片 */}
+      <div className='bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden flex flex-col'>
+        {/* Video Stage with Overlaid 3-Sentence Subtitles */}
+        <div className='relative w-full aspect-video min-h-[380px] sm:min-h-[480px] max-h-[72vh] bg-black flex items-center justify-center overflow-hidden'>
+          <PlayerPart />
+
+          {/* HUD Toast - 素雅白底微阴影悬浮胶囊 */}
+          {hud && (
+            <div
+              className={`absolute top-5 left-1/2 -translate-x-1/2 z-30 px-4 py-1.5 rounded-full text-xs font-medium shadow-md border backdrop-blur-md transition-all duration-200 flex items-center gap-2 pointer-events-none ${
+                hud.type === 'success'
+                  ? 'bg-white/95 text-emerald-800 border-emerald-300'
+                  : hud.type === 'fail'
+                  ? 'bg-white/95 text-amber-800 border-amber-300'
+                  : 'bg-white/95 text-sky-800 border-sky-300'
+              }`}
+            >
+              {hud.text}
+            </div>
+          )}
+
+          {/* 3-Sentence Subtitle Overlay */}
+          <SrtPart />
+        </div>
+
+        {/* Bottom Control Bar */}
+        <ControlPart />
+      </div>
     </div>
   )
 }
@@ -270,7 +320,6 @@ function useKeyboardShortcuts()
       if (now - lastWheelTimeRef.current < 320) return
       if (Math.abs(e.deltaY) < 10) return
 
-      // 用户需求更正：
       // 手指向后勾 / 滚轮向后滚 (deltaY > 0)：相当于按右箭头 (掌握当前句，跳下一句)
       if (e.deltaY > 0)
       {
