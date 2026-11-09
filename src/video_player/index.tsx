@@ -18,10 +18,36 @@ export function VideoPlayerPage()
   }
 
   return (
-    <div className='player-container'>
-      <PlayerPart />
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: '#0a0f1d',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Video stage with overlaid 3-sentence subtitle box */}
+      <div
+        style={{
+          position: 'relative',
+          flex: 1,
+          width: '100%',
+          height: '100%',
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#000000',
+        }}
+      >
+        <PlayerPart />
+        <SrtPart />
+      </div>
+
+      {/* Clean bottom controls */}
       <ControlPart />
-      <SrtPart />
     </div>
   )
 }
@@ -93,22 +119,6 @@ function useKeyboardShortcuts()
         {
           video_player.player.value?.playVideo()
         }
-      }
-      else if (e.code === 'ArrowLeft')
-      {
-        e.preventDefault()
-        const current = (await video_player.player.value?.getCurrentTime()) ?? video_player.current_time.value
-        video_player.player.value?.seekTo(Math.max(0, current - 5), true)
-      }
-      else if (e.code === 'ArrowRight')
-      {
-        e.preventDefault()
-        const current = (await video_player.player.value?.getCurrentTime()) ?? video_player.current_time.value
-        video_player.player.value?.seekTo(current + 5, true)
-      }
-      else if (e.key === 'r' || e.key === 'R' || e.key === 'l' || e.key === 'L')
-      {
-        video_player.loop_current_sentence.value = !video_player.loop_current_sentence.value
       }
     }
 

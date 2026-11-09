@@ -3,14 +3,15 @@ export function PlayerPart()
   return (
     <div
       style={{
-        gridArea: 'video',
+        width: '100%',
+        height: '100%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '10px',
+        backgroundColor: '#000000',
       }}
     >
-      <div id='video_player' style={{ width: '100%', borderRadius: '10px' }} />
+      <div id='video_player' style={{ width: '100%', height: '100%' }} />
     </div>
   )
 }
