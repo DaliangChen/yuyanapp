@@ -5,5 +5,5 @@ import type { VideoInfo } from '../appv'
 export const video_player = //
   {
     player: signal<YouTubePlayer | null>(null),
-    file_info: signal<VideoInfo | null>(null),
+    video_info: signal<VideoInfo | null>(null),
   }

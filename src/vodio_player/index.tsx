@@ -1,19 +1,32 @@
+import { useEffect } from 'preact/hooks'
+import YouTubePlayer from 'youtube-player'
+import { video_player } from './value'
+
+function on_time()
+{
+  app.show_page.value = 'video_list'
+}
+
+function useInit()
+{
+  useEffect(() =>
+  {
+    video_player.player.value = YouTubePlayer('video_player', { playerVars: { autoplay: 0 } })
+    video_player.player.value?.loadVideoById(video_player.video_info.value.video_id)
+    video_player.player.value.addEventListener('', on_time)
+
+    return () =>
+    {
+      video_player.player.value?.removeEventListener('onStateChange', on_time)
+      video_player.player.value?.destroy()
+      video_player.player.value = null
+    }
+  }, [])
+}
+
 export function VideoPlayerPage()
 {
-  // useEffect(() =>
-  // {
-  //   appv.video_player.value = YouTubePlayer('player-1', { playerVars: { autoplay: 1 } })
-  //   appv.video_player.value.loadVideoById('d1nIWPQ9yek').then(() =>
-  //   {
-  //     console.log('video loaded')
-  //     appv.video_player.value?.playVideo()
-  //   })
-  //   return () =>
-  //   {
-  //     appv.video_player.value?.destroy()
-  //     appv.video_player.value = null
-  //   }
-  // }, [])
+  useInit()
 
   return (
     <>
@@ -39,7 +52,7 @@ export function VideoPlayerPage()
             padding: '10px',
           }}
         >
-          <div id='player-1' style={{ width: '100%', borderRadius: '10px' }} />
+          <div id='video_player' style={{ width: '100%', borderRadius: '10px' }} />
         </div>
 
         <div style={{ gridArea: 'control' }}>

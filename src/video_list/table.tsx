@@ -1,9 +1,17 @@
+import { app, type VideoInfo } from '../appv'
+import { video_player } from '../vodio_player/value'
 import { video_list } from './value'
 
 const delete_video = (index: number) =>
 {
   video_list.data.value.videos.splice(index, 1)
   video_list.data.value = { ...video_list.data.value }
+}
+
+const on_click_play = (video: VideoInfo) =>
+{
+  video_player.video_info.value = video
+  app.show_page.value = 'video_player'
 }
 
 export function TablePart()
@@ -26,11 +34,13 @@ export function TablePart()
             <td>{video.note}</td>
             <td>
               <div style={{ display: 'flex', gap: '10px' }}>
-                <a href='#'>Play</a>
                 <a
                   href='#'
-                  onClick={() => video_list.add_data.value = { video_info: video, status: 'edit' }}
+                  onClick={() => on_click_play(video)}
                 >
+                  Play
+                </a>
+                <a href='#' onClick={() => video_list.add_data.value = { video_info: video, status: 'edit' }}>
                   Edit
                 </a>
                 <a href='#' onClick={() => delete_video(index)}>
