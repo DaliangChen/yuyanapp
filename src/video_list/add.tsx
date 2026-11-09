@@ -1,6 +1,5 @@
 import type { ChangeEvent } from 'preact/compat'
-import { InfoError } from '../appv'
-import { default_never } from '../util'
+import { default_never, InfoError } from '../appv'
 import { video_list } from './value'
 
 const on_change_video_id = (e: ChangeEvent<HTMLInputElement>) =>
@@ -34,6 +33,7 @@ const on_click_confirm = () =>
     case 'edit':
       const video = video_list.data.value.videos.find(video => video.video_id === add_value.video_info.video_id)
       if (!video) throw new InfoError('Video Id not found')
+      video.update_time = Date.now()
       break
 
     default:

@@ -10,6 +10,7 @@ const on_click_add_video = () =>
       video_id: '',
       srt: '',
       note: '',
+      update_time: Date.now(),
     },
     status: 'add',
   }

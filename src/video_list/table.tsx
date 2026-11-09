@@ -19,7 +19,7 @@ export function TablePart()
         </tr>
       </thead>
       <tbody>
-        {video_list.data.value.videos.map((video, index) => (
+        {video_list.data.value.videos.sort((a, b) => b.update_time - a.update_time).map((video, index) => (
           <tr key={index}>
             <td>{video.video_id}</td>
             <td>{video.srt ? '✓' : '✗'}</td>
@@ -27,7 +27,10 @@ export function TablePart()
             <td>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <a href='#'>Play</a>
-                <a href='#' onClick={() => video_list.add_data.value = { video_info: video, status: 'edit' }}>
+                <a
+                  href='#'
+                  onClick={() => video_list.add_data.value = { video_info: video, status: 'edit' }}
+                >
                   Edit
                 </a>
                 <a href='#' onClick={() => delete_video(index)}>

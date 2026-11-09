@@ -4,6 +4,7 @@ export type VideoInfo = {
   video_id: string
   srt: string
   note: string
+  update_time: number
 }
 
 export class InfoError extends Error
@@ -22,6 +23,11 @@ export class LogicError extends Error
     super('Logic Error')
     this.name = 'LogicError'
   }
+}
+
+export function default_never(x: never): never
+{
+  return x as never
 }
 
 export const app = //
