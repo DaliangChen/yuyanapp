@@ -100,15 +100,17 @@ export function calculateSentenceWeight(text: string, wordStat: Record<string, W
   for (const cleanWord of words)
   {
     const stat = wordStat[cleanWord]
-    if (stat?.pass)
+    if (stat?.pass || (stat && stat.fail === 0 && stat.success > 0))
     {
+      // 标记为 Pass，或者已打卡掌握且无错误 (fail === 0)：生词度为 0
       sumUnfamiliarity += 0
-    } else if (stat)
+    } else if (stat && (stat.success > 0 || stat.fail > 0))
     {
-      const unfam = (stat.fail + 1) / (stat.success + stat.fail + 2)
-      sumUnfamiliarity += unfam
+      // 存在生词记录：按实际生词错误率 fail / (fail + success)
+      sumUnfamiliarity += stat.fail / (stat.fail + stat.success)
     } else
     {
+      // 未打卡过的词：赋予初始生词权重
       sumUnfamiliarity += 0.5
     }
   }
