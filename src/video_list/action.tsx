@@ -17,9 +17,11 @@ const on_click_add_video = () =>
 
 const on_click_export_data = async () =>
 {
-  const jsonContent = JSON.stringify(video_list.data.value, null, 2)
-  try {
-    if ('showSaveFilePicker' in window) {
+  const jsonContent = JSON.stringify(app.data.value, null, 2)
+  try
+  {
+    if ('showSaveFilePicker' in window)
+    {
       const handle = await window.showSaveFilePicker({
         suggestedName: 'yuyan_data.json',
         types: [
@@ -32,14 +34,13 @@ const on_click_export_data = async () =>
         ],
       })
 
-      video_list.data_file_handle.value = handle
-
       const writable = await handle.createWritable()
       await writable.write(jsonContent)
       await writable.close()
       return
     }
-  } catch (err: unknown) {
+  } catch (err: unknown)
+  {
     if ((err as Error)?.name === 'AbortError') return
     console.warn('Native file save unavailable, falling back to download:', err)
   }
@@ -58,8 +59,10 @@ const on_click_export_data = async () =>
 
 const on_click_import_data = async () =>
 {
-  try {
-    if ('showOpenFilePicker' in window) {
+  try
+  {
+    if ('showOpenFilePicker' in window)
+    {
       const [handle] = await window.showOpenFilePicker({
         types: [{
           description: 'Json',
@@ -70,18 +73,17 @@ const on_click_import_data = async () =>
         multiple: false,
       })
 
-      video_list.data_file_handle.value = handle
-
       const file = await handle.getFile()
       const text = await file.text()
       const parsed = JSON.parse(text)
-      video_list.data.value = {
+      app.data.value = {
         videos: parsed.videos || [],
         word_stat: parsed.word_stat || {},
       }
       return
     }
-  } catch (err: unknown) {
+  } catch (err: unknown)
+  {
     if ((err as Error)?.name === 'AbortError') return
     console.warn('Native file open unavailable, falling back to file input:', err)
   }
@@ -91,12 +93,13 @@ const on_click_import_data = async () =>
   input.type = 'file'
   input.accept = '.json,application/json'
   input.style.display = 'none'
-  input.onchange = async () => {
+  input.onchange = async () =>
+  {
     const file = input.files?.[0]
     if (!file) return
     const text = await file.text()
     const parsed = JSON.parse(text)
-    video_list.data.value = {
+    app.data.value = {
       videos: parsed.videos || [],
       word_stat: parsed.word_stat || {},
     }
@@ -108,7 +111,7 @@ const on_click_import_data = async () =>
 
 export function ActionPart()
 {
-  const totalWords = Object.keys(video_list.data.value.word_stat || {}).length
+  const totalWords = Object.keys(app.data.value.word_stat || {}).length
 
   return (
     <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-200'>

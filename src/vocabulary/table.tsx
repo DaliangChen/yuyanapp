@@ -1,4 +1,4 @@
-import { video_list } from '../video_list/value'
+import { app } from '../appv'
 import { vocabulary } from './value'
 
 export function TablePart()
@@ -143,10 +143,10 @@ function pronounce(word: string)
 
 function delete_word(word: string)
 {
-  const newWordStat = { ...video_list.data.value.word_stat }
+  const newWordStat = { ...app.data.value.word_stat }
   delete newWordStat[word]
-  video_list.data.value = {
-    ...video_list.data.value,
+  app.data.value = {
+    ...app.data.value,
     word_stat: newWordStat,
   }
 }

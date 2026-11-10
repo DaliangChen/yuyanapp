@@ -1,6 +1,6 @@
 import { computed, signal } from '@preact/signals'
-import type { WordStatItem } from '../appv'
-import { video_list } from '../video_list/value'
+import { app } from '../appv'
+import type { WordStatItem } from '../util'
 
 export type FilterType = 'all' | 'need_review' | 'passed'
 export type SortType = 'mastery_worst' | 'fail_desc' | 'success_desc' | 'alpha'
@@ -22,7 +22,7 @@ export const vocabulary = //
       },
     ),
 
-    word_stats: computed(() => video_list.data.value.word_stat || {}),
+    word_stats: computed(() => app.data.value.word_stat || {}),
     all_entries: computed(() => Object.entries(vocabulary.word_stats.value)),
     total_words: computed(() => vocabulary.all_entries.value.length),
     passed_words: computed(() => vocabulary.all_entries.value.filter(([, s]) => s.pass).length),
@@ -146,22 +146,20 @@ export const vocabulary = //
 
     togglePass: (word: string) =>
     {
-      const currentStat = video_list.data.value.word_stat[word]
+      const currentStat = app.data.value.word_stat[word]
       if (currentStat)
       {
         const newWordStat = {
-          ...video_list.data.value.word_stat,
+          ...app.data.value.word_stat,
           [word]: {
             ...currentStat,
             pass: !currentStat.pass,
           },
         }
-        video_list.data.value = {
-          ...video_list.data.value,
+        app.data.value = {
+          ...app.data.value,
           word_stat: newWordStat,
         }
       }
     },
-
-    
   }

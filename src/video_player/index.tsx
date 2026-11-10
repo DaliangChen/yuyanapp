@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'preact/hooks'
 import YouTubePlayer from 'youtube-player'
 import { app } from '../appv'
-import { video_list } from '../video_list/value'
 import { ControlPart } from './control'
 import { PlayerPart } from './player'
 import {
@@ -26,7 +25,7 @@ export function VideoPlayerPage()
   }
 
   const hud = video_player.hud_message.value
-  const totalWords = Object.keys(video_list.data.value.word_stat || {}).length
+  const totalWords = Object.keys(app.data.value.word_stat || {}).length
   const videoNote = video_player.video_info.value?.note || video_player.video_info.value?.video_id || ''
 
   const onBack = () =>
@@ -164,7 +163,7 @@ function useInit()
             const activeSub = subs[activeIdx]
             if (lastSkippedStartRef.current !== activeSub.start)
             {
-              const weight = calculateSentenceWeight(activeSub.text, video_list.data.value.word_stat)
+              const weight = calculateSentenceWeight(activeSub.text, app.data.value.word_stat)
               if (weight < video_player.skip_threshold.value)
               {
                 lastSkippedStartRef.current = activeSub.start
@@ -175,7 +174,7 @@ function useInit()
                   activeIdx,
                   true,
                   video_player.skip_threshold.value,
-                  video_list.data.value.word_stat,
+                  app.data.value.word_stat,
                 )
 
                 if (targetIdx !== -1)
@@ -223,7 +222,7 @@ function handleRightArrowAction()
   }
   const currSub = subs[currIdx]
   const words = extractWords(currSub?.text || '')
-  const wordStat = video_list.data.value.word_stat || {}
+  const wordStat = app.data.value.word_stat || {}
 
   for (const w of words)
   {
@@ -232,8 +231,8 @@ function handleRightArrowAction()
     wordStat[w] = stat
   }
 
-  video_list.data.value = {
-    ...video_list.data.value,
+  app.data.value = {
+    ...app.data.value,
     word_stat: { ...wordStat },
   }
 
@@ -268,7 +267,7 @@ function handleLeftArrowAction()
     currIdx = nextIdx !== -1 ? nextIdx : subs.length - 1
   }
 
-  const wordStat = video_list.data.value.word_stat || {}
+  const wordStat = app.data.value.word_stat || {}
   const isAutoSkip = video_player.auto_skip_familiar.value
   const threshold = video_player.skip_threshold.value
 
@@ -289,8 +288,8 @@ function handleLeftArrowAction()
       wordStat[w] = stat
     }
 
-    video_list.data.value = {
-      ...video_list.data.value,
+    app.data.value = {
+      ...app.data.value,
       word_stat: { ...wordStat },
     }
 
@@ -310,8 +309,8 @@ function handleLeftArrowAction()
       wordStat[w] = stat
     }
 
-    video_list.data.value = {
-      ...video_list.data.value,
+    app.data.value = {
+      ...app.data.value,
       word_stat: { ...wordStat },
     }
 

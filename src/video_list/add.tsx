@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'preact/compat'
-import { default_never, InfoError } from '../appv'
+import { app, default_never, InfoError } from '../appv'
 import { video_list } from './value'
 
 function extractYouTubeId(urlOrId: string): string
@@ -45,13 +45,13 @@ const on_click_confirm = () =>
   switch (add_value.status)
   {
     case 'add':
-      const has_same_id = video_list.data.value.videos.some(video => video.video_id === cleanId)
+      const has_same_id = app.data.value.videos.some(video => video.video_id === cleanId)
       if (has_same_id) throw new InfoError('该视频 ID 已存在列表中')
-      video_list.data.value.videos.push({ ...add_value.video_info })
+      app.data.value.videos.push({ ...add_value.video_info })
       break
 
     case 'edit':
-      const video = video_list.data.value.videos.find(video => video.video_id === cleanId)
+      const video = app.data.value.videos.find(video => video.video_id === cleanId)
       if (!video) throw new InfoError('未找到对应的视频记录')
       video.note = add_value.video_info.note
       video.update_time = Date.now()
@@ -61,7 +61,7 @@ const on_click_confirm = () =>
       default_never(add_value.status)
   }
 
-  video_list.data.value = { ...video_list.data.value }
+  app.data.value = { ...app.data.value }
   video_list.add_data.value = null
 }
 
