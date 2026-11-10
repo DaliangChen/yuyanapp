@@ -110,6 +110,4 @@ export const vocabulary: {
       const start = (vocabulary.safe_page.value - 1) * vocabulary.pager.value.page_size
       return vocabulary.filtered_entries.value.slice(start, start + vocabulary.pager.value.page_size)
     }),
-
-    
   }
