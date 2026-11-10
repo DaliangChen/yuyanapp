@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'preact/hooks'
+import { useMemo } from 'preact/hooks'
 import { app } from '../appv'
 import type { WordStatItem } from '../util'
 import { video_player } from './value'
@@ -219,8 +219,6 @@ export function getWordStyle(stat: WordStatItem | undefined)
 
 export function SrtPart()
 {
-  const [selectedWord, setSelectedWord] = useState<{ word: string; sentence: string } | null>(null)
-
   const pairedSubtitles = useMemo<PairedSubtitle[]>(() =>
   {
     const srt1 = video_player.video_info.value?.srt_1 ?? ''
@@ -274,49 +272,6 @@ export function SrtPart()
   const currWeight = currSub ? calculateSentenceWeight(currSub.text1, wordStat) : 0
   const isAutoSkipActive = isAutoSkip && currWeight < threshold
 
-  const onWordClick = (word: string, sentence: string) =>
-  {
-    setSelectedWord({ word, sentence })
-  }
-
-  const markWord = (type: 'success' | 'fail') =>
-  {
-    if (!selectedWord) return
-    const w = selectedWord.word.toLowerCase()
-    const stat = wordStat[w] || { success: 0, fail: 0 }
-    if (type === 'success') stat.success += 1
-    else stat.fail += 1
-
-    wordStat[w] = stat
-    app.data.value = {
-      ...app.data.value,
-      word_stat: { ...wordStat },
-    }
-  }
-
-  const togglePassWord = () =>
-  {
-    if (!selectedWord) return
-    const w = selectedWord.word.toLowerCase()
-    const stat = wordStat[w] || { success: 0, fail: 0 }
-    stat.pass = !stat.pass
-    wordStat[w] = stat
-    app.data.value = {
-      ...app.data.value,
-      word_stat: { ...wordStat },
-    }
-  }
-
-  const pronounceWord = (word: string) =>
-  {
-    if ('speechSynthesis' in window)
-    {
-      const utterance = new SpeechSynthesisUtterance(word)
-      utterance.lang = 'de-DE'
-      window.speechSynthesis.speak(utterance)
-    }
-  }
-
   if (pairedSubtitles.length === 0)
   {
     return (
@@ -334,82 +289,13 @@ export function SrtPart()
 
   return (
     <div className='w-full bg-slate-50/70 border-t border-slate-200 p-4 sm:p-6 flex flex-col gap-3 relative'>
-      {/* Word Quick Review Card - 素雅白底微卡片 */}
-      {selectedWord && (
-        <div className='mb-2 p-4 bg-white rounded-xl border border-slate-200 shadow-md text-xs text-slate-800 max-w-md w-full mx-auto animate-in fade-in zoom-in-95 duration-100'>
-          <div className='flex justify-between items-center pb-2.5 border-b border-slate-100'>
-            <div className='flex items-center gap-2.5'>
-              <span className='text-lg font-semibold text-slate-900 font-serif'>{selectedWord.word}</span>
-              <button
-                type='button'
-                onClick={() => pronounceWord(selectedWord.word)}
-                className='text-slate-400 hover:text-slate-700 transition-colors cursor-pointer text-sm p-1'
-                title='朗读德语发音'
-              >
-                🔊
-              </button>
-            </div>
-            <button
-              type='button'
-              onClick={() => setSelectedWord(null)}
-              className='text-slate-400 hover:text-slate-700 transition-colors cursor-pointer text-xs p-1'
-            >
-              ✕
-            </button>
-          </div>
-
-          <div className='py-2.5 text-xs text-slate-600 flex items-center justify-between'>
-            {(() =>
-            {
-              const stat = wordStat[selectedWord.word.toLowerCase()]
-              if (!stat) return <span className='text-slate-400'>生词本中尚无记录</span>
-              return (
-                <div className='flex items-center gap-3'>
-                  <span>
-                    掌握: <strong className='text-emerald-600 font-mono text-sm'>{stat.success}</strong> 次
-                  </span>
-                  <span>
-                    生词: <strong className='text-amber-700 font-mono text-sm'>{stat.fail}</strong> 次
-                  </span>
-                  {stat.pass && <span className='text-emerald-700 font-medium'>[已掌握 Pass]</span>}
-                </div>
-              )
-            })()}
-          </div>
-
-          <div className='flex items-center gap-2 pt-2.5 border-t border-slate-100'>
-            <button
-              type='button'
-              onClick={() => markWord('success')}
-              className='flex-1 py-1.5 px-3 text-xs font-medium text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-md transition-colors cursor-pointer'
-            >
-              ✓ 认识 (+1)
-            </button>
-            <button
-              type='button'
-              onClick={() => markWord('fail')}
-              className='flex-1 py-1.5 px-3 text-xs font-medium text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-md transition-colors cursor-pointer'
-            >
-              ⭐ 生词 (+1)
-            </button>
-            <button
-              type='button'
-              onClick={togglePassWord}
-              className='py-1.5 px-3 text-xs font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md transition-colors cursor-pointer'
-            >
-              {wordStat[selectedWord.word.toLowerCase()]?.pass ? '取消 Pass' : '已掌握 Pass'}
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* 当前句字幕区 - 纯粹聚焦于当前正在播放的这一句 */}
       <div className='w-full'>
         {currSub ? (
           <div
             onClick={() => video_player.player.value?.seekTo(currSub.start, true)}
             className='flex items-baseline gap-4 cursor-pointer p-4 sm:p-5 rounded-2xl bg-white border-l-4 border-slate-800 shadow-xs border border-slate-200/90 transition-all hover:bg-slate-50/90'
-            title='点击重播这一句 (按 → 或 滚轮向后勾：掌握当前句跳下一句；按 ← 或 滚轮向前推：上一句记生词并重播)'
+            title='点击重播这一句 (快捷键：按 → 或 滚轮向后：掌握当前句；按 ← 或 滚轮向前：上一句生词并重播)'
           >
             <div className='flex flex-col gap-1.5 items-center shrink-0 select-none'>
               <span className='text-xs text-slate-900 bg-slate-100 font-semibold px-2.5 py-1 rounded-md'>
@@ -428,10 +314,10 @@ export function SrtPart()
             <div className='flex-1 min-w-0'>
               {/* 大字号清晰主文本 */}
               <div className='text-xl sm:text-2xl md:text-[26px] font-semibold text-slate-900 leading-relaxed tracking-wide'>
-                {renderTokens(currSub.text1, (word) => onWordClick(word, currSub.text1))}
+                {renderTokens(currSub.text1)}
               </div>
               {currSub.text2 && (
-                <div className='text-sm sm:text-base text-slate-500 mt-2 leading-relaxed'>
+                <div className='text-base sm:text-lg md:text-xl text-slate-800 font-medium mt-2.5 leading-relaxed tracking-normal'>
                   {currSub.text2}
                 </div>
               )}
@@ -447,7 +333,7 @@ export function SrtPart()
   )
 }
 
-function renderTokens(text: string, onWordClick: (w: string) => void)
+function renderTokens(text: string)
 {
   if (typeof Intl !== 'undefined' && 'Segmenter' in Intl)
   {
@@ -465,18 +351,15 @@ function renderTokens(text: string, onWordClick: (w: string) => void)
         items.push(
           <span
             key={i++}
-            onClick={(e) =>
-            {
-              e.stopPropagation()
-              onWordClick(cleanWord)
-            }}
-            className='cursor-pointer rounded px-0.5 transition-colors hover:bg-slate-200/70'
+            className='px-0.5 rounded select-text'
             style={style}
-            title={stat?.pass
-              ? `${segment} [已掌握 Pass]`
-              : stat
-              ? `${segment} (Fail: ${stat.fail}, Success: ${stat.success}) 点击查词`
-              : `${segment} (未打卡) 点击查词`}
+            title={
+              stat?.pass
+                ? `${segment} [已掌握 Pass]`
+                : stat
+                ? `${segment} (生词: ${stat.fail}, 掌握: ${stat.success})`
+                : undefined
+            }
           >
             {segment}
           </span>,
@@ -502,18 +385,15 @@ function renderTokens(text: string, onWordClick: (w: string) => void)
       return (
         <span
           key={i}
-          onClick={(e) =>
-          {
-            e.stopPropagation()
-            onWordClick(cleanWord)
-          }}
-          className='cursor-pointer rounded px-0.5 transition-colors hover:bg-slate-200/70'
+          className='px-0.5 rounded select-text'
           style={style}
-          title={stat?.pass
-            ? `${part} [已掌握 Pass]`
-            : stat
-            ? `${part} (Fail: ${stat.fail}, Success: ${stat.success}) 点击查词`
-            : `${part} (未打卡) 点击查词`}
+          title={
+            stat?.pass
+              ? `${part} [已掌握 Pass]`
+              : stat
+              ? `${part} (生词: ${stat.fail}, 掌握: ${stat.success})`
+              : undefined
+          }
         >
           {part}
         </span>
