@@ -1,11 +1,44 @@
 import type { WordStatItem } from '../appv'
-import { video_list } from '../video_list/value'
+import { vocabulary } from './value'
+
+interface TablePartProps
+{
+  paginatedEntries?: [string, WordStatItem][]
+  togglePass?: (word: string) => void
+}
 
 export function TablePart(
-  paginatedEntries: [string, WordStatItem][],
-  togglePass: (word: string) => void,
+  propsOrEntries?: TablePartProps | [string, WordStatItem][],
+  legacyTogglePass?: (word: string) => void,
 )
 {
+  let entries: [string, WordStatItem][]
+  let onTogglePass: (word: string) => void
+
+  if (Array.isArray(propsOrEntries))
+  {
+    entries = propsOrEntries
+    onTogglePass = legacyTogglePass ?? vocabulary.togglePass
+  }
+  else
+  {
+    entries = propsOrEntries?.paginatedEntries ?? vocabulary.paginated_entries.value
+    onTogglePass = propsOrEntries?.togglePass ?? vocabulary.togglePass
+  }
+
+  if (entries.length === 0)
+  {
+    return (
+      <div className='flex flex-col items-center justify-center p-14 text-center'>
+        <div className='text-2xl mb-2 text-slate-300'>📖</div>
+        <p className='text-sm font-medium text-slate-700'>没有匹配的生词</p>
+        <p className='text-xs text-slate-400 mt-1 max-w-sm'>
+          在视频播放中按 ←（左箭头）或向前滚动鼠标滚轮，即可整句加入生词本。
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div className='overflow-x-auto'>
       <table className='w-full text-left text-xs'>
@@ -21,7 +54,7 @@ export function TablePart(
           </tr>
         </thead>
         <tbody className='divide-y divide-slate-100 text-slate-700'>
-          {paginatedEntries.map(([word, stat]) =>
+          {entries.map(([word, stat]) =>
           {
             const total = (stat.success || 0) + (stat.fail || 0)
             const rate = total > 0 ? Math.round((stat.success / total) * 100) : 0
@@ -58,7 +91,7 @@ export function TablePart(
                 <td className='py-3 px-4'>
                   <button
                     type='button'
-                    onClick={() => togglePass(word)}
+                    onClick={() => onTogglePass(word)}
                     className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
                       isPassed
                         ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
@@ -103,7 +136,7 @@ export function TablePart(
                 <td className='py-3 px-4 text-right'>
                   <button
                     type='button'
-                    onClick={() => deleteWord(word)}
+                    onClick={() => vocabulary.deleteWord(word)}
                     className='text-slate-400 hover:text-rose-600 transition-colors cursor-pointer text-xs'
                     title='从生词本中移除'
                   >
@@ -117,12 +150,6 @@ export function TablePart(
       </table>
     </div>
   )
-}
-
-function deleteWord(word: string)
-{
-  delete video_list.data.value.word_stat[word]
-  video_list.data.value = { ...video_list.data.value }
 }
 
 function pronounce(word: string)
