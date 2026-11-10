@@ -327,7 +327,11 @@ export function SrtPart()
 
   if (pairedSubtitles.length === 0)
   {
-    return null
+    return (
+      <div className='w-full bg-slate-50/70 border-t border-slate-200 p-6 text-center text-slate-400 text-xs'>
+        暂无已加载的字幕文件，请先在视频列表载入 SRT/VTT 字幕
+      </div>
+    )
   }
 
   // If auto-skip is triggered for this sentence, don't show to maintain clean flow
@@ -337,17 +341,17 @@ export function SrtPart()
   }
 
   return (
-    <div className='absolute left-0 right-0 bottom-3 flex flex-col items-center pointer-events-none z-15 px-3 sm:px-6'>
+    <div className='w-full bg-slate-50/70 border-t border-slate-200 p-4 sm:p-6 flex flex-col gap-3 relative'>
       {/* Word Quick Review Card - 素雅白底微卡片 */}
       {selectedWord && (
-        <div className='pointer-events-auto mb-2.5 p-3.5 bg-white/95 backdrop-blur-md rounded-xl border border-slate-200 shadow-xl text-xs text-slate-800 max-w-sm w-full animate-in fade-in zoom-in-95 duration-100'>
-          <div className='flex justify-between items-center pb-2 border-b border-slate-100'>
-            <div className='flex items-center gap-2'>
-              <span className='text-base font-semibold text-slate-900 font-serif'>{selectedWord.word}</span>
+        <div className='mb-2 p-4 bg-white rounded-xl border border-slate-200 shadow-md text-xs text-slate-800 max-w-md w-full mx-auto animate-in fade-in zoom-in-95 duration-100'>
+          <div className='flex justify-between items-center pb-2.5 border-b border-slate-100'>
+            <div className='flex items-center gap-2.5'>
+              <span className='text-lg font-semibold text-slate-900 font-serif'>{selectedWord.word}</span>
               <button
                 type='button'
                 onClick={() => pronounceWord(selectedWord.word)}
-                className='text-slate-400 hover:text-slate-700 transition-colors cursor-pointer text-xs'
+                className='text-slate-400 hover:text-slate-700 transition-colors cursor-pointer text-sm p-1'
                 title='朗读德语发音'
               >
                 🔊
@@ -362,18 +366,18 @@ export function SrtPart()
             </button>
           </div>
 
-          <div className='py-2 text-[11px] text-slate-600 flex items-center justify-between'>
+          <div className='py-2.5 text-xs text-slate-600 flex items-center justify-between'>
             {(() =>
             {
               const stat = wordStat[selectedWord.word.toLowerCase()]
               if (!stat) return <span className='text-slate-400'>生词本中尚无记录</span>
               return (
-                <div className='flex items-center gap-2.5'>
+                <div className='flex items-center gap-3'>
                   <span>
-                    掌握: <strong className='text-emerald-600 font-mono'>{stat.success}</strong>
+                    掌握: <strong className='text-emerald-600 font-mono text-sm'>{stat.success}</strong> 次
                   </span>
                   <span>
-                    生词: <strong className='text-amber-700 font-mono'>{stat.fail}</strong>
+                    生词: <strong className='text-amber-700 font-mono text-sm'>{stat.fail}</strong> 次
                   </span>
                   {stat.pass && <span className='text-emerald-700 font-medium'>[已掌握 Pass]</span>}
                 </div>
@@ -381,25 +385,25 @@ export function SrtPart()
             })()}
           </div>
 
-          <div className='flex items-center gap-2 pt-2 border-t border-slate-100'>
+          <div className='flex items-center gap-2 pt-2.5 border-t border-slate-100'>
             <button
               type='button'
               onClick={() => markWord('success')}
-              className='flex-1 py-1 px-2 text-[11px] font-medium text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-md transition-colors cursor-pointer'
+              className='flex-1 py-1.5 px-3 text-xs font-medium text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-md transition-colors cursor-pointer'
             >
               ✓ 认识 (+1)
             </button>
             <button
               type='button'
               onClick={() => markWord('fail')}
-              className='flex-1 py-1 px-2 text-[11px] font-medium text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-md transition-colors cursor-pointer'
+              className='flex-1 py-1.5 px-3 text-xs font-medium text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-md transition-colors cursor-pointer'
             >
               ⭐ 生词 (+1)
             </button>
             <button
               type='button'
               onClick={togglePassWord}
-              className='py-1 px-2 text-[11px] font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md transition-colors cursor-pointer'
+              className='py-1.5 px-3 text-xs font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md transition-colors cursor-pointer'
             >
               {wordStat[selectedWord.word.toLowerCase()]?.pass ? '取消 Pass' : '已掌握 Pass'}
             </button>
@@ -407,24 +411,24 @@ export function SrtPart()
         </div>
       )}
 
-      {/* 3-Sentence Subtitle Box - 素雅温润白底微磨砂字幕盒 */}
-      <div className='w-[min(96%,820px)] max-h-[46vh] bg-white/94 backdrop-blur-md border border-slate-200/90 shadow-lg rounded-2xl p-3.5 sm:p-4 text-slate-800 flex flex-col gap-2 pointer-events-auto'>
+      {/* 3-Sentence Subtitle Container - 位于控制栏底部的素雅大字号字幕区 */}
+      <div className='w-full flex flex-col gap-2.5'>
         {/* 1. 上一句 (在跳过模式下为刚刚播放完的上一句) */}
         {prevSub && (
           <div
             onClick={() => video_player.player.value?.seekTo(prevSub.start, true)}
-            className='flex items-baseline gap-2.5 cursor-pointer py-1 px-2 rounded-lg opacity-60 hover:opacity-100 transition-opacity'
+            className='flex items-baseline gap-3 cursor-pointer py-2 px-3 rounded-xl opacity-60 hover:opacity-100 hover:bg-white/70 transition-all'
             title='点击跳转至上一句 (快捷键: ← 或 滚轮向前推)'
           >
-            <span className='text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded select-none font-medium shrink-0'>
+            <span className='text-[11px] text-slate-500 bg-slate-200/80 px-2 py-0.5 rounded select-none font-medium shrink-0'>
               上一句
             </span>
             <div className='flex-1 min-w-0'>
-              <div className='text-xs sm:text-sm text-slate-600 leading-snug'>
+              <div className='text-sm sm:text-base text-slate-600 leading-relaxed'>
                 {prevSub.text1}
               </div>
               {prevSub.text2 && (
-                <div className='text-[11px] sm:text-xs text-slate-400 mt-0.5 leading-snug'>
+                <div className='text-xs sm:text-sm text-slate-400 mt-0.5 leading-relaxed'>
                   {prevSub.text2}
                 </div>
               )}
@@ -432,19 +436,19 @@ export function SrtPart()
           </div>
         )}
 
-        {/* 2. 这一句 */}
+        {/* 2. 这一句 (大字号高对比度醒目展示) */}
         {currSub && (
           <div
             onClick={() => video_player.player.value?.seekTo(currSub.start, true)}
-            className='flex items-baseline gap-3 cursor-pointer py-2 px-3 rounded-xl bg-slate-50/90 border-l-4 border-slate-700 transition-colors hover:bg-slate-100/80 shadow-2xs'
+            className='flex items-baseline gap-4 cursor-pointer p-4 sm:p-5 rounded-2xl bg-white border-l-4 border-slate-800 shadow-xs border border-slate-200/90 transition-all hover:bg-slate-50/90'
             title='点击重播这一句 (按 → 或 滚轮向后勾：掌握当前句跳下一句；按 ← 或 滚轮向前推：上一句记生词并重播)'
           >
-            <div className='flex flex-col gap-1 items-center shrink-0 select-none'>
-              <span className='text-[11px] text-slate-800 bg-slate-200/70 px-2 py-0.5 rounded font-medium'>
+            <div className='flex flex-col gap-1.5 items-center shrink-0 select-none'>
+              <span className='text-xs text-slate-900 bg-slate-100 font-semibold px-2.5 py-1 rounded-md'>
                 当前句
               </span>
               <span
-                className={`text-[9px] font-mono ${
+                className={`text-[10px] font-mono ${
                   currWeight >= 0.4 ? 'text-amber-700' : currWeight >= 0.2 ? 'text-slate-600' : 'text-emerald-700'
                 }`}
                 title='基于词频熟练度计算的生词度'
@@ -454,12 +458,12 @@ export function SrtPart()
             </div>
 
             <div className='flex-1 min-w-0'>
-              {/* 大字号高对比度主文本 */}
-              <div className='text-base sm:text-lg font-medium text-slate-900 leading-relaxed tracking-wide'>
+              {/* 大字号清晰主文本 */}
+              <div className='text-xl sm:text-2xl md:text-[26px] font-semibold text-slate-900 leading-relaxed tracking-wide'>
                 {renderTokens(currSub.text1, (word) => onWordClick(word, currSub.text1))}
               </div>
               {currSub.text2 && (
-                <div className='text-xs sm:text-sm text-slate-500 mt-1 leading-snug'>
+                <div className='text-sm sm:text-base text-slate-500 mt-2 leading-relaxed'>
                   {currSub.text2}
                 </div>
               )}
@@ -471,18 +475,18 @@ export function SrtPart()
         {nextSub && (
           <div
             onClick={() => video_player.player.value?.seekTo(nextSub.start, true)}
-            className='flex items-baseline gap-2.5 cursor-pointer py-1 px-2 rounded-lg opacity-60 hover:opacity-100 transition-opacity'
+            className='flex items-baseline gap-3 cursor-pointer py-2 px-3 rounded-xl opacity-60 hover:opacity-100 hover:bg-white/70 transition-all'
             title='点击跳转至下一句 (快捷键: → 或 滚轮向后勾)'
           >
-            <span className='text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded select-none font-medium shrink-0'>
+            <span className='text-[11px] text-slate-500 bg-slate-200/80 px-2 py-0.5 rounded select-none font-medium shrink-0'>
               下一句
             </span>
             <div className='flex-1 min-w-0'>
-              <div className='text-xs sm:text-sm text-slate-600 leading-snug'>
+              <div className='text-sm sm:text-base text-slate-600 leading-relaxed'>
                 {nextSub.text1}
               </div>
               {nextSub.text2 && (
-                <div className='text-[11px] sm:text-xs text-slate-400 mt-0.5 leading-snug'>
+                <div className='text-xs sm:text-sm text-slate-400 mt-0.5 leading-relaxed'>
                   {nextSub.text2}
                 </div>
               )}

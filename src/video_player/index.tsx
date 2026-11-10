@@ -34,7 +34,7 @@ export function VideoPlayerPage()
 
       {/* Main Video & Subtitle Card - 素雅大卡片 */}
       <div className='bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden flex flex-col'>
-        {/* Video Stage with Overlaid 3-Sentence Subtitles */}
+        {/* Video Stage without overlaid subtitle obstruction */}
         <div className='relative w-full aspect-video min-h-[380px] sm:min-h-[480px] max-h-[72vh] bg-black flex items-center justify-center overflow-hidden'>
           <PlayerPart />
 
@@ -52,13 +52,13 @@ export function VideoPlayerPage()
               {hud.text}
             </div>
           )}
-
-          {/* 3-Sentence Subtitle Overlay */}
-          <SrtPart />
         </div>
 
         {/* Bottom Control Bar */}
         <ControlPart />
+
+        {/* Subtitles placed below the control bar with larger typography */}
+        <SrtPart />
       </div>
     </div>
   )
