@@ -36,16 +36,21 @@ You can add your own YouTube videos and SRT/VTT subtitle files.`,
   word_stat: {},
 }
 
-function loadInitialData() {
-  try {
+function loadInitialData()
+{
+  try
+  {
     const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) {
+    if (saved)
+    {
       const parsed = JSON.parse(saved)
-      if (Array.isArray(parsed.videos)) {
+      if (Array.isArray(parsed.videos))
+      {
         return parsed
       }
     }
-  } catch (e) {
+  } catch (e)
+  {
     console.warn('Failed to load data from localStorage', e)
   }
   return defaultData
@@ -67,9 +72,11 @@ effect(() =>
 {
   const data = video_list.data.value
 
-  try {
+  try
+  {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-  } catch (e) {
+  } catch (e)
+  {
     console.warn('Failed to save data to localStorage', e)
   }
 

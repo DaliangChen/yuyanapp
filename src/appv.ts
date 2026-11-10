@@ -8,11 +8,21 @@ export type VideoInfo = {
   update_time: number
 }
 
-export type WordStatItem = {
-  success: number
-  fail: number
-  pass?: boolean
-}
+export type WordStatItem = //
+  {
+    /**
+     * 掌握次数
+     */
+    success: number
+    /**
+     * 错误次数
+     */
+    fail: number
+    /**
+     * 是否掌握
+     */
+    pass?: boolean
+  }
 
 export class InfoError extends Error
 {
