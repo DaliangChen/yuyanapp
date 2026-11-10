@@ -1,4 +1,4 @@
-import { type SortType, vocabulary } from './value'
+import { type FilterType, type SortType, vocabulary } from './value'
 
 export function ActionPart()
 {
@@ -11,7 +11,7 @@ export function ActionPart()
           type='text'
           placeholder='🔍 搜索生词或拼写...'
           value={act.search}
-          onInput={(e) => vocabulary.setSearch(e.currentTarget.value)}
+          onInput={(e) => setSearch(e.currentTarget.value)}
           className='w-full px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 focus:bg-white text-slate-800 placeholder-slate-400'
         />
       </div>
@@ -21,7 +21,7 @@ export function ActionPart()
         <div className='inline-flex bg-slate-100 p-0.5 rounded-lg text-xs'>
           <button
             type='button'
-            onClick={() => vocabulary.setFilter('all')}
+            onClick={() => setFilter('all')}
             className={`px-3 py-1 rounded-md font-medium transition-colors cursor-pointer ${
               act.filter === 'all'
                 ? 'bg-white text-slate-900 shadow-2xs'
@@ -32,7 +32,7 @@ export function ActionPart()
           </button>
           <button
             type='button'
-            onClick={() => vocabulary.setFilter('need_review')}
+            onClick={() => setFilter('need_review')}
             className={`px-3 py-1 rounded-md font-medium transition-colors cursor-pointer ${
               act.filter === 'need_review'
                 ? 'bg-white text-slate-900 shadow-2xs'
@@ -43,7 +43,7 @@ export function ActionPart()
           </button>
           <button
             type='button'
-            onClick={() => vocabulary.setFilter('passed')}
+            onClick={() => setFilter('passed')}
             className={`px-3 py-1 rounded-md font-medium transition-colors cursor-pointer ${
               act.filter === 'passed'
                 ? 'bg-white text-slate-900 shadow-2xs'
@@ -59,7 +59,7 @@ export function ActionPart()
           <span className='text-xs text-slate-400'>排序:</span>
           <select
             value={act.sort}
-            onChange={(e) => vocabulary.setSort(e.currentTarget.value as SortType)}
+            onChange={(e) => setSort(e.currentTarget.value as SortType)}
             className='text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-slate-700 focus:outline-none focus:border-slate-400 cursor-pointer'
           >
             <option value='mastery_worst'>按掌握程度 (最差在上面)</option>
@@ -71,4 +71,22 @@ export function ActionPart()
       </div>
     </div>
   )
+}
+
+function setSort(sort: SortType)
+{
+  vocabulary.action.value = { ...vocabulary.action.value, sort }
+  vocabulary.pager.value = { ...vocabulary.pager.value, current_page: 1 }
+}
+
+function setFilter(filter: FilterType)
+{
+  vocabulary.action.value = { ...vocabulary.action.value, filter }
+  vocabulary.pager.value = { ...vocabulary.pager.value, current_page: 1 }
+}
+
+function setSearch(search: string)
+{
+  vocabulary.action.value = { ...vocabulary.action.value, search }
+  vocabulary.pager.value = { ...vocabulary.pager.value, current_page: 1 }
 }

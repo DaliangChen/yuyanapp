@@ -19,12 +19,6 @@ export const vocabulary: {
   paginated_entries: ReadonlySignal<[string, WordStatItem][]>
   start_idx: ReadonlySignal<number>
   end_idx: ReadonlySignal<number>
-  setSearch: (search: string) => void
-  setFilter: (filter: FilterType) => void
-  setSort: (sort: SortType) => void
-  setPage: (current_page: number) => void
-  setPageSize: (page_size: number) => void
-  togglePass: (word: string) => void
 } = //
   {
     pager: signal({ current_page: 1, page_size: 20 }),
@@ -130,50 +124,5 @@ export const vocabulary: {
       return Math.min(vocabulary.safe_page.value * vocabulary.pager.value.page_size, vocabulary.total_items.value)
     }),
 
-    setSearch: (search: string) =>
-    {
-      vocabulary.action.value = { ...vocabulary.action.value, search }
-      vocabulary.pager.value = { ...vocabulary.pager.value, current_page: 1 }
-    },
-
-    setFilter: (filter: FilterType) =>
-    {
-      vocabulary.action.value = { ...vocabulary.action.value, filter }
-      vocabulary.pager.value = { ...vocabulary.pager.value, current_page: 1 }
-    },
-
-    setSort: (sort: SortType) =>
-    {
-      vocabulary.action.value = { ...vocabulary.action.value, sort }
-      vocabulary.pager.value = { ...vocabulary.pager.value, current_page: 1 }
-    },
-
-    setPage: (current_page: number) =>
-    {
-      vocabulary.pager.value = { ...vocabulary.pager.value, current_page }
-    },
-
-    setPageSize: (page_size: number) =>
-    {
-      vocabulary.pager.value = { page_size, current_page: 1 }
-    },
-
-    togglePass: (word: string) =>
-    {
-      const currentStat = app.data.value.word_stat[word]
-      if (currentStat)
-      {
-        const newWordStat = {
-          ...app.data.value.word_stat,
-          [word]: {
-            ...currentStat,
-            pass: !currentStat.pass,
-          },
-        }
-        app.data.value = {
-          ...app.data.value,
-          word_stat: newWordStat,
-        }
-      }
-    },
+   
   }

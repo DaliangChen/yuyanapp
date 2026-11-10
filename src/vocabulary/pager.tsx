@@ -39,7 +39,7 @@ export function PagerPart(props?: PagerPartProps)
           <span>每页:</span>
           <select
             value={pageSize}
-            onChange={(e) => vocabulary.setPageSize(parseInt(e.currentTarget.value, 10))}
+            onChange={(e) => setPageSize(parseInt(e.currentTarget.value, 10))}
             className='bg-white border border-slate-200 rounded px-1.5 py-0.5 text-xs text-slate-700 focus:outline-none cursor-pointer'
           >
             <option value={10}>10 条</option>
@@ -53,7 +53,7 @@ export function PagerPart(props?: PagerPartProps)
         <div className='flex items-center gap-1.5'>
           <button
             type='button'
-            onClick={() => vocabulary.setPage(Math.max(1, safePage - 1))}
+            onClick={() => setPage(Math.max(1, safePage - 1))}
             disabled={safePage <= 1}
             className='px-2.5 py-1 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer'
           >
@@ -64,7 +64,7 @@ export function PagerPart(props?: PagerPartProps)
           </span>
           <button
             type='button'
-            onClick={() => vocabulary.setPage(Math.min(totalPages, safePage + 1))}
+            onClick={() => setPage(Math.min(totalPages, safePage + 1))}
             disabled={safePage >= totalPages}
             className='px-2.5 py-1 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer'
           >
@@ -74,4 +74,13 @@ export function PagerPart(props?: PagerPartProps)
       </div>
     </div>
   )
+}
+
+function setPageSize(page_size: number)
+{
+  vocabulary.pager.value = { page_size, current_page: 1 }
+}
+function setPage(current_page: number)
+{
+  vocabulary.pager.value = { ...vocabulary.pager.value, current_page }
 }

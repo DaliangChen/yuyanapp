@@ -70,7 +70,7 @@ export function TablePart()
                 <td className='py-3 px-4'>
                   <button
                     type='button'
-                    onClick={() => vocabulary.togglePass(word)}
+                    onClick={() => togglePass(word)}
                     className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
                       isPassed
                         ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
@@ -115,7 +115,7 @@ export function TablePart()
                 <td className='py-3 px-4 text-right'>
                   <button
                     type='button'
-                    onClick={() => delete_word(word)}
+                    onClick={() => deleteWord(word)}
                     className='text-slate-400 hover:text-rose-600 transition-colors cursor-pointer text-xs'
                     title='从生词本中移除'
                   >
@@ -141,12 +141,31 @@ function pronounce(word: string)
   }
 }
 
-function delete_word(word: string)
+function deleteWord(word: string)
 {
   const newWordStat = { ...app.data.value.word_stat }
   delete newWordStat[word]
   app.data.value = {
     ...app.data.value,
     word_stat: newWordStat,
+  }
+}
+
+function togglePass(word: string)
+{
+  const currentStat = app.data.value.word_stat[word]
+  if (currentStat)
+  {
+    const newWordStat = {
+      ...app.data.value.word_stat,
+      [word]: {
+        ...currentStat,
+        pass: !currentStat.pass,
+      },
+    }
+    app.data.value = {
+      ...app.data.value,
+      word_stat: newWordStat,
+    }
   }
 }
