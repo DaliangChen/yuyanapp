@@ -1,30 +1,8 @@
-import type { WordStatItem } from '../appv'
 import { vocabulary } from './value'
 
-interface TablePartProps
+export function TablePart()
 {
-  paginatedEntries?: [string, WordStatItem][]
-  togglePass?: (word: string) => void
-}
-
-export function TablePart(
-  propsOrEntries?: TablePartProps | [string, WordStatItem][],
-  legacyTogglePass?: (word: string) => void,
-)
-{
-  let entries: [string, WordStatItem][]
-  let onTogglePass: (word: string) => void
-
-  if (Array.isArray(propsOrEntries))
-  {
-    entries = propsOrEntries
-    onTogglePass = legacyTogglePass ?? vocabulary.togglePass
-  }
-  else
-  {
-    entries = propsOrEntries?.paginatedEntries ?? vocabulary.paginated_entries.value
-    onTogglePass = propsOrEntries?.togglePass ?? vocabulary.togglePass
-  }
+  const entries = vocabulary.paginated_entries.value
 
   if (entries.length === 0)
   {
@@ -91,7 +69,7 @@ export function TablePart(
                 <td className='py-3 px-4'>
                   <button
                     type='button'
-                    onClick={() => onTogglePass(word)}
+                    onClick={() => vocabulary.togglePass(word)}
                     className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
                       isPassed
                         ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
