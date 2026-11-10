@@ -42,8 +42,7 @@ export const vocabulary = //
       if (act.filter === 'passed')
       {
         list = list.filter(([, s]) => s.pass)
-      }
-      else if (act.filter === 'need_review')
+      } else if (act.filter === 'need_review')
       {
         list = list.filter(([, s]) => !s.pass && s.fail > 0)
       }
@@ -95,7 +94,9 @@ export const vocabulary = //
     }),
 
     total_items: computed(() => vocabulary.filtered_entries.value.length),
-    total_pages: computed(() => Math.max(1, Math.ceil(vocabulary.total_items.value / vocabulary.pager.value.page_size))),
+    total_pages: computed(() =>
+      Math.max(1, Math.ceil(vocabulary.total_items.value / vocabulary.pager.value.page_size))
+    ),
     safe_page: computed(() => Math.min(vocabulary.pager.value.current_page, vocabulary.total_pages.value)),
 
     paginated_entries: computed<[string, WordStatItem][]>(() =>
@@ -162,13 +163,5 @@ export const vocabulary = //
       }
     },
 
-    deleteWord: (word: string) =>
-    {
-      const newWordStat = { ...video_list.data.value.word_stat }
-      delete newWordStat[word]
-      video_list.data.value = {
-        ...video_list.data.value,
-        word_stat: newWordStat,
-      }
-    },
+    
   }

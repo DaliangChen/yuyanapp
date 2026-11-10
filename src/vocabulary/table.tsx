@@ -1,3 +1,4 @@
+import { video_list } from '../video_list/value'
 import { vocabulary } from './value'
 
 export function TablePart()
@@ -114,7 +115,7 @@ export function TablePart()
                 <td className='py-3 px-4 text-right'>
                   <button
                     type='button'
-                    onClick={() => vocabulary.deleteWord(word)}
+                    onClick={() => delete_word(word)}
                     className='text-slate-400 hover:text-rose-600 transition-colors cursor-pointer text-xs'
                     title='从生词本中移除'
                   >
@@ -137,5 +138,15 @@ function pronounce(word: string)
     const u = new SpeechSynthesisUtterance(word)
     u.lang = 'de-DE'
     window.speechSynthesis.speak(u)
+  }
+}
+
+function delete_word(word: string)
+{
+  const newWordStat = { ...video_list.data.value.word_stat }
+  delete newWordStat[word]
+  video_list.data.value = {
+    ...video_list.data.value,
+    word_stat: newWordStat,
   }
 }

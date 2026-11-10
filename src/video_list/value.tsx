@@ -1,5 +1,5 @@
 import { effect, signal } from '@preact/signals'
-import type { VideoInfo, WordStatItem } from '../appv'
+import { InfoError, type VideoInfo, type WordStatItem } from '../appv'
 
 const STORAGE_KEY = 'yuyan_app_data'
 
@@ -58,39 +58,18 @@ function loadInitialData()
 
 export const video_list = //
   {
-    data_file_handle: signal<FileSystemFileHandle | null>(null),
-
-    data: signal<{
-      videos: VideoInfo[]
-      word_stat: Record<string, WordStatItem>
-    }>(loadInitialData()),
+    data: signal<{ videos: VideoInfo[]; word_stat: Record<string, WordStatItem> }>(loadInitialData()),
 
     add_data: signal<{ video_info: VideoInfo; status: 'add' | 'edit' } | null>(null),
   }
 
 effect(() =>
 {
-  const data = video_list.data.value
-
   try
   {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(video_list.data.value))
   } catch (e)
   {
-    console.warn('Failed to save data to localStorage', e)
+    throw new InfoError('数据保存失败')
   }
-
-  const handle = video_list.data_file_handle.peek()
-  if (!handle) return
-
-  handle.createWritable()
-    .then(async writable =>
-    {
-      await writable.write(JSON.stringify(data, null, 2))
-      await writable.close()
-    })
-    .catch((e: Error) =>
-    {
-      console.warn('File handle write failed:', e.message)
-    })
 })
