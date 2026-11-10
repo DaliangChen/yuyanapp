@@ -6,7 +6,6 @@ import { ControlPart } from './control'
 import { PlayerPart } from './player'
 import {
   calculateSentenceWeight,
-  extractWords,
   findNextPlayableIndex,
   findPrevPlayableIndex,
   parseSRT,
@@ -162,7 +161,7 @@ function useInit()
 
 /**
  * 右箭头 (或手指向后勾滚轮)：
- * 判定当前句掌握，当前句所有单词 success + 1，跳到下一个实际播放的句子
+ * 跳转到下一个实际播放的句子（保留跳转逻辑，已移除单词频次 success 统计）
  */
 function handleRightArrowAction()
 {
@@ -177,38 +176,22 @@ function handleRightArrowAction()
     const nextIdx = subs.findIndex(s => s.start > currentTime)
     currIdx = nextIdx !== -1 ? nextIdx : subs.length - 1
   }
-  const currSub = subs[currIdx]
-  const words = extractWords(currSub?.text || '')
+
   const wordStat = app.data.value.word_stat || {}
-
-  for (const w of words)
-  {
-    const stat = wordStat[w] || { success: 0, fail: 0 }
-    stat.success = (stat.success || 0) + 1
-    wordStat[w] = stat
-  }
-
-  app.data.value = {
-    ...app.data.value,
-    word_stat: { ...wordStat },
-  }
-
-  showHud(`✓ 已掌握当前句 (${words.length} 词 Success+1) → 下一句`, 'success')
-
   const isAutoSkip = video_player.auto_skip_familiar.value
   const threshold = video_player.skip_threshold.value
   const targetNextIdx = findNextPlayableIndex(subs, currIdx, isAutoSkip, threshold, wordStat)
 
   if (targetNextIdx !== -1)
   {
+    showHud('下一句 →', 'success')
     video_player.player.value?.seekTo(subs[targetNextIdx].start, true)
   }
 }
 
 /**
- * 左箭头 (或手指向前推滚轮) - 方案 B：
- * 判定上一句（刚刚播放完的那一句，在跳过模式下为前一个未被跳过、实际播放的句子）没听懂：
- * 对该“刚刚播放完的上一句”的所有单词 fail + 1，并倒回到该句开头重播！
+ * 左箭头 (或手指向前推滚轮)：
+ * 倒回到上一个实际播放的句子重播（保留跳转重播逻辑，已移除单词频次 fail 统计）
  */
 function handleLeftArrowAction()
 {
@@ -229,48 +212,20 @@ function handleLeftArrowAction()
   const threshold = video_player.skip_threshold.value
 
   // 寻找“刚刚实际播放完的上一句”
-  // 如果开启了跳过模式，向前回溯找出上一个未被跳过、刚刚播过的句子
+  // 如果开启了跳过模式，向前回溯找出上一个未被跳过、实际播放的句子
   const targetPrevIdx = findPrevPlayableIndex(subs, currIdx, isAutoSkip, threshold, wordStat)
 
   // 如果存在可倒退的上一句
   if (targetPrevIdx !== -1 && targetPrevIdx < currIdx)
   {
     const prevSub = subs[targetPrevIdx]
-    const words = extractWords(prevSub.text)
-
-    for (const w of words)
-    {
-      const stat = wordStat[w] || { success: 0, fail: 0 }
-      stat.fail = (stat.fail || 0) + 1
-      wordStat[w] = stat
-    }
-
-    app.data.value = {
-      ...app.data.value,
-      word_stat: { ...wordStat },
-    }
-
-    showHud(`⭐ 记为生词 (上一句 ${words.length} 词 Fail+1) ← 倒回重播`, 'fail')
+    showHud('← 上一句 (重播)', 'fail')
     video_player.player.value?.seekTo(prevSub.start, true)
   } else
   {
-    // 如果已经在最开始（没有上一句可倒退），则针对第 0 句记生词并重播
+    // 如果已经在最开始（没有上一句可倒退），则回到第 0 句重播
     const firstSub = subs[0]
-    const words = extractWords(firstSub.text)
-
-    for (const w of words)
-    {
-      const stat = wordStat[w] || { success: 0, fail: 0 }
-      stat.fail = (stat.fail || 0) + 1
-      wordStat[w] = stat
-    }
-
-    app.data.value = {
-      ...app.data.value,
-      word_stat: { ...wordStat },
-    }
-
-    showHud(`⭐ 记为生词 (起始句 ${words.length} 词 Fail+1) ← 重播`, 'fail')
+    showHud('← 起始句 (重播)', 'fail')
     video_player.player.value?.seekTo(firstSub.start, true)
   }
 }

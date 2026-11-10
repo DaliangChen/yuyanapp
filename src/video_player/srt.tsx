@@ -295,7 +295,7 @@ export function SrtPart()
           <div
             onClick={() => video_player.player.value?.seekTo(currSub.start, true)}
             className='flex items-baseline gap-4 cursor-pointer p-4 sm:p-5 rounded-2xl bg-white border-l-4 border-slate-800 shadow-xs border border-slate-200/90 transition-all hover:bg-slate-50/90'
-            title='点击重播这一句 (快捷键：按 → 或 滚轮向后：掌握当前句；按 ← 或 滚轮向前：上一句生词并重播)'
+            title='点击重播这一句 (快捷键：按 → 或 滚轮向后：下一句；按 ← 或 滚轮向前：上一句重播)'
           >
             <div className='flex flex-col gap-1.5 items-center shrink-0 select-none'>
               <span className='text-xs text-slate-900 bg-slate-100 font-semibold px-2.5 py-1 rounded-md'>
