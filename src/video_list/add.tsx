@@ -1,5 +1,6 @@
 import type { ChangeEvent } from 'preact/compat'
-import { app, default_never, InfoError } from '../appv'
+import { app } from '../appv'
+import { InfoError, default_never } from '../util'
 import { video_list } from './value'
 
 function extractYouTubeId(urlOrId: string): string

@@ -32,7 +32,7 @@ export type WordStatItem = //
     pass?: boolean
   }
 
-export type Storage = //
+export type AppData = //
   {
     /** 视频列表 */
     videos: VideoInfo[]
@@ -40,3 +40,34 @@ export type Storage = //
     /** 单词统计 */
     word_stat: Record<string, WordStatItem>
   }
+
+/*********************************************************************************
+ * 错误类型
+ */
+
+export class InfoError extends Error
+{
+  constructor(message: string)
+  {
+    super(message)
+    this.name = 'InfoError'
+  }
+}
+
+export class LogicError extends Error
+{
+  constructor()
+  {
+    super('Logic Error')
+    this.name = 'LogicError'
+  }
+}
+
+/*********************************************************************************
+ * 工具函数
+ */
+
+export function default_never(x: never): never
+{
+  return x as never
+}

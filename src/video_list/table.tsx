@@ -1,5 +1,5 @@
-import { app, LogicError } from '../appv'
-import type { VideoInfo } from '../util'
+import { app } from '../appv'
+import { LogicError, type VideoInfo } from '../util'
 import { video_player } from '../video_player/value'
 import { video_list } from './value'
 
@@ -129,58 +129,22 @@ function on_click_edit(video: VideoInfo)
 
 async function on_click_load(video_id: string, srt_type: 'srt_1' | 'srt_2')
 {
-  let srt_text = ''
-  try
-  {
-    if ('showOpenFilePicker' in window)
+  const [handle] = await window.showOpenFilePicker(
     {
-      const [handle] = await window.showOpenFilePicker(
+      multiple: false,
+      types: [
         {
-          multiple: false,
-          types: [
-            {
-              description: 'VTT / SRT',
-              accept: {
-                'text/vtt': ['.vtt'],
-                'text/srt': ['.srt'],
-              },
-            },
-          ],
+          description: 'VTT / SRT',
+          accept: {
+            'text/vtt': ['.vtt'],
+            'text/srt': ['.srt'],
+          },
         },
-      )
-      const file = await handle.getFile()
-      srt_text = await file.text()
-    } else
-    {
-      throw new Error('Native file picker not supported')
-    }
-  } catch (err: unknown)
-  {
-    if ((err as Error)?.name === 'AbortError') return
-    // Fallback file input
-    srt_text = await new Promise<string>((resolve) =>
-    {
-      const input = document.createElement('input')
-      input.type = 'file'
-      input.accept = '.vtt,.srt,text/vtt,text/plain'
-      input.style.display = 'none'
-      input.onchange = async () =>
-      {
-        const file = input.files?.[0]
-        if (file)
-        {
-          resolve(await file.text())
-        } else
-        {
-          resolve('')
-        }
-        document.body.removeChild(input)
-      }
-      document.body.appendChild(input)
-      input.click()
-    })
-  }
-
+      ],
+    },
+  )
+  const file = await handle.getFile()
+  const srt_text = await file.text()
   if (!srt_text) return
 
   const video = app.data.value.videos.find(v => v.video_id === video_id)

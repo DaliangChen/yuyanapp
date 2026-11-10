@@ -7,12 +7,7 @@ export type SortType = 'mastery_worst' | 'fail_desc' | 'success_desc' | 'alpha'
 
 export const vocabulary = //
   {
-    pager: signal(
-      {
-        current_page: 1,
-        page_size: 20,
-      },
-    ),
+    pager: signal({ current_page: 1, page_size: 20 }),
 
     action: signal<{ search: string; filter: FilterType; sort: SortType }>(
       {
@@ -22,8 +17,7 @@ export const vocabulary = //
       },
     ),
 
-    word_stats: computed(() => app.data.value.word_stat || {}),
-    all_entries: computed(() => Object.entries(vocabulary.word_stats.value)),
+    all_entries: computed(() => Object.entries(app.data.value.word_stat)),
     total_words: computed(() => vocabulary.all_entries.value.length),
     passed_words: computed(() => vocabulary.all_entries.value.filter(([, s]) => s.pass).length),
     need_review_words: computed(() => vocabulary.all_entries.value.filter(([, s]) => !s.pass && s.fail > 0).length),
