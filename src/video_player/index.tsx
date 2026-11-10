@@ -6,6 +6,7 @@ import { ControlPart } from './control'
 import { PlayerPart } from './player'
 import {
   calculateSentenceWeight,
+  extractWords,
   findNextPlayableIndex,
   findPrevPlayableIndex,
   parseSRT,
@@ -160,8 +161,8 @@ function useInit()
 }
 
 /**
- * 右箭头 (或手指向后勾滚轮)：
- * 跳转到下一个实际播放的句子（保留跳转逻辑，已移除单词频次 success 统计）
+ * 右箭头：
+ * 纯字幕跳转到下一个实际播放的句子（无单词频次统计）
  */
 function handleRightArrowAction()
 {
@@ -190,8 +191,8 @@ function handleRightArrowAction()
 }
 
 /**
- * 左箭头 (或手指向前推滚轮)：
- * 倒回到上一个实际播放的句子重播（保留跳转重播逻辑，已移除单词频次 fail 统计）
+ * 左箭头：
+ * 纯字幕倒回到上一个实际播放的句子重播（无单词频次统计）
  */
 function handleLeftArrowAction()
 {
@@ -212,10 +213,8 @@ function handleLeftArrowAction()
   const threshold = video_player.skip_threshold.value
 
   // 寻找“刚刚实际播放完的上一句”
-  // 如果开启了跳过模式，向前回溯找出上一个未被跳过、实际播放的句子
   const targetPrevIdx = findPrevPlayableIndex(subs, currIdx, isAutoSkip, threshold, wordStat)
 
-  // 如果存在可倒退的上一句
   if (targetPrevIdx !== -1 && targetPrevIdx < currIdx)
   {
     const prevSub = subs[targetPrevIdx]
@@ -223,9 +222,119 @@ function handleLeftArrowAction()
     video_player.player.value?.seekTo(prevSub.start, true)
   } else
   {
-    // 如果已经在最开始（没有上一句可倒退），则回到第 0 句重播
     const firstSub = subs[0]
     showHud('← 起始句 (重播)', 'fail')
+    video_player.player.value?.seekTo(firstSub.start, true)
+  }
+}
+
+/**
+ * 滚轮向后滚 / 手指向后勾 (deltaY > 0)：
+ * 保持统计与掌握：当前句所有单词 success + 1，跳到下一个实际播放句子
+ */
+function handleWheelNextAction()
+{
+  const srt1 = video_player.video_info.value?.srt_1 ?? ''
+  const subs = parseSRT(srt1)
+  if (subs.length === 0) return
+
+  const currentTime = video_player.current_time.value
+  let currIdx = subs.findIndex(s => currentTime >= s.start && currentTime <= s.end)
+  if (currIdx === -1)
+  {
+    const nextIdx = subs.findIndex(s => s.start > currentTime)
+    currIdx = nextIdx !== -1 ? nextIdx : subs.length - 1
+  }
+
+  const currSub = subs[currIdx]
+  const words = extractWords(currSub?.text || '')
+  const wordStat = app.data.value.word_stat || {}
+
+  for (const w of words)
+  {
+    const stat = wordStat[w] || { success: 0, fail: 0 }
+    stat.success = (stat.success || 0) + 1
+    wordStat[w] = stat
+  }
+
+  app.data.value = {
+    ...app.data.value,
+    word_stat: { ...wordStat },
+  }
+
+  showHud(`✓ 已掌握当前句 (${words.length} 词 Success+1) → 下一句`, 'success')
+
+  const isAutoSkip = video_player.auto_skip_familiar.value
+  const threshold = video_player.skip_threshold.value
+  const targetNextIdx = findNextPlayableIndex(subs, currIdx, isAutoSkip, threshold, wordStat)
+
+  if (targetNextIdx !== -1)
+  {
+    video_player.player.value?.seekTo(subs[targetNextIdx].start, true)
+  }
+}
+
+/**
+ * 滚轮向前推 / 手指向前推 (deltaY < 0)：
+ * 保持统计与生词：刚刚播放完的上一句所有单词 fail + 1，倒回该句重播
+ */
+function handleWheelPrevAction()
+{
+  const srt1 = video_player.video_info.value?.srt_1 ?? ''
+  const subs = parseSRT(srt1)
+  if (subs.length === 0) return
+
+  const currentTime = video_player.current_time.value
+  let currIdx = subs.findIndex(s => currentTime >= s.start && currentTime <= s.end)
+  if (currIdx === -1)
+  {
+    const nextIdx = subs.findIndex(s => s.start > currentTime)
+    currIdx = nextIdx !== -1 ? nextIdx : subs.length - 1
+  }
+
+  const wordStat = app.data.value.word_stat || {}
+  const isAutoSkip = video_player.auto_skip_familiar.value
+  const threshold = video_player.skip_threshold.value
+
+  const targetPrevIdx = findPrevPlayableIndex(subs, currIdx, isAutoSkip, threshold, wordStat)
+
+  if (targetPrevIdx !== -1 && targetPrevIdx < currIdx)
+  {
+    const prevSub = subs[targetPrevIdx]
+    const words = extractWords(prevSub.text)
+
+    for (const w of words)
+    {
+      const stat = wordStat[w] || { success: 0, fail: 0 }
+      stat.fail = (stat.fail || 0) + 1
+      wordStat[w] = stat
+    }
+
+    app.data.value = {
+      ...app.data.value,
+      word_stat: { ...wordStat },
+    }
+
+    showHud(`⭐ 记为生词 (上一句 ${words.length} 词 Fail+1) ← 倒回重播`, 'fail')
+    video_player.player.value?.seekTo(prevSub.start, true)
+  } else
+  {
+    const firstSub = subs[0]
+    const words = extractWords(firstSub.text)
+
+    for (const w of words)
+    {
+      const stat = wordStat[w] || { success: 0, fail: 0 }
+      stat.fail = (stat.fail || 0) + 1
+      wordStat[w] = stat
+    }
+
+    app.data.value = {
+      ...app.data.value,
+      word_stat: { ...wordStat },
+    }
+
+    showHud(`⭐ 记为生词 (起始句 ${words.length} 词 Fail+1) ← 重播`, 'fail')
     video_player.player.value?.seekTo(firstSub.start, true)
   }
 }
@@ -254,12 +363,12 @@ function useKeyboardShortcuts()
         return
       }
 
-      // 按 → (右箭头)：当前句所有单词 success + 1，跳到下一个实际播放句子
+      // 按 → (右箭头)：纯字幕跳转下一句（不计频次）
       if (e.code === 'ArrowRight')
       {
         e.preventDefault()
         handleRightArrowAction()
-      } // 按 ← (左箭头) [方案 B]：刚刚播放完的上一句 fail + 1，倒回该句重播
+      } // 按 ← (左箭头)：纯字幕倒回上一句重播（不计频次）
       else if (e.code === 'ArrowLeft')
       {
         e.preventDefault()
@@ -277,16 +386,16 @@ function useKeyboardShortcuts()
       if (now - lastWheelTimeRef.current < 320) return
       if (Math.abs(e.deltaY) < 10) return
 
-      // 手指向后勾 / 滚轮向后滚 (deltaY > 0)：相当于按右箭头 (当前句掌握，跳下一句)
+      // 手指向后勾 / 滚轮向后滚 (deltaY > 0)：当前句掌握 (success+1)，跳下一句
       if (e.deltaY > 0)
       {
         lastWheelTimeRef.current = now
-        handleRightArrowAction()
-      } // 手指向前推 / 滚轮向前滚 (deltaY < 0)：相当于按左箭头 (上一句记生词，倒回重播)
+        handleWheelNextAction()
+      } // 手指向前推 / 滚轮向前滚 (deltaY < 0)：上一句记生词 (fail+1)，倒回重播
       else if (e.deltaY < 0)
       {
         lastWheelTimeRef.current = now
-        handleLeftArrowAction()
+        handleWheelPrevAction()
       }
     }
 

@@ -65,11 +65,13 @@ export function ControlPart()
 
       {/* Helpful shortcuts hint */}
       <div className='hidden sm:flex items-center gap-2 text-[11px] text-slate-400 font-mono'>
-        <span>滚轮后勾 / → : 下一句</span>
+        <span>滚轮向后: 掌握(Success+1)</span>
         <span>·</span>
-        <span>滚轮前推 / ← : 上一句重播</span>
+        <span>滚轮向前: 生词(Fail+1)重播</span>
         <span>·</span>
-        <span>空格 : 播放/暂停</span>
+        <span>←/→: 快速跳句</span>
+        <span>·</span>
+        <span>空格: 播放/暂停</span>
       </div>
     </div>
   )
