@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'preact/hooks'
 import YouTubePlayer from 'youtube-player'
 import { app } from '../appv'
+import { ActionPart } from './action'
 import { ControlPart } from './control'
 import { PlayerPart } from './player'
 import {
@@ -25,54 +26,11 @@ export function VideoPlayerPage()
   }
 
   const hud = video_player.hud_message.value
-  const totalWords = Object.keys(app.data.value.word_stat || {}).length
-  const videoNote = video_player.video_info.value?.note || video_player.video_info.value?.video_id || ''
-
-  const onBack = () =>
-  {
-    video_player.player.value?.pauseVideo()
-    app.show_page.value = 'video_list'
-  }
 
   return (
     <div className='max-w-5xl mx-auto px-4 py-6 sm:py-8 min-h-screen flex flex-col gap-4 text-slate-800'>
       {/* Top Header - 与列表页和生词本完全统一的素雅头部 */}
-      <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-slate-200'>
-        <div>
-          <button
-            type='button'
-            onClick={onBack}
-            className='inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors mb-1.5 cursor-pointer'
-          >
-            ← 返回视频列表
-          </button>
-          <div className='flex items-center gap-2.5'>
-            <h1 className='text-lg font-semibold tracking-tight text-slate-900 truncate max-w-md' title={videoNote}>
-              {videoNote}
-            </h1>
-            <code className='text-[11px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded'>
-              {video_player.video_info.value.video_id}
-            </code>
-          </div>
-        </div>
-
-        <div className='flex items-center gap-2'>
-          <button
-            type='button'
-            onClick={() =>
-            {
-              video_player.player.value?.pauseVideo()
-              app.show_page.value = 'vocabulary'
-            }}
-            className='inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg shadow-2xs transition-colors cursor-pointer'
-          >
-            <span>📖 生词本</span>
-            <span className='px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-600 font-mono text-[11px]'>
-              {totalWords}
-            </span>
-          </button>
-        </div>
-      </div>
+      <ActionPart />
 
       {/* Main Video & Subtitle Card - 素雅大卡片 */}
       <div className='bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden flex flex-col'>
@@ -186,8 +144,7 @@ function useInit()
             }
           }
         }
-      }
-      catch
+      } catch
       {
         // Ignore during player destroy/transition
       }
@@ -295,8 +252,7 @@ function handleLeftArrowAction()
 
     showHud(`⭐ 记为生词 (上一句 ${words.length} 词 Fail+1) ← 倒回重播`, 'fail')
     video_player.player.value?.seekTo(prevSub.start, true)
-  }
-  else
+  } else
   {
     // 如果已经在最开始（没有上一句可倒退），则针对第 0 句记生词并重播
     const firstSub = subs[0]
@@ -336,8 +292,7 @@ function useKeyboardShortcuts()
         if (video_player.is_playing.value)
         {
           video_player.player.value?.pauseVideo()
-        }
-        else
+        } else
         {
           video_player.player.value?.playVideo()
         }
@@ -349,8 +304,7 @@ function useKeyboardShortcuts()
       {
         e.preventDefault()
         handleRightArrowAction()
-      }
-      // 按 ← (左箭头) [方案 B]：刚刚播放完的上一句 fail + 1，倒回该句重播
+      } // 按 ← (左箭头) [方案 B]：刚刚播放完的上一句 fail + 1，倒回该句重播
       else if (e.code === 'ArrowLeft')
       {
         e.preventDefault()
@@ -373,8 +327,7 @@ function useKeyboardShortcuts()
       {
         lastWheelTimeRef.current = now
         handleRightArrowAction()
-      }
-      // 手指向前推 / 滚轮向前滚 (deltaY < 0)：相当于按左箭头 (上一句记生词，倒回重播)
+      } // 手指向前推 / 滚轮向前滚 (deltaY < 0)：相当于按左箭头 (上一句记生词，倒回重播)
       else if (e.deltaY < 0)
       {
         lastWheelTimeRef.current = now

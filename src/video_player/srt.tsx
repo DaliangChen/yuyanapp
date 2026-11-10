@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'preact/hooks'
 import { app } from '../appv'
-import { video_player } from './value'
 import type { WordStatItem } from '../util'
+import { video_player } from './value'
 
 export interface SubtitleItem
 {
