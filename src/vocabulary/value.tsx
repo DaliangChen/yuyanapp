@@ -145,17 +145,30 @@ export const vocabulary = //
 
     togglePass: (word: string) =>
     {
-      const stat = video_list.data.value.word_stat[word]
-      if (stat)
+      const currentStat = video_list.data.value.word_stat[word]
+      if (currentStat)
       {
-        stat.pass = !stat.pass
-        video_list.data.value = { ...video_list.data.value }
+        const newWordStat = {
+          ...video_list.data.value.word_stat,
+          [word]: {
+            ...currentStat,
+            pass: !currentStat.pass,
+          },
+        }
+        video_list.data.value = {
+          ...video_list.data.value,
+          word_stat: newWordStat,
+        }
       }
     },
 
     deleteWord: (word: string) =>
     {
-      delete video_list.data.value.word_stat[word]
-      video_list.data.value = { ...video_list.data.value }
+      const newWordStat = { ...video_list.data.value.word_stat }
+      delete newWordStat[word]
+      video_list.data.value = {
+        ...video_list.data.value,
+        word_stat: newWordStat,
+      }
     },
   }

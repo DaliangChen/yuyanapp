@@ -232,8 +232,10 @@ function handleRightArrowAction()
     wordStat[w] = stat
   }
 
-  video_list.data.value.word_stat = wordStat
-  video_list.data.value = { ...video_list.data.value }
+  video_list.data.value = {
+    ...video_list.data.value,
+    word_stat: { ...wordStat },
+  }
 
   showHud(`✓ 已掌握当前句 (${words.length} 词 Success+1) → 下一句`, 'success')
 
@@ -287,8 +289,10 @@ function handleLeftArrowAction()
       wordStat[w] = stat
     }
 
-    video_list.data.value.word_stat = wordStat
-    video_list.data.value = { ...video_list.data.value }
+    video_list.data.value = {
+      ...video_list.data.value,
+      word_stat: { ...wordStat },
+    }
 
     showHud(`⭐ 记为生词 (上一句 ${words.length} 词 Fail+1) ← 倒回重播`, 'fail')
     video_player.player.value?.seekTo(prevSub.start, true)
@@ -306,8 +310,10 @@ function handleLeftArrowAction()
       wordStat[w] = stat
     }
 
-    video_list.data.value.word_stat = wordStat
-    video_list.data.value = { ...video_list.data.value }
+    video_list.data.value = {
+      ...video_list.data.value,
+      word_stat: { ...wordStat },
+    }
 
     showHud(`⭐ 记为生词 (起始句 ${words.length} 词 Fail+1) ← 重播`, 'fail')
     video_player.player.value?.seekTo(firstSub.start, true)

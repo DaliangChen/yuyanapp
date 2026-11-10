@@ -303,7 +303,10 @@ export function SrtPart()
     else stat.fail += 1
 
     wordStat[w] = stat
-    video_list.data.value = { ...video_list.data.value }
+    video_list.data.value = {
+      ...video_list.data.value,
+      word_stat: { ...wordStat },
+    }
   }
 
   const togglePassWord = () =>
@@ -313,7 +316,10 @@ export function SrtPart()
     const stat = wordStat[w] || { success: 0, fail: 0 }
     stat.pass = !stat.pass
     wordStat[w] = stat
-    video_list.data.value = { ...video_list.data.value }
+    video_list.data.value = {
+      ...video_list.data.value,
+      word_stat: { ...wordStat },
+    }
   }
 
   const pronounceWord = (word: string) =>
