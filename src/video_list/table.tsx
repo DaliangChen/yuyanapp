@@ -1,10 +1,11 @@
-import { app, LogicError, type VideoInfo } from '../appv'
+import { app } from '../appv'
+import { LogicError, type VideoInfo } from '../util'
 import { video_player } from '../video_player/value'
 import { video_list } from './value'
 
 export function TablePart()
 {
-  const sortedVideos = [...video_list.data.value.videos].sort((a, b) => b.update_time - a.update_time)
+  const sortedVideos = [...app.data.value.videos].sort((a, b) => b.update_time - a.update_time)
 
   if (sortedVideos.length === 0)
   {
@@ -52,43 +53,47 @@ export function TablePart()
                   </div>
                 </td>
                 <td className='py-3.5 px-4'>
-                  {video.srt_1 ? (
-                    <span className='inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded'>
-                      ✓ 已加载
-                    </span>
-                  ) : (
-                    <button
-                      type='button'
-                      onClick={() => on_click_load(video.video_id, 'srt_1')}
-                      className='text-[11px] text-slate-500 hover:text-slate-800 underline decoration-slate-300 underline-offset-2 cursor-pointer'
-                    >
-                      载入字幕
-                    </button>
-                  )}
+                  {video.srt_1
+                    ? (
+                      <span className='inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded'>
+                        ✓ 已加载
+                      </span>
+                    )
+                    : (
+                      <button
+                        type='button'
+                        onClick={() => on_click_load(video.video_id, 'srt_1')}
+                        className='text-[11px] text-slate-500 hover:text-slate-800 underline decoration-slate-300 underline-offset-2 cursor-pointer'
+                      >
+                        载入字幕
+                      </button>
+                    )}
                 </td>
                 <td className='py-3.5 px-4'>
-                  {video.srt_2 ? (
-                    <span className='inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded'>
-                      ✓ 已加载
-                    </span>
-                  ) : (
-                    <button
-                      type='button'
-                      onClick={() => on_click_load(video.video_id, 'srt_2')}
-                      className='text-[11px] text-slate-500 hover:text-slate-800 underline decoration-slate-300 underline-offset-2 cursor-pointer'
-                    >
-                      载入字幕
-                    </button>
-                  )}
+                  {video.srt_2
+                    ? (
+                      <span className='inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded'>
+                        ✓ 已加载
+                      </span>
+                    )
+                    : (
+                      <button
+                        type='button'
+                        onClick={() => on_click_load(video.video_id, 'srt_2')}
+                        className='text-[11px] text-slate-500 hover:text-slate-800 underline decoration-slate-300 underline-offset-2 cursor-pointer'
+                      >
+                        载入字幕
+                      </button>
+                    )}
                 </td>
                 <td className='py-3.5 px-4 text-slate-600'>
-                  {video.note ? (
-                    <span className='line-clamp-1' title={video.note}>
-                      {video.note}
-                    </span>
-                  ) : (
-                    <span className='text-slate-400 italic text-[11px]'>无备注</span>
-                  )}
+                  {video.note
+                    ? (
+                      <span className='line-clamp-1' title={video.note}>
+                        {video.note}
+                      </span>
+                    )
+                    : <span className='text-slate-400 italic text-[11px]'>无备注</span>}
                 </td>
                 <td className='py-3.5 px-4 text-right'>
                   <div className='flex items-center justify-end gap-3'>
@@ -124,65 +129,37 @@ function on_click_edit(video: VideoInfo)
 
 async function on_click_load(video_id: string, srt_type: 'srt_1' | 'srt_2')
 {
-  let srt_text = ''
-  try {
-    if ('showOpenFilePicker' in window) {
-      const [handle] = await window.showOpenFilePicker(
+  const [handle] = await window.showOpenFilePicker(
+    {
+      multiple: false,
+      types: [
         {
-          multiple: false,
-          types: [
-            {
-              description: 'VTT / SRT',
-              accept: {
-                'text/vtt': ['.vtt'],
-                'text/srt': ['.srt'],
-              },
-            },
-          ],
+          description: 'VTT / SRT',
+          accept: {
+            'text/vtt': ['.vtt'],
+            'text/srt': ['.srt'],
+          },
         },
-      )
-      const file = await handle.getFile()
-      srt_text = await file.text()
-    } else {
-      throw new Error('Native file picker not supported')
-    }
-  } catch (err: unknown) {
-    if ((err as Error)?.name === 'AbortError') return
-    // Fallback file input
-    srt_text = await new Promise<string>((resolve) => {
-      const input = document.createElement('input')
-      input.type = 'file'
-      input.accept = '.vtt,.srt,text/vtt,text/plain'
-      input.style.display = 'none'
-      input.onchange = async () => {
-        const file = input.files?.[0]
-        if (file) {
-          resolve(await file.text())
-        } else {
-          resolve('')
-        }
-        document.body.removeChild(input)
-      }
-      document.body.appendChild(input)
-      input.click()
-    })
-  }
-
+      ],
+    },
+  )
+  const file = await handle.getFile()
+  const srt_text = await file.text()
   if (!srt_text) return
 
-  const video = video_list.data.value.videos.find(v => v.video_id === video_id)
+  const video = app.data.value.videos.find(v => v.video_id === video_id)
   if (!video) throw new LogicError()
 
   if (srt_type === 'srt_1') video.srt_1 = srt_text
   else video.srt_2 = srt_text
   video.update_time = Date.now()
-  video_list.data.value = { ...video_list.data.value }
+  app.data.value = { ...app.data.value }
 }
 
 function on_click_delete(videoId: string)
 {
-  video_list.data.value.videos = video_list.data.value.videos.filter(v => v.video_id !== videoId)
-  video_list.data.value = { ...video_list.data.value }
+  app.data.value.videos = app.data.value.videos.filter(v => v.video_id !== videoId)
+  app.data.value = { ...app.data.value }
 }
 
 function on_click_play(video: VideoInfo)

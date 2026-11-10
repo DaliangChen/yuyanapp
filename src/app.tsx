@@ -1,5 +1,6 @@
 import { useEffect } from 'preact/hooks'
-import { app, InfoError, LogicError } from './appv'
+import { app } from './appv'
+import { InfoError, LogicError } from './util'
 import { VideoListPage } from './video_list'
 import { VideoPlayerPage } from './video_player'
 import { VocabularyPage } from './vocabulary'

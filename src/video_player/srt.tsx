@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'preact/hooks'
-import type { WordStatItem } from '../appv'
-import { video_list } from '../video_list/value'
+import { app } from '../appv'
 import { video_player } from './value'
+import type { WordStatItem } from '../util'
 
 export interface SubtitleItem
 {
@@ -22,7 +22,8 @@ export function parseSRT(srt: string): SubtitleItem[]
 {
   if (!srt) return []
   const normalized = srt.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
-  const pattern = /(?:(\d{1,2}:)?(\d{2}:\d{2}[,.]\d{3}))\s*-->\s*(?:(\d{1,2}:)?(\d{2}:\d{2}[,.]\d{3}))\s*\n([\s\S]*?)(?=\n\s*\n|$)/g
+  const pattern =
+    /(?:(\d{1,2}:)?(\d{2}:\d{2}[,.]\d{3}))\s*-->\s*(?:(\d{1,2}:)?(\d{2}:\d{2}[,.]\d{3}))\s*\n([\s\S]*?)(?=\n\s*\n|$)/g
   const results: SubtitleItem[] = []
 
   const timeToSeconds = (timeStr: string) =>
@@ -33,8 +34,7 @@ export function parseSRT(srt: string): SubtitleItem[]
       const [h, m, sMs] = parts
       const [s, ms] = sMs.split('.')
       return parseInt(h, 10) * 3600 + parseInt(m, 10) * 60 + parseInt(s, 10) + parseInt(ms || '0', 10) / 1000
-    }
-    else if (parts.length === 2)
+    } else if (parts.length === 2)
     {
       const [m, sMs] = parts
       const [s, ms] = sMs.split('.')
@@ -103,13 +103,11 @@ export function calculateSentenceWeight(text: string, wordStat: Record<string, W
     if (stat?.pass)
     {
       sumUnfamiliarity += 0
-    }
-    else if (stat)
+    } else if (stat)
     {
       const unfam = (stat.fail + 1) / (stat.success + stat.fail + 2)
       sumUnfamiliarity += unfam
-    }
-    else
+    } else
     {
       sumUnfamiliarity += 0.5
     }
@@ -202,16 +200,14 @@ export function getWordStyle(stat: WordStatItem | undefined)
       fontWeight: '600',
       borderBottom: '2px solid rgba(185, 28, 28, 0.7)',
     }
-  }
-  else if (failRate >= 0.3 || stat.fail >= 1)
+  } else if (failRate >= 0.3 || stat.fail >= 1)
   {
     return {
       color: '#c2410c',
       fontWeight: '500',
       borderBottom: '1.5px dashed rgba(194, 65, 12, 0.7)',
     }
-  }
-  else
+  } else
   {
     return {
       color: '#15803d',
@@ -240,9 +236,7 @@ export function SrtPart()
 
     return subs1.map(s1 =>
     {
-      const matched2 = subs2.find(s2 =>
-        Math.max(s1.start, s2.start) < Math.min(s1.end, s2.end)
-      )
+      const matched2 = subs2.find(s2 => Math.max(s1.start, s2.start) < Math.min(s1.end, s2.end))
       return {
         start: s1.start,
         end: s1.end,
@@ -264,14 +258,13 @@ export function SrtPart()
     if (nextIdx !== -1)
     {
       activeIndex = nextIdx
-    }
-    else
+    } else
     {
       activeIndex = pairedSubtitles.length - 1
     }
   }
 
-  const wordStat = video_list.data.value.word_stat || {}
+  const wordStat = app.data.value.word_stat || {}
   const isAutoSkip = video_player.auto_skip_familiar.value
   const threshold = video_player.skip_threshold.value
 
@@ -303,7 +296,10 @@ export function SrtPart()
     else stat.fail += 1
 
     wordStat[w] = stat
-    video_list.data.value = { ...video_list.data.value }
+    app.data.value = {
+      ...app.data.value,
+      word_stat: { ...wordStat },
+    }
   }
 
   const togglePassWord = () =>
@@ -313,7 +309,10 @@ export function SrtPart()
     const stat = wordStat[w] || { success: 0, fail: 0 }
     stat.pass = !stat.pass
     wordStat[w] = stat
-    video_list.data.value = { ...video_list.data.value }
+    app.data.value = {
+      ...app.data.value,
+      word_stat: { ...wordStat },
+    }
   }
 
   const pronounceWord = (word: string) =>
@@ -370,8 +369,12 @@ export function SrtPart()
               if (!stat) return <span className='text-slate-400'>生词本中尚无记录</span>
               return (
                 <div className='flex items-center gap-2.5'>
-                  <span>掌握: <strong className='text-emerald-600 font-mono'>{stat.success}</strong></span>
-                  <span>生词: <strong className='text-amber-700 font-mono'>{stat.fail}</strong></span>
+                  <span>
+                    掌握: <strong className='text-emerald-600 font-mono'>{stat.success}</strong>
+                  </span>
+                  <span>
+                    生词: <strong className='text-amber-700 font-mono'>{stat.fail}</strong>
+                  </span>
                   {stat.pass && <span className='text-emerald-700 font-medium'>[已掌握 Pass]</span>}
                 </div>
               )
@@ -503,7 +506,7 @@ function renderTokens(text: string, onWordClick: (w: string) => void)
       if (isWordLike)
       {
         const cleanWord = segment.toLowerCase().replace(/^[^\p{L}0-9]+|[^\p{L}0-9]+$/gu, '')
-        const stat = video_list.data.value.word_stat[cleanWord]
+        const stat = app.data.value.word_stat[cleanWord]
         const style = getWordStyle(stat)
 
         items.push(
@@ -516,19 +519,16 @@ function renderTokens(text: string, onWordClick: (w: string) => void)
             }}
             className='cursor-pointer rounded px-0.5 transition-colors hover:bg-slate-200/70'
             style={style}
-            title={
-              stat?.pass
-                ? `${segment} [已掌握 Pass]`
-                : stat
-                ? `${segment} (Fail: ${stat.fail}, Success: ${stat.success}) 点击查词`
-                : `${segment} (未打卡) 点击查词`
-            }
+            title={stat?.pass
+              ? `${segment} [已掌握 Pass]`
+              : stat
+              ? `${segment} (Fail: ${stat.fail}, Success: ${stat.success}) 点击查词`
+              : `${segment} (未打卡) 点击查词`}
           >
             {segment}
-          </span>
+          </span>,
         )
-      }
-      else
+      } else
       {
         items.push(<span key={i++}>{segment}</span>)
       }
@@ -543,7 +543,7 @@ function renderTokens(text: string, onWordClick: (w: string) => void)
     if (/^[\p{L}0-9'-]+$/u.test(part))
     {
       const cleanWord = part.toLowerCase().replace(/^[^\p{L}0-9]+|[^\p{L}0-9]+$/gu, '')
-      const stat = video_list.data.value.word_stat[cleanWord]
+      const stat = app.data.value.word_stat[cleanWord]
       const style = getWordStyle(stat)
 
       return (
@@ -556,13 +556,11 @@ function renderTokens(text: string, onWordClick: (w: string) => void)
           }}
           className='cursor-pointer rounded px-0.5 transition-colors hover:bg-slate-200/70'
           style={style}
-          title={
-            stat?.pass
-              ? `${part} [已掌握 Pass]`
-              : stat
-              ? `${part} (Fail: ${stat.fail}, Success: ${stat.success}) 点击查词`
-              : `${part} (未打卡) 点击查词`
-          }
+          title={stat?.pass
+            ? `${part} [已掌握 Pass]`
+            : stat
+            ? `${part} (Fail: ${stat.fail}, Success: ${stat.success}) 点击查词`
+            : `${part} (未打卡) 点击查词`}
         >
           {part}
         </span>
