@@ -17,8 +17,6 @@ export const vocabulary: {
   total_pages: ReadonlySignal<number>
   safe_page: ReadonlySignal<number>
   paginated_entries: ReadonlySignal<[string, WordStatItem][]>
-  start_idx: ReadonlySignal<number>
-  end_idx: ReadonlySignal<number>
 } = //
   {
     pager: signal({ current_page: 1, page_size: 20 }),
@@ -113,16 +111,5 @@ export const vocabulary: {
       return vocabulary.filtered_entries.value.slice(start, start + vocabulary.pager.value.page_size)
     }),
 
-    start_idx: computed(() =>
-    {
-      const total = vocabulary.total_items.value
-      return total === 0 ? 0 : (vocabulary.safe_page.value - 1) * vocabulary.pager.value.page_size + 1
-    }),
-
-    end_idx: computed(() =>
-    {
-      return Math.min(vocabulary.safe_page.value * vocabulary.pager.value.page_size, vocabulary.total_items.value)
-    }),
-
-   
+    
   }

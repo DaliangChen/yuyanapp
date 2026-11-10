@@ -1,21 +1,22 @@
+import { computed } from '@preact/signals'
 import { vocabulary } from './value'
 
-interface PagerPartProps
+const endIdx = computed(() =>
 {
-  startIdx?: number
-  endIdx?: number
-  totalItems?: number
-  safePage?: number
-  totalPages?: number
-}
+  return Math.min(vocabulary.safe_page.value * vocabulary.pager.value.page_size, vocabulary.total_items.value)
+})
 
-export function PagerPart(props?: PagerPartProps)
+const startIdx = computed(() =>
 {
-  const totalItems = props?.totalItems ?? vocabulary.total_items.value
-  const startIdx = props?.startIdx ?? vocabulary.start_idx.value
-  const endIdx = props?.endIdx ?? vocabulary.end_idx.value
-  const safePage = props?.safePage ?? vocabulary.safe_page.value
-  const totalPages = props?.totalPages ?? vocabulary.total_pages.value
+  const total = vocabulary.total_items.value
+  return total === 0 ? 0 : (vocabulary.safe_page.value - 1) * vocabulary.pager.value.page_size + 1
+})
+
+export function PagerPart()
+{
+  const totalItems = vocabulary.total_items.value
+  const safePage = vocabulary.safe_page.value
+  const totalPages = vocabulary.total_pages.value
   const pageSize = vocabulary.pager.value.page_size
 
   if (totalItems === 0) return null
@@ -24,8 +25,8 @@ export function PagerPart(props?: PagerPartProps)
     <div className='flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 bg-slate-50/70 border-t border-slate-200 text-xs text-slate-500'>
       <div className='flex items-center gap-2'>
         <span>
-          显示第 <strong className='text-slate-700'>{startIdx}</strong> -{' '}
-          <strong className='text-slate-700'>{endIdx}</strong> 条
+          显示第 <strong className='text-slate-700'>{startIdx.value}</strong> -{' '}
+          <strong className='text-slate-700'>{endIdx.value}</strong> 条
         </span>
         <span>/</span>
         <span>
@@ -34,7 +35,6 @@ export function PagerPart(props?: PagerPartProps)
       </div>
 
       <div className='flex items-center gap-3'>
-        {/* Page size picker */}
         <div className='flex items-center gap-1.5'>
           <span>每页:</span>
           <select
