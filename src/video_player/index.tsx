@@ -28,14 +28,14 @@ export function VideoPlayerPage()
   const hud = video_player.hud_message.value
 
   return (
-    <div className='max-w-5xl mx-auto px-4 py-6 sm:py-8 min-h-screen flex flex-col gap-4 text-slate-800'>
+    <div className='max-w-5xl mx-auto px-3 sm:px-4 py-2 sm:py-3 max-h-[920px] flex flex-col justify-start gap-2.5 text-slate-800 overflow-hidden'>
       {/* Top Header - 与列表页和生词本完全统一的素雅头部 */}
       <ActionPart />
 
       {/* Main Video & Subtitle Card - 素雅大卡片 */}
       <div className='bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden flex flex-col'>
         {/* Video Stage without overlaid subtitle obstruction */}
-        <div className='relative w-full aspect-video min-h-[380px] sm:min-h-[480px] max-h-[72vh] bg-black flex items-center justify-center overflow-hidden'>
+        <div className='relative w-full aspect-video max-h-[46vh] sm:max-h-[50vh] md:max-h-[460px] bg-black flex items-center justify-center overflow-hidden shrink-0'>
           <PlayerPart />
 
           {/* HUD Toast - 素雅白底微阴影悬浮胶囊 */}
@@ -230,7 +230,7 @@ function handleLeftArrowAction()
 
 /**
  * 滚轮向后滚 / 手指向后勾 (deltaY > 0)：
- * 保持统计与掌握：当前句所有单词 success + 1，跳到下一个实际播放句子
+ * 只打分不跳转：当前句所有单词 success + 1
  */
 function handleWheelNextAction()
 {
@@ -262,21 +262,12 @@ function handleWheelNextAction()
     word_stat: { ...wordStat },
   }
 
-  showHud(`✓ 已掌握当前句 (${words.length} 词 Success+1) → 下一句`, 'success')
-
-  const isAutoSkip = video_player.auto_skip_familiar.value
-  const threshold = video_player.skip_threshold.value
-  const targetNextIdx = findNextPlayableIndex(subs, currIdx, isAutoSkip, threshold, wordStat)
-
-  if (targetNextIdx !== -1)
-  {
-    video_player.player.value?.seekTo(subs[targetNextIdx].start, true)
-  }
+  showHud(`✓ 已掌握当前句 (${words.length} 词 Success+1)`, 'success')
 }
 
 /**
  * 滚轮向前推 / 手指向前推 (deltaY < 0)：
- * 保持统计与生词：刚刚播放完的上一句所有单词 fail + 1，倒回该句重播
+ * 只打分不跳转：上一句（刚刚播放完的句子）所有单词 fail + 1
  */
 function handleWheelPrevAction()
 {
@@ -315,8 +306,7 @@ function handleWheelPrevAction()
       word_stat: { ...wordStat },
     }
 
-    showHud(`⭐ 记为生词 (上一句 ${words.length} 词 Fail+1) ← 倒回重播`, 'fail')
-    video_player.player.value?.seekTo(prevSub.start, true)
+    showHud(`⭐ 记为生词 (上一句 ${words.length} 词 Fail+1)`, 'fail')
   } else
   {
     const firstSub = subs[0]
@@ -334,8 +324,7 @@ function handleWheelPrevAction()
       word_stat: { ...wordStat },
     }
 
-    showHud(`⭐ 记为生词 (起始句 ${words.length} 词 Fail+1) ← 重播`, 'fail')
-    video_player.player.value?.seekTo(firstSub.start, true)
+    showHud(`⭐ 记为生词 (起始句 ${words.length} 词 Fail+1)`, 'fail')
   }
 }
 
@@ -381,17 +370,20 @@ function useKeyboardShortcuts()
       const target = e.target as HTMLElement
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return
 
+      // 阻止页面跟随滚动晃动
+      e.preventDefault()
+
       const now = Date.now()
       // 防抖冷却：每次滚轮动作间隔 320ms，避免连发跳帧
       if (now - lastWheelTimeRef.current < 320) return
       if (Math.abs(e.deltaY) < 10) return
 
-      // 手指向后勾 / 滚轮向后滚 (deltaY > 0)：当前句掌握 (success+1)，跳下一句
+      // 手指向后勾 / 滚轮向后滚 (deltaY > 0)：当前句掌握 (success+1)，只打分不跳转
       if (e.deltaY > 0)
       {
         lastWheelTimeRef.current = now
         handleWheelNextAction()
-      } // 手指向前推 / 滚轮向前滚 (deltaY < 0)：上一句记生词 (fail+1)，倒回重播
+      } // 手指向前推 / 滚轮向前滚 (deltaY < 0)：上一句记生词 (fail+1)，只打分不跳转
       else if (e.deltaY < 0)
       {
         lastWheelTimeRef.current = now
@@ -400,7 +392,7 @@ function useKeyboardShortcuts()
     }
 
     window.addEventListener('keydown', handleKeyDown)
-    window.addEventListener('wheel', handleWheel, { passive: true })
+    window.addEventListener('wheel', handleWheel, { passive: false })
 
     return () =>
     {

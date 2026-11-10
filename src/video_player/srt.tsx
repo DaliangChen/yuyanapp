@@ -265,71 +265,71 @@ export function SrtPart()
   }
 
   const wordStat = app.data.value.word_stat || {}
-  const isAutoSkip = video_player.auto_skip_familiar.value
-  const threshold = video_player.skip_threshold.value
 
   // 当前正在播放的句子
   const currSub = activeIndex >= 0 && activeIndex < pairedSubtitles.length ? pairedSubtitles[activeIndex] : null
 
   const currWeight = currSub ? calculateSentenceWeight(currSub.text1, wordStat) : 0
-  const isAutoSkipActive = isAutoSkip && currWeight < threshold
-
-  if (pairedSubtitles.length === 0)
-  {
-    return (
-      <div className='w-full bg-slate-50/70 border-t border-slate-200 p-6 text-center text-slate-400 text-xs'>
-        暂无已加载的字幕文件，请先在视频列表载入 SRT/VTT 字幕
-      </div>
-    )
-  }
-
-  // If auto-skip is triggered for this sentence, don't show to maintain clean flow
-  if (isAutoSkipActive)
-  {
-    return null
-  }
 
   return (
-    <div className='w-full bg-slate-50/70 border-t border-slate-200 p-4 sm:p-6 flex flex-col gap-3 relative'>
-      {/* 当前句字幕区 - 纯粹聚焦于当前正在播放的这一句 */}
+    <div className='w-full bg-slate-50/70 border-t border-slate-200 p-2.5 sm:p-3.5 flex flex-col gap-2 relative shrink-0'>
+      {/* 当前句字幕区 - 外框与白色卡片永久常驻，跳转时绝不坍塌或消失 */}
       <div className='w-full'>
-        {currSub ? (
-          <div
-            onClick={() => video_player.player.value?.seekTo(currSub.start, true)}
-            className='flex items-baseline gap-4 cursor-pointer p-4 sm:p-5 rounded-2xl bg-white border-l-4 border-slate-800 shadow-xs border border-slate-200/90 transition-all hover:bg-slate-50/90'
-            title='点击重播这一句 (快捷键：按 → 或 滚轮向后：下一句；按 ← 或 滚轮向前：上一句重播)'
-          >
-            <div className='flex flex-col gap-1.5 items-center shrink-0 select-none'>
-              <span className='text-xs text-slate-900 bg-slate-100 font-semibold px-2.5 py-1 rounded-md'>
-                当前句
-              </span>
-              <span
-                className={`text-[10px] font-mono ${
-                  currWeight >= 0.4 ? 'text-amber-700' : currWeight >= 0.2 ? 'text-slate-600' : 'text-emerald-700'
-                }`}
-                title='基于词频熟练度计算的生词度'
-              >
-                {(currWeight * 100).toFixed(0)}% 生词
-              </span>
-            </div>
+        <div
+          onClick={() => currSub && video_player.player.value?.seekTo(currSub.start, true)}
+          className={`flex items-baseline gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white border-l-4 border-slate-800 shadow-2xs border border-slate-200/90 min-h-[86px] sm:min-h-[92px] transition-colors ${
+            currSub ? 'cursor-pointer hover:bg-slate-50/90' : 'cursor-default'
+          }`}
+          title={
+            currSub
+              ? '点击重播这一句 (快捷键：按 → 下一句；按 ← 上一句重播；滚轮只打分不跳句)'
+              : undefined
+          }
+        >
+          <div className='flex flex-col gap-1 items-center shrink-0 select-none min-w-[50px]'>
+            <span className='text-[11px] text-slate-900 bg-slate-100 font-semibold px-2 py-0.5 rounded-md'>
+              当前句
+            </span>
+            <span
+              className={`text-[10px] font-mono ${
+                currSub
+                  ? currWeight >= 0.4
+                    ? 'text-amber-700'
+                    : currWeight >= 0.2
+                    ? 'text-slate-600'
+                    : 'text-emerald-700'
+                  : 'text-slate-300'
+              }`}
+              title='基于词频熟练度计算的生词度'
+            >
+              {currSub ? `${(currWeight * 100).toFixed(0)}% 生词` : '—'}
+            </span>
+          </div>
 
-            <div className='flex-1 min-w-0'>
-              {/* 大字号清晰主文本 */}
-              <div className='text-xl sm:text-2xl md:text-[26px] font-semibold text-slate-900 leading-relaxed tracking-wide'>
-                {renderTokens(currSub.text1)}
+          <div className='flex-1 min-w-0 flex flex-col justify-center min-h-[44px]'>
+            {pairedSubtitles.length === 0 ? (
+              <div className='text-slate-400 text-xs italic py-1'>
+                暂无已加载的字幕文件，请先在视频列表载入 SRT/VTT 字幕
               </div>
-              {currSub.text2 && (
-                <div className='text-base sm:text-lg md:text-xl text-slate-800 font-medium mt-2.5 leading-relaxed tracking-normal'>
-                  {currSub.text2}
+            ) : currSub ? (
+              <>
+                {/* 大字号清晰主文本 */}
+                <div className='text-lg sm:text-xl md:text-[22px] font-semibold text-slate-900 leading-snug tracking-wide'>
+                  {renderTokens(currSub.text1)}
                 </div>
-              )}
-            </div>
+                {currSub.text2 && (
+                  <div className='text-sm sm:text-base md:text-lg text-slate-700 font-medium mt-1 leading-snug tracking-normal'>
+                    {currSub.text2}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className='text-slate-400 text-xs italic py-1'>
+                等待当前字幕播放...
+              </div>
+            )}
           </div>
-        ) : (
-          <div className='py-6 text-center text-slate-400 text-sm italic'>
-            等待当前字幕播放...
-          </div>
-        )}
+        </div>
       </div>
     </div>
   )
