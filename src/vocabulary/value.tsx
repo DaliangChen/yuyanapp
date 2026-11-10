@@ -1,11 +1,31 @@
-import { computed, signal } from '@preact/signals'
+import { computed, type ReadonlySignal, Signal, signal } from '@preact/signals'
 import { app } from '../appv'
 import type { WordStatItem } from '../util'
 
 export type FilterType = 'all' | 'need_review' | 'passed'
 export type SortType = 'mastery_worst' | 'fail_desc' | 'success_desc' | 'alpha'
 
-export const vocabulary = //
+export const vocabulary: {
+  pager: Signal<{ current_page: number; page_size: number }>
+  action: Signal<{ search: string; filter: FilterType; sort: SortType }>
+  all_entries: ReadonlySignal<[string, WordStatItem][]>
+  total_words: ReadonlySignal<number>
+  passed_words: ReadonlySignal<number>
+  need_review_words: ReadonlySignal<number>
+  filtered_entries: ReadonlySignal<[string, WordStatItem][]>
+  total_items: ReadonlySignal<number>
+  total_pages: ReadonlySignal<number>
+  safe_page: ReadonlySignal<number>
+  paginated_entries: ReadonlySignal<[string, WordStatItem][]>
+  start_idx: ReadonlySignal<number>
+  end_idx: ReadonlySignal<number>
+  setSearch: (search: string) => void
+  setFilter: (filter: FilterType) => void
+  setSort: (sort: SortType) => void
+  setPage: (current_page: number) => void
+  setPageSize: (page_size: number) => void
+  togglePass: (word: string) => void
+} = //
   {
     pager: signal({ current_page: 1, page_size: 20 }),
 
