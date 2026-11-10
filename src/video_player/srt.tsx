@@ -268,16 +268,8 @@ export function SrtPart()
   const isAutoSkip = video_player.auto_skip_familiar.value
   const threshold = video_player.skip_threshold.value
 
-  // 上一句：如果在自动跳过模式下，取上一个未被跳过、刚刚播放过的上一句
-  const prevIdx = findPrevPlayableIndex(pairedSubtitles, activeIndex, isAutoSkip, threshold, wordStat)
-  const prevSub = prevIdx !== -1 && prevIdx < activeIndex ? pairedSubtitles[prevIdx] : null
-
-  // 当前句
+  // 当前正在播放的句子
   const currSub = activeIndex >= 0 && activeIndex < pairedSubtitles.length ? pairedSubtitles[activeIndex] : null
-
-  // 下一句：如果在自动跳过模式下，取下一个真正会播的句子
-  const nextIdx = findNextPlayableIndex(pairedSubtitles, activeIndex, isAutoSkip, threshold, wordStat)
-  const nextSub = nextIdx !== -1 ? pairedSubtitles[nextIdx] : null
 
   const currWeight = currSub ? calculateSentenceWeight(currSub.text1, wordStat) : 0
   const isAutoSkipActive = isAutoSkip && currWeight < threshold
@@ -411,33 +403,9 @@ export function SrtPart()
         </div>
       )}
 
-      {/* 3-Sentence Subtitle Container - 位于控制栏底部的素雅大字号字幕区 */}
-      <div className='w-full flex flex-col gap-2.5'>
-        {/* 1. 上一句 (在跳过模式下为刚刚播放完的上一句) */}
-        {prevSub && (
-          <div
-            onClick={() => video_player.player.value?.seekTo(prevSub.start, true)}
-            className='flex items-baseline gap-3 cursor-pointer py-2 px-3 rounded-xl opacity-60 hover:opacity-100 hover:bg-white/70 transition-all'
-            title='点击跳转至上一句 (快捷键: ← 或 滚轮向前推)'
-          >
-            <span className='text-[11px] text-slate-500 bg-slate-200/80 px-2 py-0.5 rounded select-none font-medium shrink-0'>
-              上一句
-            </span>
-            <div className='flex-1 min-w-0'>
-              <div className='text-sm sm:text-base text-slate-600 leading-relaxed'>
-                {prevSub.text1}
-              </div>
-              {prevSub.text2 && (
-                <div className='text-xs sm:text-sm text-slate-400 mt-0.5 leading-relaxed'>
-                  {prevSub.text2}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* 2. 这一句 (大字号高对比度醒目展示) */}
-        {currSub && (
+      {/* 当前句字幕区 - 纯粹聚焦于当前正在播放的这一句 */}
+      <div className='w-full'>
+        {currSub ? (
           <div
             onClick={() => video_player.player.value?.seekTo(currSub.start, true)}
             className='flex items-baseline gap-4 cursor-pointer p-4 sm:p-5 rounded-2xl bg-white border-l-4 border-slate-800 shadow-xs border border-slate-200/90 transition-all hover:bg-slate-50/90'
@@ -469,28 +437,9 @@ export function SrtPart()
               )}
             </div>
           </div>
-        )}
-
-        {/* 3. 下一句 */}
-        {nextSub && (
-          <div
-            onClick={() => video_player.player.value?.seekTo(nextSub.start, true)}
-            className='flex items-baseline gap-3 cursor-pointer py-2 px-3 rounded-xl opacity-60 hover:opacity-100 hover:bg-white/70 transition-all'
-            title='点击跳转至下一句 (快捷键: → 或 滚轮向后勾)'
-          >
-            <span className='text-[11px] text-slate-500 bg-slate-200/80 px-2 py-0.5 rounded select-none font-medium shrink-0'>
-              下一句
-            </span>
-            <div className='flex-1 min-w-0'>
-              <div className='text-sm sm:text-base text-slate-600 leading-relaxed'>
-                {nextSub.text1}
-              </div>
-              {nextSub.text2 && (
-                <div className='text-xs sm:text-sm text-slate-400 mt-0.5 leading-relaxed'>
-                  {nextSub.text2}
-                </div>
-              )}
-            </div>
+        ) : (
+          <div className='py-6 text-center text-slate-400 text-sm italic'>
+            等待当前字幕播放...
           </div>
         )}
       </div>
