@@ -31,14 +31,6 @@ export type AppData = //
     word_stat: Record<string, boolean>
   }
 
-export type PageInfo = //
-  {
-    /** 当前页 */
-    current_page: number
-    /** 总页数 */
-    total_pages: number
-  }
-
 /*********************************************************************************
  * 错误类型
  */

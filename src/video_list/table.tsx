@@ -1,12 +1,23 @@
+import { computed } from '@preact/signals'
 import { app } from '../appv'
 import { type VideoInfo } from '../util'
 import { video_player } from '../video_player/value'
 import * as video_list from './value'
 
-export function TablePart()
+const table_data = computed(() =>
 {
   const sorted_videos = [...app.data.value.videos].sort((a, b) => b.update_time - a.update_time)
+  const page_size = 15
+  const current_page = video_list.pager_info.value
+  const start_index = (current_page - 1) * page_size
+  const end_index = Math.min(start_index + page_size, sorted_videos.length)
+  const paginated_videos = sorted_videos.slice(start_index, end_index)
 
+  return paginated_videos
+})
+
+export function TablePart()
+{
   return (
     <table>
       <thead>
@@ -19,7 +30,7 @@ export function TablePart()
         </tr>
       </thead>
       <tbody>
-        {sorted_videos.map((video) => (
+        {table_data.value.map((video) => (
           <tr key={video.video_id}>
             <td scope='row'>
               <a onClick={() => on_click_play(video)} href='#'>▶&nbsp;&nbsp;{video.video_id}</a>

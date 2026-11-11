@@ -1,38 +1,44 @@
-import type { Signal } from '@preact/signals'
-import type { PageInfo } from '../util'
+import type { ReadonlySignal, Signal } from '@preact/signals'
 
-export function PagerPart({ page_info }: { page_info: Signal<PageInfo> })
+export function PagerPart(
+  {
+    current_page,
+    total_pages,
+  }: {
+    current_page: Signal<number>
+    total_pages: number | ReadonlySignal<number>
+  },
+)
 {
+  const total_pages_num = typeof total_pages === 'number' ? total_pages : total_pages.value
+
   return (
     <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-      <a href='#' onClick={() => on_click_first(page_info)}>{'<<'}</a>
-      <a href='#' onClick={() => on_click_prev(page_info)}>{'<'}</a>
-      <a href='#'>{page_info.value.current_page} / {page_info.value.total_pages}</a>
-      <a href='#' onClick={() => on_click_next(page_info)}>{'>'}</a>
-      <a href='#' onClick={() => on_click_last(page_info)}>{'>>'}</a>
+      <a href='#' onClick={() => on_click_first(current_page)}>{'<<'}</a>
+      <a href='#' onClick={() => on_click_prev(current_page)}>{'<'}</a>
+      <a href='#'>{current_page.value} / {total_pages_num}</a>
+      <a href='#' onClick={() => on_click_next(current_page, total_pages_num)}>{'>'}</a>
+      <a href='#' onClick={() => on_click_last(current_page, total_pages_num)}>{'>>'}</a>
     </div>
   )
 }
 
-function on_click_first(page_info: Signal<PageInfo>)
+function on_click_first(current_page: Signal<number>)
 {
-  page_info.value = { ...page_info.value, current_page: 1 }
+  current_page.value = 1
 }
 
-function on_click_prev(page_info: Signal<PageInfo>)
+function on_click_prev(current_page: Signal<number>)
 {
-  page_info.value = { ...page_info.value, current_page: Math.max(1, page_info.value.current_page - 1) }
+  current_page.value = Math.max(1, current_page.value - 1)
 }
 
-function on_click_next(page_info: Signal<PageInfo>)
+function on_click_next(current_page: Signal<number>, total_pages: number)
 {
-  page_info.value = {
-    ...page_info.value,
-    current_page: Math.min(page_info.value.total_pages, page_info.value.current_page + 1),
-  }
+  current_page.value = Math.min(total_pages, current_page.value + 1)
 }
 
-function on_click_last(page_info: Signal<PageInfo>)
+function on_click_last(current_page: Signal<number>, total_pages: number)
 {
-  page_info.value = { ...page_info.value, current_page: page_info.value.total_pages }
+  current_page.value = total_pages
 }
