@@ -209,12 +209,8 @@ export function SrtPart()
     }
   }
 
-  const wordStat = app.data.value.word_stat || {}
-
   // 当前正在播放的句子
   const currSub = activeIndex >= 0 && activeIndex < pairedSubtitles.length ? pairedSubtitles[activeIndex] : null
-
-  const isPassed = currSub ? isSentencePassed(currSub.text1, wordStat) : false
 
   return (
     <article
@@ -233,44 +229,6 @@ export function SrtPart()
         ? '点击重播这一句 (快捷键：按 → 下一句；按 ← 上一句重播；滚轮只打分不跳句)'
         : undefined}
     >
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '4px',
-          flexShrink: 0,
-          userSelect: 'none',
-          minWidth: '60px',
-        }}
-      >
-        <span
-          style={{
-            fontSize: '11px',
-            fontWeight: 600,
-            padding: '2px 8px',
-            borderRadius: '4px',
-            backgroundColor: 'var(--pico-form-element-border-color, #e0e0e0)',
-            color: 'var(--pico-color)',
-          }}
-        >
-          SUB
-        </span>
-        <span
-          style={{
-            fontSize: '11px',
-            fontWeight: 700,
-            color: currSub
-              ? isPassed
-                ? '#2e7d32'
-                : 'var(--pico-primary)'
-              : 'var(--pico-muted-color)',
-          }}
-        >
-          {currSub ? (isPassed ? '✓ Passed' : 'Review') : '—'}
-        </span>
-      </div>
-
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         {pairedSubtitles.length === 0
           ? (
