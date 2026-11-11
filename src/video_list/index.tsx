@@ -10,7 +10,7 @@ export function VideoListPage()
     <div>
       <ActionPart />
       <TablePart />
-      <PagerPart current_page={video_list.pager_info} total_pages={video_list.total_pages} />
+      <PagerPart current_page={video_list.current_page} total_pages={video_list.total_pages} />
       <AddPart />
     </div>
   )
