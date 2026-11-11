@@ -87,32 +87,13 @@ export function extractWords(text: string): string[]
 }
 
 /**
-/**
- * 句子生词/难度权重 (0.0 ~ 1.0)
- * pass 单词为 0，生词为 1.0，未打卡词为 0.5
+ * 判断句子是否已掌握：所有单词均为 pass === true
  */
-export function calculateSentenceWeight(text: string, wordStat: Record<string, boolean>): number
+export function isSentencePassed(text: string, wordStat: Record<string, boolean>): boolean
 {
   const words = extractWords(text)
-  if (words.length === 0) return 0
-
-  let sumUnfamiliarity = 0
-  for (const cleanWord of words)
-  {
-    const pass = wordStat[cleanWord]
-    if (pass === true)
-    {
-      sumUnfamiliarity += 0
-    } else if (pass === false)
-    {
-      sumUnfamiliarity += 1.0
-    } else
-    {
-      sumUnfamiliarity += 0.5
-    }
-  }
-
-  return sumUnfamiliarity / words.length
+  if (words.length === 0) return true
+  return words.every(w => wordStat[w] === true)
 }
 
 /**
@@ -122,7 +103,6 @@ export function findPrevPlayableIndex(
   subs: Array<{ text1?: string; text?: string }>,
   currentIdx: number,
   isAutoSkip: boolean,
-  threshold: number,
   wordStat: Record<string, boolean>,
 ): number
 {
@@ -132,8 +112,7 @@ export function findPrevPlayableIndex(
   for (let i = currentIdx - 1; i >= 0; i--)
   {
     const text = subs[i].text1 ?? subs[i].text ?? ''
-    const weight = calculateSentenceWeight(text, wordStat)
-    if (weight >= threshold)
+    if (!isSentencePassed(text, wordStat))
     {
       return i
     }
@@ -148,7 +127,6 @@ export function findNextPlayableIndex(
   subs: Array<{ text1?: string; text?: string }>,
   currentIdx: number,
   isAutoSkip: boolean,
-  threshold: number,
   wordStat: Record<string, boolean>,
 ): number
 {
@@ -158,8 +136,7 @@ export function findNextPlayableIndex(
   for (let i = currentIdx + 1; i < subs.length; i++)
   {
     const text = subs[i].text1 ?? subs[i].text ?? ''
-    const weight = calculateSentenceWeight(text, wordStat)
-    if (weight >= threshold)
+    if (!isSentencePassed(text, wordStat))
     {
       return i
     }
@@ -168,30 +145,23 @@ export function findNextPlayableIndex(
 }
 
 /**
- * 单词根据 pass 状态设置样式：
- * pass === true: 掌握（删除线，淡色）
- * pass === false: 生词（加粗，红下划线）
+ * 单词样式：
+ * pass 的单词显示黑色
+ * 不 pass 的单词显示 Pico 主颜色并加粗
  */
 export function getWordStyle(pass: boolean | undefined)
 {
   if (pass === true)
   {
     return {
-      color: '#94a3b8',
-      textDecoration: 'line-through',
+      color: '#000000',
     }
   }
 
-  if (pass === false)
-  {
-    return {
-      color: '#b91c1c',
-      fontWeight: '600',
-      borderBottom: '2px solid rgba(185, 28, 28, 0.7)',
-    }
+  return {
+    color: 'var(--pico-primary)',
+    fontWeight: 'bold',
   }
-
-  return undefined
 }
 
 export function SrtPart()
@@ -244,7 +214,7 @@ export function SrtPart()
   // 当前正在播放的句子
   const currSub = activeIndex >= 0 && activeIndex < pairedSubtitles.length ? pairedSubtitles[activeIndex] : null
 
-  const currWeight = currSub ? calculateSentenceWeight(currSub.text1, wordStat) : 0
+  const isPassed = currSub ? isSentencePassed(currSub.text1, wordStat) : false
 
   return (
     <div className='w-full bg-slate-50/70 border-t border-slate-200 p-2.5 sm:p-3.5 flex flex-col gap-2 relative shrink-0'>
@@ -268,16 +238,14 @@ export function SrtPart()
             <span
               className={`text-[10px] font-mono ${
                 currSub
-                  ? currWeight >= 0.4
-                    ? 'text-amber-700'
-                    : currWeight >= 0.2
-                    ? 'text-slate-600'
-                    : 'text-emerald-700'
+                  ? isPassed
+                    ? 'text-emerald-700 font-semibold'
+                    : 'text-amber-700 font-semibold'
                   : 'text-slate-300'
               }`}
-              title='基于词频熟练度计算的生词度'
+              title='当前句状态'
             >
-              {currSub ? `${(currWeight * 100).toFixed(0)}% 生词` : '—'}
+              {currSub ? (isPassed ? '✓ 已掌握' : '生词') : '—'}
             </span>
           </div>
 
@@ -322,21 +290,20 @@ function renderTokens(text: string)
       if (isWordLike)
       {
         const cleanWord = segment.toLowerCase().replace(/^[^\p{L}0-9]+|[^\p{L}0-9]+$/gu, '')
-        const stat = app.data.value.word_stat[cleanWord]
-        const style = getWordStyle(stat)
+        let pass = app.data.value.word_stat[cleanWord]
+        if (pass === undefined)
+        {
+          pass = false
+          app.data.value.word_stat[cleanWord] = false
+        }
+        const style = getWordStyle(pass)
 
         items.push(
           <span
             key={i++}
             className='px-0.5 rounded select-text'
             style={style}
-            title={
-              stat === true
-                ? `${segment} [Passed]`
-                : stat === false
-                ? `${segment} [Review]`
-                : undefined
-            }
+            title={pass ? `${segment} [Passed]` : `${segment} [Review]`}
           >
             {segment}
           </span>,
@@ -356,21 +323,20 @@ function renderTokens(text: string)
     if (/^[\p{L}0-9'-]+$/u.test(part))
     {
       const cleanWord = part.toLowerCase().replace(/^[^\p{L}0-9]+|[^\p{L}0-9]+$/gu, '')
-      const stat = app.data.value.word_stat[cleanWord]
-      const style = getWordStyle(stat)
+      let pass = app.data.value.word_stat[cleanWord]
+      if (pass === undefined)
+      {
+        pass = false
+        app.data.value.word_stat[cleanWord] = false
+      }
+      const style = getWordStyle(pass)
 
       return (
         <span
           key={i}
           className='px-0.5 rounded select-text'
           style={style}
-          title={
-            stat === true
-              ? `${part} [Passed]`
-              : stat === false
-              ? `${part} [Review]`
-              : undefined
-          }
+          title={pass ? `${part} [Passed]` : `${part} [Review]`}
         >
           {part}
         </span>

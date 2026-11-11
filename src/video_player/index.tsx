@@ -1,14 +1,13 @@
 import { useEffect, useRef } from 'preact/hooks'
 import YouTubePlayer from 'youtube-player'
 import { app } from '../appv'
-import { ActionPart } from './action'
 import { ControlPart } from './control'
 import { PlayerPart } from './player'
 import {
-  calculateSentenceWeight,
   extractWords,
   findNextPlayableIndex,
   findPrevPlayableIndex,
+  isSentencePassed,
   parseSRT,
   SrtPart,
 } from './srt'
@@ -29,10 +28,7 @@ export function VideoPlayerPage()
 
   return (
     <div className='max-w-5xl mx-auto px-3 sm:px-4 py-2 sm:py-3 max-h-[920px] flex flex-col justify-start gap-2.5 text-slate-800 overflow-hidden'>
-      {/* Top Header - 与列表页和生词本完全统一的素雅头部 */}
-      <ActionPart />
-
-      {/* Main Video & Subtitle Card - 素雅大卡片 */}
+      {/* Main Video & Subtitle Card */}
       <div className='bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden flex flex-col'>
         {/* Video Stage without overlaid subtitle obstruction */}
         <div className='relative w-full aspect-video max-h-[46vh] sm:max-h-[50vh] md:max-h-[460px] bg-black flex items-center justify-center overflow-hidden shrink-0'>
@@ -80,6 +76,38 @@ function useInit()
 {
   const lastSkippedStartRef = useRef<number | null>(null)
 
+  // 单词不在单词表中时，自动补充到单词本中作为不 pass (false)
+  useEffect(() =>
+  {
+    const srt1 = video_player.video_info.value?.srt_1 ?? ''
+    if (!srt1) return
+
+    const subs = parseSRT(srt1)
+    let hasNew = false
+    const currentStat = { ...app.data.value.word_stat }
+
+    for (const s of subs)
+    {
+      const words = extractWords(s.text)
+      for (const w of words)
+      {
+        if (currentStat[w] === undefined)
+        {
+          currentStat[w] = false
+          hasNew = true
+        }
+      }
+    }
+
+    if (hasNew)
+    {
+      app.data.value = {
+        ...app.data.value,
+        word_stat: currentStat,
+      }
+    }
+  }, [video_player.video_info.value?.video_id, video_player.video_info.value?.srt_1])
+
   useEffect(() =>
   {
     const videoId = video_player.video_info.value?.video_id
@@ -110,7 +138,7 @@ function useInit()
         const time = (await video_player.player.value?.getCurrentTime()) ?? 0
         video_player.current_time.value = time
 
-        // Auto-skip familiar sentence logic
+        // 自动跳过熟句：如果句子所有单词都 pass，自动跳过
         if (video_player.auto_skip_familiar.value && video_player.is_playing.value)
         {
           const subs = parseSRT(video_player.video_info.value?.srt_1 ?? '')
@@ -121,23 +149,22 @@ function useInit()
             const activeSub = subs[activeIdx]
             if (lastSkippedStartRef.current !== activeSub.start)
             {
-              const weight = calculateSentenceWeight(activeSub.text, app.data.value.word_stat)
-              if (weight < video_player.skip_threshold.value)
+              const isPassed = isSentencePassed(activeSub.text, app.data.value.word_stat)
+              if (isPassed)
               {
                 lastSkippedStartRef.current = activeSub.start
 
-                // 寻找下一个未被跳过的句子
+                // 寻找下一个未 pass 的句子
                 const targetIdx = findNextPlayableIndex(
                   subs,
                   activeIdx,
                   true,
-                  video_player.skip_threshold.value,
                   app.data.value.word_stat,
                 )
 
                 if (targetIdx !== -1)
                 {
-                  showHud(`⏭ 跳过熟句 (生词度 ${(weight * 100).toFixed(0)}%)`, 'skip')
+                  showHud('⏭ 自动跳过已掌握句子', 'skip')
                   video_player.player.value?.seekTo(subs[targetIdx].start, true)
                 }
               }
@@ -180,8 +207,7 @@ function handleRightArrowAction()
 
   const wordStat = app.data.value.word_stat || {}
   const isAutoSkip = video_player.auto_skip_familiar.value
-  const threshold = video_player.skip_threshold.value
-  const targetNextIdx = findNextPlayableIndex(subs, currIdx, isAutoSkip, threshold, wordStat)
+  const targetNextIdx = findNextPlayableIndex(subs, currIdx, isAutoSkip, wordStat)
 
   if (targetNextIdx !== -1)
   {
@@ -210,10 +236,9 @@ function handleLeftArrowAction()
 
   const wordStat = app.data.value.word_stat || {}
   const isAutoSkip = video_player.auto_skip_familiar.value
-  const threshold = video_player.skip_threshold.value
 
   // 寻找“刚刚实际播放完的上一句”
-  const targetPrevIdx = findPrevPlayableIndex(subs, currIdx, isAutoSkip, threshold, wordStat)
+  const targetPrevIdx = findPrevPlayableIndex(subs, currIdx, isAutoSkip, wordStat)
 
   if (targetPrevIdx !== -1 && targetPrevIdx < currIdx)
   {
@@ -283,9 +308,8 @@ function handleWheelPrevAction()
 
   const wordStat = app.data.value.word_stat || {}
   const isAutoSkip = video_player.auto_skip_familiar.value
-  const threshold = video_player.skip_threshold.value
 
-  const targetPrevIdx = findPrevPlayableIndex(subs, currIdx, isAutoSkip, threshold, wordStat)
+  const targetPrevIdx = findPrevPlayableIndex(subs, currIdx, isAutoSkip, wordStat)
 
   if (targetPrevIdx !== -1 && targetPrevIdx < currIdx)
   {
