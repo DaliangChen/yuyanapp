@@ -10,7 +10,7 @@ export function App()
   useOnError()
 
   return (
-    <div className='min-h-screen w-full bg-[#f8fafc] text-slate-800 antialiased selection:bg-slate-200'>
+    <div>
       {app.show_page.value === 'video_list' && <VideoListPage />}
       {app.show_page.value === 'video_player' && <VideoPlayerPage />}
       {app.show_page.value === 'vocabulary' && <VocabularyPage />}
