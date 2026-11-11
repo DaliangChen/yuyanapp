@@ -1,6 +1,6 @@
 import { useMemo } from 'preact/hooks'
-import { app } from '../appv'
-import { video_player } from './value'
+import * as app from '../appv'
+import * as video_player from './value'
 
 export interface SubtitleItem
 {
@@ -229,11 +229,9 @@ export function SrtPart()
         cursor: currSub ? 'pointer' : 'default',
         boxSizing: 'border-box',
       }}
-      title={
-        currSub
-          ? '点击重播这一句 (快捷键：按 → 下一句；按 ← 上一句重播；滚轮只打分不跳句)'
-          : undefined
-      }
+      title={currSub
+        ? '点击重播这一句 (快捷键：按 → 下一句；按 ← 上一句重播；滚轮只打分不跳句)'
+        : undefined}
     >
       <div
         style={{
@@ -274,26 +272,30 @@ export function SrtPart()
       </div>
 
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        {pairedSubtitles.length === 0 ? (
-          <div style={{ color: 'var(--pico-muted-color)', fontStyle: 'italic', fontSize: '0.9rem' }}>
-            No subtitles loaded. Please import subtitles in Video List.
-          </div>
-        ) : currSub ? (
-          <>
-            <div style={{ fontSize: '1.35rem', fontWeight: 600, lineHeight: 1.45, letterSpacing: '0.01em' }}>
-              {renderTokens(currSub.text1)}
+        {pairedSubtitles.length === 0
+          ? (
+            <div style={{ color: 'var(--pico-muted-color)', fontStyle: 'italic', fontSize: '0.9rem' }}>
+              No subtitles loaded. Please import subtitles in Video List.
             </div>
-            {currSub.text2 && (
-              <div style={{ fontSize: '1rem', color: 'var(--pico-muted-color)', marginTop: '6px', lineHeight: 1.4 }}>
-                {currSub.text2}
+          )
+          : currSub
+          ? (
+            <>
+              <div style={{ fontSize: '1.35rem', fontWeight: 600, lineHeight: 1.45, letterSpacing: '0.01em' }}>
+                {renderTokens(currSub.text1)}
               </div>
-            )}
-          </>
-        ) : (
-          <div style={{ color: 'var(--pico-muted-color)', fontStyle: 'italic', fontSize: '0.9rem' }}>
-            Waiting for subtitle...
-          </div>
-        )}
+              {currSub.text2 && (
+                <div style={{ fontSize: '1rem', color: 'var(--pico-muted-color)', marginTop: '6px', lineHeight: 1.4 }}>
+                  {currSub.text2}
+                </div>
+              )}
+            </>
+          )
+          : (
+            <div style={{ color: 'var(--pico-muted-color)', fontStyle: 'italic', fontSize: '0.9rem' }}>
+              Waiting for subtitle...
+            </div>
+          )}
       </div>
     </article>
   )

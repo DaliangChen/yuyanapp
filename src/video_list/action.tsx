@@ -1,4 +1,4 @@
-import { app } from '../appv'
+import * as app from '../appv'
 import * as video_list from './value'
 
 export function ActionPart()

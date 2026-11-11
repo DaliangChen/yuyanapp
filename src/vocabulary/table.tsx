@@ -1,4 +1,4 @@
-import { app } from '../appv'
+import * as app from '../appv'
 import * as vocabulary from './value'
 
 export function TablePart()

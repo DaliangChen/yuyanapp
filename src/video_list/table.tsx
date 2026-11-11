@@ -1,7 +1,7 @@
 import { computed } from '@preact/signals'
-import { app } from '../appv'
+import * as app from '../appv'
 import { type VideoInfo } from '../util'
-import { video_player } from '../video_player/value'
+import * as video_player from '../video_player/value'
 import * as video_list from './value'
 
 const table_data = computed(() =>

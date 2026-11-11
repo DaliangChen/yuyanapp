@@ -1,5 +1,5 @@
 import { computed, signal } from '@preact/signals'
-import { app } from '../appv'
+import * as app from '../appv'
 import type { VideoInfo } from '../util'
 
 /*******************************************************************************************

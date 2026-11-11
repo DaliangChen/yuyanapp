@@ -1,17 +1,10 @@
 import { useEffect, useRef } from 'preact/hooks'
 import YouTubePlayer from 'youtube-player'
-import { app } from '../appv'
+import * as app from '../appv'
 import { ControlPart } from './control'
 import { PlayerPart } from './player'
-import {
-  extractWords,
-  findNextPlayableIndex,
-  findPrevPlayableIndex,
-  isSentencePassed,
-  parseSRT,
-  SrtPart,
-} from './srt'
-import { video_player } from './value'
+import { extractWords, findNextPlayableIndex, findPrevPlayableIndex, isSentencePassed, parseSRT, SrtPart } from './srt'
+import * as video_player from './value'
 
 export function VideoPlayerPage()
 {

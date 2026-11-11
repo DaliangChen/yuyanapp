@@ -1,15 +1,4 @@
-import { video_player } from './value'
-
-const on_toggle_play = () =>
-{
-  if (video_player.is_playing.value)
-  {
-    video_player.player.value?.pauseVideo()
-  } else
-  {
-    video_player.player.value?.playVideo()
-  }
-}
+import * as video_player from './value'
 
 export function ControlPart()
 {
@@ -40,4 +29,10 @@ export function ControlPart()
       </button>
     </div>
   )
+}
+
+function on_toggle_play()
+{
+  if (video_player.is_playing.value) video_player.player.value?.pauseVideo()
+  else video_player.player.value?.playVideo()
 }

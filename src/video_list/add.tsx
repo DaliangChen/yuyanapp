@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'preact/compat'
-import { app } from '../appv'
+import * as app from '../appv'
 import { default_never, InfoError, LogicError } from '../util'
 import * as video_list from './value'
 
