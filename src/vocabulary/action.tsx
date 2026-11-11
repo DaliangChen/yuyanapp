@@ -3,18 +3,17 @@ import * as vocabulary from './value'
 export function ActionPart()
 {
   return (
-    <div style={{ display: 'flex', gap: '15px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: '15px' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
       <div style={{ flex: '1', minWidth: '220px', maxWidth: '360px' }}>
         <input
           type='search'
           placeholder='Search word...'
           value={vocabulary.search.value}
           onInput={(e) => on_search(e.currentTarget.value)}
-          style={{ marginBottom: '0' }}
         />
       </div>
 
-      <div role='group' style={{ width: 'fit-content', margin: '0' }}>
+      <div role='group' style={{ width: 'fit-content' }}>
         <button
           className={vocabulary.filter.value === 'all' ? '' : 'outline'}
           onClick={() => on_filter('all')}

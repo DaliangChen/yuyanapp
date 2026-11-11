@@ -55,9 +55,7 @@ export const filtered_entries = computed(() =>
   })
 })
 
-export const total_pages = computed(() =>
-  Math.max(1, Math.ceil(filtered_entries.value.length / page_size.value)),
-)
+export const total_pages = computed(() => Math.max(1, Math.ceil(filtered_entries.value.length / page_size.value)))
 
 export const paginated_entries = computed(() =>
 {

@@ -22,7 +22,7 @@ export function TablePart()
     <table>
       <thead>
         <tr>
-          <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Video Id</th>
+          <th scope='col' style={{ width: '200px'}}>Video Id</th>
           <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Srt 1</th>
           <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Srt 2</th>
           <th scope='col'>Note</th>

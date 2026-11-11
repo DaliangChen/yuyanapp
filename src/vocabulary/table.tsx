@@ -19,7 +19,7 @@ export function TablePart()
       <thead>
         <tr>
           <th scope='col'>Word</th>
-          <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Status</th>
+          <th scope='col' style={{ width: '100px' }}>Status</th>
           <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Action</th>
         </tr>
       </thead>
@@ -28,23 +28,12 @@ export function TablePart()
           <tr key={word}>
             <td scope='row'>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                <span style={is_passed ? { textDecoration: 'line-through', color: 'var(--pico-muted-color)' } : { fontWeight: 'bold' }}>
-                  {word}
-                </span>
-                <a
-                  href='#'
-                  onClick={() => on_pronounce(word)}
-                  title='Pronounce'
-                  style={{ textDecoration: 'none', fontSize: '0.85em' }}
-                >
-                  🔊
-                </a>
+                <span style={is_passed ? { color: 'var(--pico-muted-color)' } : { fontWeight: 'bold' }}>{word}</span>
+                <a href='#' onClick={() => on_pronounce(word)}>🔊</a>
               </span>
             </td>
             <td>
-              <a href='#' onClick={() => on_toggle_pass(word)}>
-                {is_passed ? '✓ Passed' : 'Review'}
-              </a>
+              <a href='#' onClick={() => on_toggle_pass(word)}>{is_passed ? '✓' : '✗'}</a>
             </td>
             <td>
               <span style={{ display: 'flex', gap: '10px' }}>
