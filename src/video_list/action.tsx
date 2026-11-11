@@ -1,6 +1,19 @@
 import { app } from '../appv'
 import * as video_list from './value'
 
+export function ActionPart()
+{
+  return (
+    <div style={{ display: 'flex', justifyContent: 'end' }}>
+      <div role='group' style={{ width: 'fit-content' }}>
+        <button className='outline' onClick={on_click_import}>Import</button>
+        <button className='outline' onClick={on_click_export}>Export</button>
+        <button className='outline' onClick={on_click_add}>Add</button>
+      </div>
+    </div>
+  )
+}
+
 function on_click_add()
 {
   video_list.add_data.value = {
@@ -56,17 +69,4 @@ async function on_click_import()
     videos: parsed_json.videos || [],
     word_stat: parsed_json.word_stat || {},
   }
-}
-
-export function ActionPart()
-{
-  return (
-    <div style={{ display: 'flex', justifyContent: 'end' }}>
-      <div role='group' style={{ width: 'fit-content' }}>
-        <button className='outline' onClick={on_click_import}>Import</button>
-        <button className='outline' onClick={on_click_export}>Export</button>
-        <button className='outline' onClick={on_click_add}>Add</button>
-      </div>
-    </div>
-  )
 }
