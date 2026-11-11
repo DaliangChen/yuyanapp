@@ -2,33 +2,21 @@ import * as video_player from './value'
 
 export function ControlPart()
 {
-  const isPlaying = video_player.is_playing.value
-  const isAutoSkip = video_player.auto_skip_familiar.value
-
   return (
-    <div
-      style={{
-        display: 'flex',
-        width: '100%',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '12px',
-      }}
-    >
-      <button className='outline' style={{ width: 'auto', marginBottom: 0 }} onClick={on_toggle_play}>
-        {isPlaying ? '⏸ Pause' : '▶ Play'}
+    <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
+      <button className='outline' style={{ width: 'auto' }} onClick={on_toggle_play}>
+        {video_player.is_playing.value ? '⏸ Pause' : '▶ Play'}
       </button>
-
-      <button
-        className='outline'
-        style={{ width: 'auto', marginBottom: 0 }}
-        onClick={() => (video_player.auto_skip_familiar.value = !video_player.auto_skip_familiar.value)}
-      >
-        ⏭ Skip familiar: {isAutoSkip ? 'ON' : 'OFF'}
+      <button className='outline' style={{ width: 'auto' }} onClick={on_toggle_skip_familiar}>
+        ⏭ Skip familiar: {video_player.auto_skip_familiar.value ? 'ON' : 'OFF'}
       </button>
     </div>
   )
+}
+
+function on_toggle_skip_familiar()
+{
+  video_player.auto_skip_familiar.value = !video_player.auto_skip_familiar.value
 }
 
 function on_toggle_play()

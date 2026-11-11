@@ -378,7 +378,6 @@ function renderTokens(text: string, onToggleWord: (e: MouseEvent, word: string) 
               userSelect: 'text',
               transition: 'background-color 0.15s',
             }}
-            title={pass ? `"${segment}" 已掌握 (点击标记为生词)` : `"${segment}" 生词 (点击标记为已掌握)`}
           >
             {segment}
           </span>,
