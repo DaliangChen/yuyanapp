@@ -252,9 +252,7 @@ function handleWheelNextAction()
 
   for (const w of words)
   {
-    const stat = wordStat[w] || { success: 0, fail: 0 }
-    stat.success = (stat.success || 0) + 1
-    wordStat[w] = stat
+    wordStat[w] = true
   }
 
   app.data.value = {
@@ -262,12 +260,12 @@ function handleWheelNextAction()
     word_stat: { ...wordStat },
   }
 
-  showHud(`✓ 已掌握当前句 (${words.length} 词 Success+1)`, 'success')
+  showHud(`✓ 已掌握当前句 (${words.length} 词 Pass)`, 'success')
 }
 
 /**
  * 滚轮向前推 / 手指向前推 (deltaY < 0)：
- * 只打分不跳转：上一句（刚刚播放完的句子）所有单词 fail + 1
+ * 只打分不跳转：上一句（刚刚播放完的句子）所有单词标记为生词 (false)
  */
 function handleWheelPrevAction()
 {
@@ -296,9 +294,7 @@ function handleWheelPrevAction()
 
     for (const w of words)
     {
-      const stat = wordStat[w] || { success: 0, fail: 0 }
-      stat.fail = (stat.fail || 0) + 1
-      wordStat[w] = stat
+      wordStat[w] = false
     }
 
     app.data.value = {
@@ -306,7 +302,7 @@ function handleWheelPrevAction()
       word_stat: { ...wordStat },
     }
 
-    showHud(`⭐ 记为生词 (上一句 ${words.length} 词 Fail+1)`, 'fail')
+    showHud(`⭐ 记为生词 (上一句 ${words.length} 词)`, 'fail')
   } else
   {
     const firstSub = subs[0]
@@ -314,9 +310,7 @@ function handleWheelPrevAction()
 
     for (const w of words)
     {
-      const stat = wordStat[w] || { success: 0, fail: 0 }
-      stat.fail = (stat.fail || 0) + 1
-      wordStat[w] = stat
+      wordStat[w] = false
     }
 
     app.data.value = {
@@ -324,7 +318,7 @@ function handleWheelPrevAction()
       word_stat: { ...wordStat },
     }
 
-    showHud(`⭐ 记为生词 (起始句 ${words.length} 词 Fail+1)`, 'fail')
+    showHud(`⭐ 记为生词 (起始句 ${words.length} 词)`, 'fail')
   }
 }
 

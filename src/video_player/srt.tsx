@@ -1,6 +1,5 @@
 import { useMemo } from 'preact/hooks'
 import { app } from '../appv'
-import type { WordStatItem } from '../util'
 import { video_player } from './value'
 
 export interface SubtitleItem
@@ -88,10 +87,11 @@ export function extractWords(text: string): string[]
 }
 
 /**
- * 科学计算句子生词/难度权重 (0.0 ~ 1.0)
- * 采用贝叶斯拉普拉斯平滑生词概率，pass 标记词为 0
+/**
+ * 句子生词/难度权重 (0.0 ~ 1.0)
+ * pass 单词为 0，生词为 1.0，未打卡词为 0.5
  */
-export function calculateSentenceWeight(text: string, wordStat: Record<string, WordStatItem>): number
+export function calculateSentenceWeight(text: string, wordStat: Record<string, boolean>): number
 {
   const words = extractWords(text)
   if (words.length === 0) return 0
@@ -99,18 +99,15 @@ export function calculateSentenceWeight(text: string, wordStat: Record<string, W
   let sumUnfamiliarity = 0
   for (const cleanWord of words)
   {
-    const stat = wordStat[cleanWord]
-    if (stat?.pass || (stat && stat.fail === 0 && stat.success > 0))
+    const pass = wordStat[cleanWord]
+    if (pass === true)
     {
-      // 标记为 Pass，或者已打卡掌握且无错误 (fail === 0)：生词度为 0
       sumUnfamiliarity += 0
-    } else if (stat && (stat.success > 0 || stat.fail > 0))
+    } else if (pass === false)
     {
-      // 存在生词记录：按实际生词错误率 fail / (fail + success)
-      sumUnfamiliarity += stat.fail / (stat.fail + stat.success)
+      sumUnfamiliarity += 1.0
     } else
     {
-      // 未打卡过的词：赋予初始生词权重
       sumUnfamiliarity += 0.5
     }
   }
@@ -120,14 +117,13 @@ export function calculateSentenceWeight(text: string, wordStat: Record<string, W
 
 /**
  * 查找上一个实际可播放/未被自动跳过的句子索引
- * 若开启跳过逻辑，跳过所有生词度低于 threshold 的句子，精确定位“刚刚播放完的上一句”
  */
 export function findPrevPlayableIndex(
   subs: Array<{ text1?: string; text?: string }>,
   currentIdx: number,
   isAutoSkip: boolean,
   threshold: number,
-  wordStat: Record<string, WordStatItem>,
+  wordStat: Record<string, boolean>,
 ): number
 {
   if (currentIdx <= 0) return -1
@@ -153,7 +149,7 @@ export function findNextPlayableIndex(
   currentIdx: number,
   isAutoSkip: boolean,
   threshold: number,
-  wordStat: Record<string, WordStatItem>,
+  wordStat: Record<string, boolean>,
 ): number
 {
   if (currentIdx < 0 || currentIdx >= subs.length - 1) return -1
@@ -172,12 +168,13 @@ export function findNextPlayableIndex(
 }
 
 /**
- * 单词根据 fail 比例动态计算深浅颜色（素雅白底版本）
- * fail 越多，偏向赭石暖砖红；pass 则淡灰
+ * 单词根据 pass 状态设置样式：
+ * pass === true: 掌握（删除线，淡色）
+ * pass === false: 生词（加粗，红下划线）
  */
-export function getWordStyle(stat: WordStatItem | undefined)
+export function getWordStyle(pass: boolean | undefined)
 {
-  if (stat?.pass)
+  if (pass === true)
   {
     return {
       color: '#94a3b8',
@@ -185,38 +182,16 @@ export function getWordStyle(stat: WordStatItem | undefined)
     }
   }
 
-  if (!stat || (stat.success === 0 && stat.fail === 0))
-  {
-    return {
-      color: '#0f172a',
-    }
-  }
-
-  const total = stat.success + stat.fail
-  const failRate = stat.fail / total
-
-  if (failRate >= 0.6 || stat.fail >= 3)
+  if (pass === false)
   {
     return {
       color: '#b91c1c',
       fontWeight: '600',
       borderBottom: '2px solid rgba(185, 28, 28, 0.7)',
     }
-  } else if (failRate >= 0.3 || stat.fail >= 1)
-  {
-    return {
-      color: '#c2410c',
-      fontWeight: '500',
-      borderBottom: '1.5px dashed rgba(194, 65, 12, 0.7)',
-    }
-  } else
-  {
-    return {
-      color: '#15803d',
-      fontWeight: '500',
-      borderBottom: '1px dotted rgba(21, 128, 61, 0.6)',
-    }
   }
+
+  return undefined
 }
 
 export function SrtPart()
@@ -356,10 +331,10 @@ function renderTokens(text: string)
             className='px-0.5 rounded select-text'
             style={style}
             title={
-              stat?.pass
-                ? `${segment} [已掌握 Pass]`
-                : stat
-                ? `${segment} (生词: ${stat.fail}, 掌握: ${stat.success})`
+              stat === true
+                ? `${segment} [Passed]`
+                : stat === false
+                ? `${segment} [Review]`
                 : undefined
             }
           >
@@ -390,10 +365,10 @@ function renderTokens(text: string)
           className='px-0.5 rounded select-text'
           style={style}
           title={
-            stat?.pass
-              ? `${part} [已掌握 Pass]`
-              : stat
-              ? `${part} (生词: ${stat.fail}, 掌握: ${stat.success})`
+            stat === true
+              ? `${part} [Passed]`
+              : stat === false
+              ? `${part} [Review]`
               : undefined
           }
         >

@@ -1,85 +1,51 @@
-import { type FilterType, type SortType, vocabulary } from './value'
+import * as vocabulary from './value'
 
 export function ActionPart()
 {
-  const act = vocabulary.action.value
-
   return (
-    <div>
-      <div>
+    <div style={{ display: 'flex', gap: '15px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: '15px' }}>
+      <div style={{ flex: '1', minWidth: '220px', maxWidth: '360px' }}>
         <input
-          type='text'
-          placeholder='🔍 搜索生词或拼写...'
-          value={act.search}
-          onInput={(e) => setSearch(e.currentTarget.value)}
+          type='search'
+          placeholder='Search word...'
+          value={vocabulary.search.value}
+          onInput={(e) => on_search(e.currentTarget.value)}
+          style={{ marginBottom: '0' }}
         />
       </div>
 
-      <div>
-        <div>
-          <button
-            type='button'
-            onClick={() => setFilter('all')}
-          >
-            全部 ({vocabulary.total_words.value})
-          </button>
-          <button
-            type='button'
-            onClick={() => setFilter('need_review')}
-            className={`px-3 py-1 rounded-md font-medium transition-colors cursor-pointer ${
-              act.filter === 'need_review'
-                ? 'bg-white text-slate-900 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            待复习 ({vocabulary.need_review_words.value})
-          </button>
-          <button
-            type='button'
-            onClick={() => setFilter('passed')}
-            className={`px-3 py-1 rounded-md font-medium transition-colors cursor-pointer ${
-              act.filter === 'passed'
-                ? 'bg-white text-slate-900 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            已掌握 ({vocabulary.passed_words.value})
-          </button>
-        </div>
-
-        {/* Sort dropdown */}
-        <div className='flex items-center gap-1.5'>
-          <span className='text-xs text-slate-400'>排序:</span>
-          <select
-            value={act.sort}
-            onChange={(e) => setSort(e.currentTarget.value as SortType)}
-            className='text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-slate-700 focus:outline-none focus:border-slate-400 cursor-pointer'
-          >
-            <option value='mastery_worst'>按掌握程度 (最差在上面)</option>
-            <option value='fail_desc'>按生词次数 (Fail) 降序</option>
-            <option value='success_desc'>按掌握次数 (Success) 降序</option>
-            <option value='alpha'>按字母顺序 (A-Z)</option>
-          </select>
-        </div>
+      <div role='group' style={{ width: 'fit-content', margin: '0' }}>
+        <button
+          className={vocabulary.filter.value === 'all' ? '' : 'outline'}
+          onClick={() => on_filter('all')}
+        >
+          All ({vocabulary.total_words.value})
+        </button>
+        <button
+          className={vocabulary.filter.value === 'need_review' ? '' : 'outline'}
+          onClick={() => on_filter('need_review')}
+        >
+          Review ({vocabulary.need_review_words.value})
+        </button>
+        <button
+          className={vocabulary.filter.value === 'passed' ? '' : 'outline'}
+          onClick={() => on_filter('passed')}
+        >
+          Passed ({vocabulary.passed_words.value})
+        </button>
       </div>
     </div>
   )
 }
 
-function setSort(sort: SortType)
+function on_search(q: string)
 {
-  vocabulary.action.value = { ...vocabulary.action.value, sort }
-  vocabulary.pager.value = { ...vocabulary.pager.value, current_page: 1 }
+  vocabulary.search.value = q
+  vocabulary.current_page.value = 1
 }
 
-function setFilter(filter: FilterType)
+function on_filter(f: vocabulary.FilterType)
 {
-  vocabulary.action.value = { ...vocabulary.action.value, filter }
-  vocabulary.pager.value = { ...vocabulary.pager.value, current_page: 1 }
-}
-
-function setSearch(search: string)
-{
-  vocabulary.action.value = { ...vocabulary.action.value, search }
-  vocabulary.pager.value = { ...vocabulary.pager.value, current_page: 1 }
+  vocabulary.filter.value = f
+  vocabulary.current_page.value = 1
 }
