@@ -20,62 +20,77 @@ export function VideoPlayerPage()
   const hud = video_player.hud_message.value
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-        maxWidth: '920px',
-        margin: '0 auto',
-      }}
-    >
-      {/* Video Stage without overlaid subtitle obstruction */}
-      <div
-        style={{
-          position: 'relative',
-          width: '100%',
-          aspectRatio: '16 / 9',
-          maxHeight: '480px',
-          backgroundColor: '#000000',
-          borderRadius: 'var(--pico-border-radius)',
-          overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <PlayerPart />
+    <div>
+      <style>{`
+        .video-player-container {
+          display: grid;
+          grid-template-columns: minmax(0, 1.45fr) minmax(320px, 1fr);
+          gap: 24px;
+          align-items: start;
+          width: 100%;
+        }
+        @media (max-width: 860px) {
+          .video-player-container {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
 
-        {/* HUD Toast */}
-        {hud && (
+      <div className='video-player-container'>
+        {/* Left Column: YouTube Video Stage (Large) */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', minWidth: 0 }}>
           <div
             style={{
-              position: 'absolute',
-              top: '16px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 30,
-              padding: '6px 16px',
-              borderRadius: '20px',
-              fontSize: '13px',
-              fontWeight: 600,
-              backgroundColor: 'rgba(0, 0, 0, 0.8)',
-              color: '#ffffff',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
-              pointerEvents: 'none',
-              transition: 'opacity 0.2s',
+              position: 'relative',
+              width: '100%',
+              aspectRatio: '16 / 9',
+              backgroundColor: '#000000',
+              borderRadius: 'var(--pico-border-radius)',
+              overflow: 'hidden',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
             }}
           >
-            {hud.text}
+            <PlayerPart />
+
+            {/* HUD Toast */}
+            {hud && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '16px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  zIndex: 30,
+                  padding: '6px 16px',
+                  borderRadius: '20px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                  color: '#ffffff',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
+                  pointerEvents: 'none',
+                  transition: 'opacity 0.2s',
+                }}
+              >
+                {hud.text}
+              </div>
+            )}
           </div>
-        )}
+        </div>
+
+        {/* Right Column: Controls & Scrolling Subtitles List */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '14px',
+            minWidth: 0,
+          }}
+        >
+          <ControlPart />
+          <SrtPart />
+        </div>
       </div>
-
-      {/* Bottom Control Bar */}
-      <ControlPart />
-
-      {/* Subtitles Area */}
-      <SrtPart />
     </div>
   )
 }

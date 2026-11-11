@@ -1,4 +1,4 @@
-import { useMemo } from 'preact/hooks'
+import { useEffect, useMemo, useRef } from 'preact/hooks'
 import * as app from '../appv'
 import * as video_player from './value'
 
@@ -166,6 +166,9 @@ export function getWordStyle(pass: boolean | undefined)
 
 export function SrtPart()
 {
+  const listContainerRef = useRef<HTMLDivElement>(null)
+  const activeItemRef = useRef<HTMLElement | null>(null)
+
   const pairedSubtitles = useMemo<PairedSubtitle[]>(() =>
   {
     const srt1 = video_player.video_info.value?.srt_1 ?? ''
@@ -191,75 +194,159 @@ export function SrtPart()
     })
   }, [video_player.video_info.value?.srt_1, video_player.video_info.value?.srt_2])
 
-  // Determine current active subtitle index
+  const wordStat = app.data.value.word_stat || {}
+  const isAutoSkip = video_player.auto_skip_familiar.value
+
+  // 如果开启跳过熟悉，右侧列表中已熟悉的句子直接过滤隐藏
+  const displayedSubtitles = useMemo(() =>
+  {
+    if (!isAutoSkip) return pairedSubtitles
+    return pairedSubtitles.filter(sub => !isSentencePassed(sub.text1, wordStat))
+  }, [pairedSubtitles, isAutoSkip, wordStat])
+
+  // 当前正在播放的时间与对应的字幕索引
   const currentTime = video_player.current_time.value
-  let activeIndex = pairedSubtitles.findIndex(
+  let activeVisibleIdx = displayedSubtitles.findIndex(
     sub => currentTime >= sub.start && currentTime <= sub.end,
   )
 
-  if (activeIndex === -1 && pairedSubtitles.length > 0)
+  if (activeVisibleIdx === -1 && displayedSubtitles.length > 0)
   {
-    const nextIdx = pairedSubtitles.findIndex(s => s.start > currentTime)
-    if (nextIdx !== -1)
+    const nextIdx = displayedSubtitles.findIndex(s => s.start > currentTime)
+    if (nextIdx > 0)
     {
-      activeIndex = nextIdx
-    } else
-    {
-      activeIndex = pairedSubtitles.length - 1
+      activeVisibleIdx = nextIdx - 1
     }
   }
 
-  // 当前正在播放的句子
-  const currSub = activeIndex >= 0 && activeIndex < pairedSubtitles.length ? pairedSubtitles[activeIndex] : null
+  // 随视频播放上下平滑自动滚动居中
+  useEffect(() =>
+  {
+    if (activeItemRef.current && listContainerRef.current)
+    {
+      const container = listContainerRef.current
+      const el = activeItemRef.current
+      const elTop = el.offsetTop - container.offsetTop
+      const targetScroll = elTop - (container.clientHeight / 2) + (el.offsetHeight / 2)
+
+      container.scrollTo({
+        top: Math.max(0, targetScroll),
+        behavior: 'smooth',
+      })
+    }
+  }, [activeVisibleIdx])
+
+  const onToggleWord = (e: MouseEvent, cleanWord: string) =>
+  {
+    e.stopPropagation()
+    const currentStat = { ...app.data.value.word_stat }
+    const wasPassed = currentStat[cleanWord] === true
+    currentStat[cleanWord] = !wasPassed
+    app.data.value = {
+      ...app.data.value,
+      word_stat: currentStat,
+    }
+  }
 
   return (
-    <article
-      onClick={() => currSub && video_player.player.value?.seekTo(currSub.start, true)}
+    <div
+      ref={listContainerRef}
       style={{
-        margin: 0,
-        padding: '16px 20px',
-        minHeight: '100px',
+        maxHeight: '560px',
+        overflowY: 'auto',
         display: 'flex',
-        alignItems: 'center',
-        gap: '16px',
-        cursor: currSub ? 'pointer' : 'default',
+        flexDirection: 'column',
+        gap: '8px',
+        paddingRight: '6px',
         boxSizing: 'border-box',
       }}
-      title={currSub
-        ? '点击重播这一句 (快捷键：按 → 下一句；按 ← 上一句重播；滚轮只打分不跳句)'
-        : undefined}
     >
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        {pairedSubtitles.length === 0
-          ? (
-            <div style={{ color: 'var(--pico-muted-color)', fontStyle: 'italic', fontSize: '0.9rem' }}>
-              No subtitles loaded. Please import subtitles in Video List.
-            </div>
-          )
-          : currSub
-          ? (
-            <>
-              <div style={{ fontSize: '1.35rem', fontWeight: 600, lineHeight: 1.45, letterSpacing: '0.01em' }}>
-                {renderTokens(currSub.text1)}
+      {pairedSubtitles.length === 0 ? (
+        <article style={{ margin: 0, padding: '24px 16px', textAlign: 'center', color: 'var(--pico-muted-color)' }}>
+          No subtitles loaded. Please import subtitles in Video List.
+        </article>
+      ) : displayedSubtitles.length === 0 ? (
+        <article style={{ margin: 0, padding: '24px 16px', textAlign: 'center', color: 'var(--pico-muted-color)' }}>
+          🎉 所有句子均已掌握 (已过滤熟句)
+        </article>
+      ) : (
+        displayedSubtitles.map((sub, idx) =>
+        {
+          const isActive = idx === activeVisibleIdx
+          const isPassed = isSentencePassed(sub.text1, wordStat)
+
+          return (
+            <article
+              key={`${sub.start}-${sub.end}-${idx}`}
+              ref={isActive ? (el => { activeItemRef.current = el }) : null}
+              onClick={() => video_player.player.value?.seekTo(sub.start, true)}
+              style={{
+                margin: 0,
+                padding: '12px 14px',
+                borderRadius: 'var(--pico-border-radius)',
+                border: isActive
+                  ? '2px solid var(--pico-primary)'
+                  : '1px solid var(--pico-card-border-color, #e0e0e0)',
+                backgroundColor: isActive
+                  ? 'var(--pico-card-background-color)'
+                  : 'transparent',
+                boxShadow: isActive ? '0 2px 8px rgba(0, 0, 0, 0.08)' : 'none',
+                cursor: 'pointer',
+                transition: 'border 0.2s, background-color 0.2s',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '5px',
+                flexShrink: 0,
+              }}
+              title='点击播放此句'
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  fontSize: '11px',
+                  lineHeight: 1,
+                }}
+              >
+                <span style={{ color: 'var(--pico-muted-color)', fontFamily: 'monospace' }}>
+                  {formatTime(sub.start)} - {formatTime(sub.end)}
+                </span>
+                <span
+                  style={{
+                    fontWeight: 700,
+                    color: isPassed ? '#2e7d32' : 'var(--pico-primary)',
+                  }}
+                >
+                  {isPassed ? '✓ Passed' : 'Review'}
+                </span>
               </div>
-              {currSub.text2 && (
-                <div style={{ fontSize: '1rem', color: 'var(--pico-muted-color)', marginTop: '6px', lineHeight: 1.4 }}>
-                  {currSub.text2}
+
+              <div style={{ fontSize: '1.05rem', fontWeight: 500, lineHeight: 1.4 }}>
+                {renderTokens(sub.text1, onToggleWord)}
+              </div>
+
+              {sub.text2 && (
+                <div style={{ fontSize: '0.88rem', color: 'var(--pico-muted-color)', lineHeight: 1.35 }}>
+                  {sub.text2}
                 </div>
               )}
-            </>
+            </article>
           )
-          : (
-            <div style={{ color: 'var(--pico-muted-color)', fontStyle: 'italic', fontSize: '0.9rem' }}>
-              Waiting for subtitle...
-            </div>
-          )}
-      </div>
-    </article>
+        })
+      )}
+    </div>
   )
 }
 
-function renderTokens(text: string)
+function formatTime(seconds: number): string
+{
+  const m = Math.floor(seconds / 60)
+  const s = Math.floor(seconds % 60)
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+}
+
+function renderTokens(text: string, onToggleWord: (e: MouseEvent, word: string) => void)
 {
   if (typeof Intl !== 'undefined' && 'Segmenter' in Intl)
   {
@@ -282,8 +369,16 @@ function renderTokens(text: string)
         items.push(
           <span
             key={i++}
-            style={{ ...style, padding: '0 2px', userSelect: 'text' }}
-            title={pass ? `${segment} [Passed]` : `${segment} [Review]`}
+            onClick={(e) => onToggleWord(e, cleanWord)}
+            style={{
+              ...style,
+              padding: '1px 3px',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              userSelect: 'text',
+              transition: 'background-color 0.15s',
+            }}
+            title={pass ? `"${segment}" 已掌握 (点击标记为生词)` : `"${segment}" 生词 (点击标记为已掌握)`}
           >
             {segment}
           </span>,
@@ -314,8 +409,16 @@ function renderTokens(text: string)
       return (
         <span
           key={i}
-          style={{ ...style, padding: '0 2px', userSelect: 'text' }}
-          title={pass ? `${part} [Passed]` : `${part} [Review]`}
+          onClick={(e) => onToggleWord(e, cleanWord)}
+          style={{
+            ...style,
+            padding: '1px 3px',
+            borderRadius: '3px',
+            cursor: 'pointer',
+            userSelect: 'text',
+            transition: 'background-color 0.15s',
+          }}
+          title={pass ? `"${part}" 已掌握 (点击标记为生词)` : `"${part}" 生词 (点击标记为已掌握)`}
         >
           {part}
         </span>
