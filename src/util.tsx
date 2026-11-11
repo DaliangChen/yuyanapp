@@ -20,25 +20,13 @@ export type VideoInfo = //
     update_time: number
   }
 
-export type WordStatItem = //
-  {
-    /** 掌握次数 */
-    success: number
-
-    /** 错误次数 */
-    fail: number
-
-    /** 是否掌握 */
-    pass?: boolean
-  }
-
 export type AppData = //
   {
     /** 视频列表 */
     videos: VideoInfo[]
 
     /** 单词统计 */
-    word_stat: Record<string, WordStatItem>
+    word_stat: Record<string, boolean>
   }
 
 /*********************************************************************************

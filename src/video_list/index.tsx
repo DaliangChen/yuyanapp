@@ -5,10 +5,10 @@ import { TablePart } from './table'
 export function VideoListPage()
 {
   return (
-    <div className='max-w-5xl mx-auto px-4 py-8 min-h-screen flex flex-col gap-6'>
+    <div>
       <ActionPart />
-      <TablePart />
-      <AddPart />
+      {/* <TablePart />
+      <AddPart /> */}
     </div>
   )
 }
