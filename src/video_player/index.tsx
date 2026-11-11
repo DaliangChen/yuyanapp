@@ -105,8 +105,6 @@ function useInit()
       video_player.is_playing.value = event.data === 1
     })
 
-    const subs = parse_srt(video_player.video_info.value?.srt_1 ?? '')
-
     const interval_id = setInterval(async () =>
     {
       try
@@ -115,20 +113,37 @@ function useInit()
         video_player.current_time.value = time
 
         // 自动跳过熟句：如当前句所有单词均已掌握，直接跳至下一句生词
-        if (video_player.auto_skip_familiar.value && video_player.is_playing.value)
+        if (video_player.auto_skip_familiar.value)
         {
+          const srt = video_player.video_info.value?.srt_1 || video_player.video_info.value?.srt_2 || ''
+          const subs = parse_srt(srt)
+          const word_stat = app.data.value.word_stat || {}
+
           const active_sub = subs.find(s => time >= s.start && time <= s.end)
-          if (active_sub && last_skipped_ref.current !== active_sub.start)
+          if (active_sub)
           {
-            if (is_sentence_passed(active_sub.text, app.data.value.word_stat))
+            if (is_sentence_passed(active_sub.text, word_stat))
             {
-              last_skipped_ref.current = active_sub.start
-              const next_unpassed = subs.find(
-                s => s.start > active_sub.start && !is_sentence_passed(s.text, app.data.value.word_stat),
-              )
-              if (next_unpassed)
+              if (last_skipped_ref.current !== active_sub.start)
               {
-                video_player.player.value?.seekTo(next_unpassed.start, true)
+                last_skipped_ref.current = active_sub.start
+                const next_unpassed = subs.find(
+                  s => s.start > active_sub.start && !is_sentence_passed(s.text, word_stat),
+                )
+                if (next_unpassed)
+                {
+                  video_player.player.value?.seekTo(next_unpassed.start, true)
+                }
+              }
+            }
+          } else
+          {
+            if (last_skipped_ref.current !== null)
+            {
+              const last_sub = subs.find(s => s.start === last_skipped_ref.current)
+              if (!last_sub || time < last_sub.start || time > last_sub.end)
+              {
+                last_skipped_ref.current = null
               }
             }
           }

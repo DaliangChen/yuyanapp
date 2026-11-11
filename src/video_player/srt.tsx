@@ -47,6 +47,27 @@ export function is_sentence_passed(text: string, word_stat: Record<string, boole
   return words.length === 0 || words.every(w => word_stat[w] === true)
 }
 
+export function skip_if_current_familiar(custom_stat?: Record<string, boolean>)
+{
+  const srt = video_player.video_info.value?.srt_1 || video_player.video_info.value?.srt_2 || ''
+  const subs = parse_srt(srt)
+  if (subs.length === 0) return
+
+  const time = video_player.current_time.value
+  const word_stat = custom_stat || app.data.value.word_stat || {}
+
+  // 找到当前时间所在的句子或紧接着的句子
+  const active_sub = subs.find(s => time >= s.start && time <= s.end) || subs.find(s => s.start >= time)
+  if (active_sub && is_sentence_passed(active_sub.text, word_stat))
+  {
+    const next_unpassed = subs.find(s => s.start > active_sub.start && !is_sentence_passed(s.text, word_stat))
+    if (next_unpassed)
+    {
+      video_player.player.value?.seekTo(next_unpassed.start, true)
+    }
+  }
+}
+
 export function SrtPart()
 {
   const list_ref = useRef<HTMLDivElement>(null)
@@ -107,6 +128,11 @@ export function SrtPart()
     const stat = { ...app.data.value.word_stat }
     stat[word] = !stat[word]
     app.data.value = { ...app.data.value, word_stat: stat }
+
+    if (video_player.auto_skip_familiar.value)
+    {
+      skip_if_current_familiar(stat)
+    }
   }
 
   if (all_subtitles.length === 0)

@@ -1,3 +1,4 @@
+import { skip_if_current_familiar } from './srt'
 import * as video_player from './value'
 
 export function ControlPart()
@@ -17,6 +18,10 @@ export function ControlPart()
 function on_toggle_skip_familiar()
 {
   video_player.auto_skip_familiar.value = !video_player.auto_skip_familiar.value
+  if (video_player.auto_skip_familiar.value)
+  {
+    skip_if_current_familiar()
+  }
 }
 
 function on_toggle_play()
