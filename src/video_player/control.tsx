@@ -24,14 +24,16 @@ export function ControlPart()
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
+        gap: '12px',
       }}
     >
-      <button className='outline' onClick={on_toggle_play}>
+      <button className='outline' style={{ width: 'auto', marginBottom: 0 }} onClick={on_toggle_play}>
         {isPlaying ? '⏸ Pause' : '▶ Play'}
       </button>
 
       <button
         className='outline'
+        style={{ width: 'auto', marginBottom: 0 }}
         onClick={() => (video_player.auto_skip_familiar.value = !video_player.auto_skip_familiar.value)}
       >
         ⏭ Skip familiar: {isAutoSkip ? 'ON' : 'OFF'}

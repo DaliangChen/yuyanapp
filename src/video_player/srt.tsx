@@ -217,64 +217,85 @@ export function SrtPart()
   const isPassed = currSub ? isSentencePassed(currSub.text1, wordStat) : false
 
   return (
-    <div className='w-full bg-slate-50/70 border-t border-slate-200 p-2.5 sm:p-3.5 flex flex-col gap-2 relative shrink-0'>
-      {/* 当前句字幕区 - 外框与白色卡片永久常驻，跳转时绝不坍塌或消失 */}
-      <div className='w-full'>
-        <div
-          onClick={() => currSub && video_player.player.value?.seekTo(currSub.start, true)}
-          className={`flex items-baseline gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white border-l-4 border-slate-800 shadow-2xs border border-slate-200/90 min-h-[86px] sm:min-h-[92px] transition-colors ${
-            currSub ? 'cursor-pointer hover:bg-slate-50/90' : 'cursor-default'
-          }`}
-          title={
-            currSub
-              ? '点击重播这一句 (快捷键：按 → 下一句；按 ← 上一句重播；滚轮只打分不跳句)'
-              : undefined
-          }
+    <article
+      onClick={() => currSub && video_player.player.value?.seekTo(currSub.start, true)}
+      style={{
+        margin: 0,
+        padding: '16px 20px',
+        minHeight: '100px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+        cursor: currSub ? 'pointer' : 'default',
+        boxSizing: 'border-box',
+      }}
+      title={
+        currSub
+          ? '点击重播这一句 (快捷键：按 → 下一句；按 ← 上一句重播；滚轮只打分不跳句)'
+          : undefined
+      }
+    >
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '4px',
+          flexShrink: 0,
+          userSelect: 'none',
+          minWidth: '60px',
+        }}
+      >
+        <span
+          style={{
+            fontSize: '11px',
+            fontWeight: 600,
+            padding: '2px 8px',
+            borderRadius: '4px',
+            backgroundColor: 'var(--pico-form-element-border-color, #e0e0e0)',
+            color: 'var(--pico-color)',
+          }}
         >
-          <div className='flex flex-col gap-1 items-center shrink-0 select-none min-w-[50px]'>
-            <span className='text-[11px] text-slate-900 bg-slate-100 font-semibold px-2 py-0.5 rounded-md'>
-              当前句
-            </span>
-            <span
-              className={`text-[10px] font-mono ${
-                currSub
-                  ? isPassed
-                    ? 'text-emerald-700 font-semibold'
-                    : 'text-amber-700 font-semibold'
-                  : 'text-slate-300'
-              }`}
-              title='当前句状态'
-            >
-              {currSub ? (isPassed ? '✓ 已掌握' : '生词') : '—'}
-            </span>
-          </div>
+          SUB
+        </span>
+        <span
+          style={{
+            fontSize: '11px',
+            fontWeight: 700,
+            color: currSub
+              ? isPassed
+                ? '#2e7d32'
+                : 'var(--pico-primary)'
+              : 'var(--pico-muted-color)',
+          }}
+        >
+          {currSub ? (isPassed ? '✓ Passed' : 'Review') : '—'}
+        </span>
+      </div>
 
-          <div className='flex-1 min-w-0 flex flex-col justify-center min-h-[44px]'>
-            {pairedSubtitles.length === 0 ? (
-              <div className='text-slate-400 text-xs italic py-1'>
-                暂无已加载的字幕文件，请先在视频列表载入 SRT/VTT 字幕
-              </div>
-            ) : currSub ? (
-              <>
-                {/* 大字号清晰主文本 */}
-                <div className='text-lg sm:text-xl md:text-[22px] font-semibold text-slate-900 leading-snug tracking-wide'>
-                  {renderTokens(currSub.text1)}
-                </div>
-                {currSub.text2 && (
-                  <div className='text-sm sm:text-base md:text-lg text-slate-700 font-medium mt-1 leading-snug tracking-normal'>
-                    {currSub.text2}
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className='text-slate-400 text-xs italic py-1'>
-                等待当前字幕播放...
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        {pairedSubtitles.length === 0 ? (
+          <div style={{ color: 'var(--pico-muted-color)', fontStyle: 'italic', fontSize: '0.9rem' }}>
+            No subtitles loaded. Please import subtitles in Video List.
+          </div>
+        ) : currSub ? (
+          <>
+            <div style={{ fontSize: '1.35rem', fontWeight: 600, lineHeight: 1.45, letterSpacing: '0.01em' }}>
+              {renderTokens(currSub.text1)}
+            </div>
+            {currSub.text2 && (
+              <div style={{ fontSize: '1rem', color: 'var(--pico-muted-color)', marginTop: '6px', lineHeight: 1.4 }}>
+                {currSub.text2}
               </div>
             )}
+          </>
+        ) : (
+          <div style={{ color: 'var(--pico-muted-color)', fontStyle: 'italic', fontSize: '0.9rem' }}>
+            Waiting for subtitle...
           </div>
-        </div>
+        )}
       </div>
-    </div>
+    </article>
   )
 }
 
@@ -301,8 +322,7 @@ function renderTokens(text: string)
         items.push(
           <span
             key={i++}
-            className='px-0.5 rounded select-text'
-            style={style}
+            style={{ ...style, padding: '0 2px', userSelect: 'text' }}
             title={pass ? `${segment} [Passed]` : `${segment} [Review]`}
           >
             {segment}
@@ -334,8 +354,7 @@ function renderTokens(text: string)
       return (
         <span
           key={i}
-          className='px-0.5 rounded select-text'
-          style={style}
+          style={{ ...style, padding: '0 2px', userSelect: 'text' }}
           title={pass ? `${part} [Passed]` : `${part} [Review]`}
         >
           {part}

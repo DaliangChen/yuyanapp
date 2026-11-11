@@ -27,35 +27,62 @@ export function VideoPlayerPage()
   const hud = video_player.hud_message.value
 
   return (
-    <div className='max-w-5xl mx-auto px-3 sm:px-4 py-2 sm:py-3 max-h-[920px] flex flex-col justify-start gap-2.5 text-slate-800 overflow-hidden'>
-      {/* Main Video & Subtitle Card */}
-      <div className='bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden flex flex-col'>
-        {/* Video Stage without overlaid subtitle obstruction */}
-        <div className='relative w-full aspect-video max-h-[46vh] sm:max-h-[50vh] md:max-h-[460px] bg-black flex items-center justify-center overflow-hidden shrink-0'>
-          <PlayerPart />
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+        maxWidth: '920px',
+        margin: '0 auto',
+      }}
+    >
+      {/* Video Stage without overlaid subtitle obstruction */}
+      <div
+        style={{
+          position: 'relative',
+          width: '100%',
+          aspectRatio: '16 / 9',
+          maxHeight: '480px',
+          backgroundColor: '#000000',
+          borderRadius: 'var(--pico-border-radius)',
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <PlayerPart />
 
-          {/* HUD Toast - 素雅白底微阴影悬浮胶囊 */}
-          {hud && (
-            <div
-              className={`absolute top-5 left-1/2 -translate-x-1/2 z-30 px-4 py-1.5 rounded-full text-xs font-medium shadow-md border backdrop-blur-md transition-all duration-200 flex items-center gap-2 pointer-events-none ${
-                hud.type === 'success'
-                  ? 'bg-white/95 text-emerald-800 border-emerald-300'
-                  : hud.type === 'fail'
-                  ? 'bg-white/95 text-amber-800 border-amber-300'
-                  : 'bg-white/95 text-sky-800 border-sky-300'
-              }`}
-            >
-              {hud.text}
-            </div>
-          )}
-        </div>
-
-        {/* Bottom Control Bar */}
-        <ControlPart />
-
-        {/* Subtitles placed below the control bar with larger typography */}
-        <SrtPart />
+        {/* HUD Toast */}
+        {hud && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '16px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 30,
+              padding: '6px 16px',
+              borderRadius: '20px',
+              fontSize: '13px',
+              fontWeight: 600,
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              color: '#ffffff',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
+              pointerEvents: 'none',
+              transition: 'opacity 0.2s',
+            }}
+          >
+            {hud.text}
+          </div>
+        )}
       </div>
+
+      {/* Bottom Control Bar */}
+      <ControlPart />
+
+      {/* Subtitles Area */}
+      <SrtPart />
     </div>
   )
 }
