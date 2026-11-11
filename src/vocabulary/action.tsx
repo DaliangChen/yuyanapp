@@ -5,28 +5,21 @@ export function ActionPart()
   const act = vocabulary.action.value
 
   return (
-    <div className='flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs'>
-      <div className='flex-1 max-w-sm relative'>
+    <div>
+      <div>
         <input
           type='text'
           placeholder='🔍 搜索生词或拼写...'
           value={act.search}
           onInput={(e) => setSearch(e.currentTarget.value)}
-          className='w-full px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 focus:bg-white text-slate-800 placeholder-slate-400'
         />
       </div>
 
-      <div className='flex flex-wrap items-center gap-2.5'>
-        {/* Filter tabs */}
-        <div className='inline-flex bg-slate-100 p-0.5 rounded-lg text-xs'>
+      <div>
+        <div>
           <button
             type='button'
             onClick={() => setFilter('all')}
-            className={`px-3 py-1 rounded-md font-medium transition-colors cursor-pointer ${
-              act.filter === 'all'
-                ? 'bg-white text-slate-900 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
           >
             全部 ({vocabulary.total_words.value})
           </button>
