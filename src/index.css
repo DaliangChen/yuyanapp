@@ -10,3 +10,14 @@ body,
   width: 100vw;
   height: 100vh;
 }
+
+:root,
+:host {
+  --pico-font-size: 100%;
+  --pico-form-element-spacing-vertical: 0.25rem;
+  --pico-form-element-spacing-horizontal: 0.5rem;
+}
+
+a {
+  text-decoration: none;
+}

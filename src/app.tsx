@@ -10,36 +10,39 @@ export function App()
   useOnError()
 
   return (
-    <>
-      <nav>
-        <ul>
-          <li>
-            <strong>Acme Corp</strong>
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <a href='#'>About</a>
-          </li>
-          <li>
-            <a href='#'>Services</a>
-          </li>
-          <li>
-            <a href='#'>Products</a>
-          </li>
-        </ul>
-      </nav>
+    <div style={{ padding: '0 100px' }}>
+      <Nav />
       {app.show_page.value === 'video_list' && <VideoListPage />}
       {app.show_page.value === 'video_player' && <VideoPlayerPage />}
       {app.show_page.value === 'vocabulary' && <VocabularyPage />}
       <ErrorInfo />
-    </>
+    </div>
   )
 }
 
-/*************************************************************************************
- * 错误提示组件：素雅模态框，替代原生 dialog 丑陋样式
- */
+function Nav()
+{
+  return (
+    <nav style={{ borderBottom: '1px solid var(--pico-primary)', marginBottom: '20px' }}>
+      <ul>
+        <li>
+          <h3 style={{ margin: '0' }}>YuYan</h3>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <a href='#' onClick={() => app.show_page.value = 'video_list'}>Video List</a>
+        </li>
+        <li>
+          <a href='#' onClick={() => app.show_page.value = 'video_player'}>Video Player</a>
+        </li>
+        <li>
+          <a href='#' onClick={() => app.show_page.value = 'vocabulary'}>Vocabulary</a>
+        </li>
+      </ul>
+    </nav>
+  )
+}
 
 function ErrorInfo()
 {
@@ -48,19 +51,15 @@ function ErrorInfo()
   return (
     <dialog open={!!app.err_info.value}>
       <article>
-        <h2>提示信息</h2>
+        <h2>Error</h2>
         <p>{app.err_info.value}</p>
         <footer>
-          <button onClick={() => (app.err_info.value = null)}>确定</button>
+          <button className='outline' onClick={() => (app.err_info.value = null)}>Ok</button>
         </footer>
       </article>
     </dialog>
   )
 }
-
-/*************************************************************************************
- * 全局错误处理，包括 Promise 错误、Error 错误
- */
 
 function useOnError()
 {
@@ -71,6 +70,12 @@ function useOnError()
       if (event.reason instanceof InfoError || event.reason instanceof LogicError)
       {
         app.err_info.value = event.reason.message
+        event.preventDefault()
+        return
+      }
+
+      if (event.reason instanceof DOMException && event.reason.name === 'AbortError')
+      {
         event.preventDefault()
         return
       }

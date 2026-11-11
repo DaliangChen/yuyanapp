@@ -1,7 +1,7 @@
 import { app } from '../appv'
-import { video_list } from './value'
+import * as video_list from './value'
 
-const on_click_add_video = () =>
+function on_click_add()
 {
   video_list.add_data.value = {
     video_info: {
@@ -15,124 +15,58 @@ const on_click_add_video = () =>
   }
 }
 
-const on_click_export_data = async () =>
+async function on_click_export()
 {
-  const jsonContent = JSON.stringify(app.data.value, null, 2)
-  try
-  {
-    if ('showSaveFilePicker' in window)
-    {
-      const handle = await window.showSaveFilePicker({
-        suggestedName: 'yuyan_data.json',
-        types: [
-          {
-            description: 'Json',
-            accept: {
-              'application/json': ['.json'],
-            },
-          },
-        ],
-      })
+  const json_content = JSON.stringify(app.data.value, null, 2)
 
-      const writable = await handle.createWritable()
-      await writable.write(jsonContent)
-      await writable.close()
-      return
-    }
-  } catch (err: unknown)
-  {
-    if ((err as Error)?.name === 'AbortError') return
-    console.warn('Native file save unavailable, falling back to download:', err)
-  }
+  const handle = await window.showSaveFilePicker({
+    suggestedName: 'yuyan_data.json',
+    types: [
+      {
+        description: 'Json',
+        accept: {
+          'application/json': ['.json'],
+        },
+      },
+    ],
+  })
 
-  // Fallback download blob
-  const blob = new Blob([jsonContent], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'yuyan_data.json'
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  const writable = await handle.createWritable()
+  await writable.write(json_content)
+  await writable.close()
 }
 
-const on_click_import_data = async () =>
+async function on_click_import()
 {
-  try
-  {
-    if ('showOpenFilePicker' in window)
-    {
-      const [handle] = await window.showOpenFilePicker({
-        types: [{
-          description: 'Json',
-          accept: {
-            'application/json': ['.json'],
-          },
-        }],
-        multiple: false,
-      })
+  const [handle] = await window.showOpenFilePicker({
+    types: [{
+      description: 'Json',
+      accept: {
+        'application/json': ['.json'],
+      },
+    }],
+    multiple: false,
+  })
 
-      const file = await handle.getFile()
-      const text = await file.text()
-      const parsed = JSON.parse(text)
-      app.data.value = {
-        videos: parsed.videos || [],
-        word_stat: parsed.word_stat || {},
-      }
-      return
-    }
-  } catch (err: unknown)
-  {
-    if ((err as Error)?.name === 'AbortError') return
-    console.warn('Native file open unavailable, falling back to file input:', err)
-  }
+  const file = await handle.getFile()
+  const text = await file.text()
+  const parsed_json = JSON.parse(text)
 
-  // Fallback file input
-  const input = document.createElement('input')
-  input.type = 'file'
-  input.accept = '.json,application/json'
-  input.style.display = 'none'
-  input.onchange = async () =>
-  {
-    const file = input.files?.[0]
-    if (!file) return
-    const text = await file.text()
-    const parsed = JSON.parse(text)
-    app.data.value = {
-      videos: parsed.videos || [],
-      word_stat: parsed.word_stat || {},
-    }
-    document.body.removeChild(input)
+  app.data.value = {
+    videos: parsed_json.videos || [],
+    word_stat: parsed_json.word_stat || {},
   }
-  document.body.appendChild(input)
-  input.click()
 }
 
 export function ActionPart()
 {
   return (
-    <div>
-      <button
-        type='button'
-        onClick={on_click_import_data}
-      >
-        导入 JSON
-      </button>
-
-      <button
-        type='button'
-        onClick={on_click_export_data}
-      >
-        备份数据
-      </button>
-
-      <button
-        type='button'
-        onClick={on_click_add_video}
-      >
-        + 添加视频
-      </button>
+    <div style={{ display: 'flex', justifyContent: 'end' }}>
+      <div role='group' style={{ width: 'fit-content' }}>
+        <button className='outline' onClick={on_click_import}>Import</button>
+        <button className='outline' onClick={on_click_export}>Export</button>
+        <button className='outline' onClick={on_click_add}>Add</button>
+      </div>
     </div>
   )
 }

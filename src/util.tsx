@@ -1,3 +1,5 @@
+import type { Signal } from '@preact/signals'
+
 /*********************************************************************************
  * 类型定义
  */
@@ -27,6 +29,14 @@ export type AppData = //
 
     /** 单词统计 */
     word_stat: Record<string, boolean>
+  }
+
+export type PageInfo = //
+  {
+    /** 当前页 */
+    current_page: number
+    /** 总页数 */
+    total_pages: number
   }
 
 /*********************************************************************************
