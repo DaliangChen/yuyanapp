@@ -3,7 +3,7 @@ import YouTubePlayer from 'youtube-player'
 import * as app from '../appv'
 import { ControlPart } from './control'
 import { PlayerPart } from './player'
-import { extract_words, is_sentence_passed, parse_srt, SrtPart } from './srt'
+import { is_sentence_passed, SrtPart } from './srt'
 import * as video_player from './value'
 
 export function VideoPlayerPage()
@@ -38,34 +38,6 @@ function useInit()
 {
   const last_skipped_ref = useRef<number | null>(null)
 
-  // 视频中的新词自动录入生词本为未掌握 (false)
-  useEffect(() =>
-  {
-    const srt = video_player.video_info.value?.srt_1 ?? ''
-    if (!srt) return
-
-    const subs = parse_srt(srt)
-    let has_new = false
-    const stat = { ...app.data.value.word_stat }
-
-    for (const s of subs)
-    {
-      for (const w of extract_words(s.text))
-      {
-        if (stat[w] === undefined)
-        {
-          stat[w] = false
-          has_new = true
-        }
-      }
-    }
-
-    if (has_new)
-    {
-      app.data.value = { ...app.data.value, word_stat: stat }
-    }
-  }, [video_player.video_info.value?.video_id, video_player.video_info.value?.srt_1])
-
   useEffect(() =>
   {
     const video_id = video_player.video_info.value?.video_id
@@ -91,40 +63,41 @@ function useInit()
         // 自动跳过熟句：如当前句所有单词均已掌握，直接跳至下一句生词
         if (video_player.auto_skip_familiar.value)
         {
-          const srt = video_player.video_info.value?.srt_1 || video_player.video_info.value?.srt_2 || ''
-          const subs = parse_srt(srt)
+          const sentenses = video_player.video_info.value?.sentense_list ?? []
           const word_stat = app.data.value.word_stat || {}
 
-          const active_sub = subs.find(s => time >= s.start && time <= s.end)
+          const active_sub = sentenses.find(s => time >= s.start_time && time <= s.end_time)
           if (active_sub)
           {
-            if (is_sentence_passed(active_sub.text, word_stat))
+            if (is_sentence_passed(active_sub, word_stat))
             {
-              if (last_skipped_ref.current !== active_sub.start)
+              if (last_skipped_ref.current !== active_sub.start_time)
               {
-                last_skipped_ref.current = active_sub.start
-                const next_unpassed = subs.find(
-                  s => s.start > active_sub.start && !is_sentence_passed(s.text, word_stat),
+                last_skipped_ref.current = active_sub.start_time
+                const next_unpassed = sentenses.find(
+                  s => s.start_time > active_sub.start_time && !is_sentence_passed(s, word_stat),
                 )
                 if (next_unpassed)
                 {
-                  video_player.player.value?.seekTo(next_unpassed.start, true)
+                  video_player.player.value?.seekTo(next_unpassed.start_time, true)
                 }
               }
             }
-          } else
+          }
+          else
           {
             if (last_skipped_ref.current !== null)
             {
-              const last_sub = subs.find(s => s.start === last_skipped_ref.current)
-              if (!last_sub || time < last_sub.start || time > last_sub.end)
+              const last_sub = sentenses.find(s => s.start_time === last_skipped_ref.current)
+              if (!last_sub || time < last_sub.start_time || time > last_sub.end_time)
               {
                 last_skipped_ref.current = null
               }
             }
           }
         }
-      } catch
+      }
+      catch
       {
         // 播放器销毁或切换时忽略
       }

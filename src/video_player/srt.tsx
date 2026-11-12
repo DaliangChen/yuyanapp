@@ -1,75 +1,34 @@
 import { useEffect, useMemo, useRef } from 'preact/hooks'
 import * as app from '../appv'
+import { type Subtitle } from '../util'
 import * as video_player from './value'
 
-export interface Subtitle
-{
-  start: number
-  end: number
-  text1: string
-  text2?: string
-}
+const segmenter = new Intl.Segmenter('de-DE', { granularity: 'word' })
 
-/**
- * Parse SRT subtitle content.
- * @param srt - The SRT subtitle content.
- * @returns An array of subtitle objects, each containing start/end times and text.
- */
-export function parse_srt(srt: string)
+export function is_sentence_passed(sentence: Subtitle, word_stat: Record<string, boolean>): boolean
 {
-  if (!srt) return []
-  const pattern =
-    /(?:(\d{1,2}:)?(\d{2}:\d{2}[,.]\d{3}))\s*-->\s*(?:(\d{1,2}:)?(\d{2}:\d{2}[,.]\d{3}))\s*\n([\s\S]*?)(?=\n\s*\n|$)/g
-  const to_seconds = (str: string) =>
-  {
-    const parts = str.replace(',', '.').split(':')
-    return parts.length === 3
-      ? +parts[0] * 3600 + +parts[1] * 60 + +parts[2]
-      : +parts[0] * 60 + +parts[1]
-  }
-
-  const list = []
-  let m: RegExpExecArray | null
-  while ((m = pattern.exec(srt.replace(/\r\n/g, '\n'))))
-  {
-    list.push({
-      start: to_seconds((m[1] || '') + m[2]),
-      end: to_seconds((m[3] || '') + m[4]),
-      text: m[5].replace(/<[^>]+>/g, '').trim(),
-    })
-  }
-  return list
-}
-
-export function extract_words(text: string): string[]
-{
-  const words = text.toLowerCase().match(/[\p{L}0-9'-]+/gu) || []
-  return words.map(w => w.replace(/^[^\p{L}0-9]+|[^\p{L}0-9]+$/gu, '')).filter(Boolean)
-}
-
-export function is_sentence_passed(text: string, word_stat: Record<string, boolean>): boolean
-{
-  const words = extract_words(text)
-  return words.length === 0 || words.every(w => word_stat[w] === true)
+  return sentence.words.length === 0 || sentence.words.every(w => word_stat[w] === true)
 }
 
 export function skip_if_current_familiar(custom_stat?: Record<string, boolean>)
 {
-  const srt = video_player.video_info.value?.srt_1 || video_player.video_info.value?.srt_2 || ''
-  const subs = parse_srt(srt)
-  if (subs.length === 0) return
+  const sentenses = video_player.video_info.value?.sentense_list ?? []
+  if (sentenses.length === 0) return
 
   const time = video_player.current_time.value
   const word_stat = custom_stat || app.data.value.word_stat || {}
 
-  // 找到当前时间所在的句子或紧接着的句子
-  const active_sub = subs.find(s => time >= s.start && time <= s.end) || subs.find(s => s.start >= time)
-  if (active_sub && is_sentence_passed(active_sub.text, word_stat))
+  const active_sub = sentenses.find(s => time >= s.start_time && time <= s.end_time)
+    || sentenses.find(s => s.start_time >= time)
+
+  if (active_sub && is_sentence_passed(active_sub, word_stat))
   {
-    const next_unpassed = subs.find(s => s.start > active_sub.start && !is_sentence_passed(s.text, word_stat))
+    const next_unpassed = sentenses.find(
+      s => s.start_time > active_sub.start_time && !is_sentence_passed(s, word_stat),
+    )
     if (next_unpassed)
     {
-      video_player.player.value?.seekTo(next_unpassed.start, true)
+      video_player.player.value?.seekTo(next_unpassed.start_time, true)
     }
   }
 }
@@ -79,37 +38,21 @@ export function SrtPart()
   const list_ref = useRef<HTMLDivElement>(null)
   const active_ref = useRef<HTMLElement | null>(null)
 
-  const all_subtitles = useMemo<Subtitle[]>(() =>
-  {
-    const s1 = parse_srt(video_player.video_info.value?.srt_1 ?? '')
-    const s2 = parse_srt(video_player.video_info.value?.srt_2 ?? '')
-
-    if (s1.length === 0 && s2.length > 0)
-    {
-      return s2.map(s => ({ start: s.start, end: s.end, text1: '', text2: s.text }))
-    }
-
-    return s1.map(item =>
-    {
-      const match = s2.find(s => Math.max(item.start, s.start) < Math.min(item.end, s.end))
-      return { start: item.start, end: item.end, text1: item.text, text2: match?.text }
-    })
-  }, [video_player.video_info.value?.srt_1, video_player.video_info.value?.srt_2])
-
+  const all_subtitles = video_player.video_info.value?.sentense_list ?? []
   const word_stat = app.data.value.word_stat || {}
   const is_auto_skip = video_player.auto_skip_familiar.value
 
   const subtitles = useMemo(() =>
   {
     if (!is_auto_skip) return all_subtitles
-    return all_subtitles.filter(sub => !is_sentence_passed(sub.text1, word_stat))
+    return all_subtitles.filter(sub => !is_sentence_passed(sub, word_stat))
   }, [all_subtitles, is_auto_skip, word_stat])
 
   const time = video_player.current_time.value
-  let active_index = subtitles.findIndex(s => time >= s.start && time <= s.end)
+  let active_index = subtitles.findIndex(s => time >= s.start_time && time <= s.end_time)
   if (active_index === -1 && subtitles.length > 0)
   {
-    const next = subtitles.findIndex(s => s.start > time)
+    const next = subtitles.findIndex(s => s.start_time > time)
     if (next > 0) active_index = next - 1
   }
 
@@ -157,18 +100,18 @@ export function SrtPart()
       {subtitles.map((sub, idx) =>
       {
         const is_active = idx === active_index
-        const is_passed = is_sentence_passed(sub.text1, word_stat)
+        const is_passed = is_sentence_passed(sub, word_stat)
 
         return (
           <article
-            key={`${sub.start}-${idx}`}
+            key={sub.index || `${sub.start_time}-${idx}`}
             ref={is_active
               ? (el =>
               {
                 active_ref.current = el
               })
               : null}
-            onClick={() => video_player.player.value?.seekTo(sub.start, true)}
+            onClick={() => video_player.player.value?.seekTo(sub.start_time, true)}
             style={{
               margin: 0,
               padding: '12px 14px',
@@ -190,7 +133,7 @@ export function SrtPart()
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', lineHeight: 1 }}>
               <span style={{ color: 'var(--pico-muted-color)', fontFamily: 'monospace' }}>
-                {format_time(sub.start)} - {format_time(sub.end)}
+                {sub.start_time_str || format_time(sub.start_time)} - {sub.end_time_str || format_time(sub.end_time)}
               </span>
               <span style={{ fontWeight: 700, color: is_passed ? '#2e7d32' : 'var(--pico-primary)' }}>
                 {is_passed ? '✓ Passed' : 'Review'}
@@ -198,12 +141,12 @@ export function SrtPart()
             </div>
 
             <div style={{ fontSize: '1.05rem', fontWeight: 500, lineHeight: 1.4 }}>
-              <WordTokens text={sub.text1} on_toggle_word={on_toggle_word} />
+              <WordTokens text={sub.text} on_toggle_word={on_toggle_word} />
             </div>
 
-            {sub.text2 && (
+            {sub.translation && (
               <div style={{ fontSize: '0.88rem', color: 'var(--pico-muted-color)', lineHeight: 1.35 }}>
-                {sub.text2}
+                {sub.translation}
               </div>
             )}
           </article>
@@ -215,40 +158,40 @@ export function SrtPart()
 
 function WordTokens({ text, on_toggle_word }: { text: string; on_toggle_word: (e: MouseEvent, word: string) => void })
 {
-  const parts = text.split(/([\p{L}0-9'-]+)/u)
+  const segments = Array.from(segmenter.segment(text))
 
   return (
     <>
-      {parts.map((part, i) =>
+      {segments.map((seg, i) =>
       {
-        if (/^[\p{L}0-9'-]+$/u.test(part))
+        if (seg.isWordLike)
         {
-          const clean = part.toLowerCase().replace(/^[^\p{L}0-9]+|[^\p{L}0-9]+$/gu, '')
-          let pass = app.data.value.word_stat[clean]
+          const word = seg.segment
+          let pass = app.data.value.word_stat[word]
           if (pass === undefined)
           {
             pass = false
-            app.data.value.word_stat[clean] = false
+            app.data.value.word_stat[word] = false
           }
 
           return (
             <span
               key={i}
-              onClick={(e) => on_toggle_word(e, clean)}
+              onClick={(e) => on_toggle_word(e, word)}
               style={{
                 color: pass ? '#000000' : 'var(--pico-primary)',
                 fontWeight: pass ? 'normal' : 'bold',
-                padding: '1px 3px',
+                padding: '1px 2px',
                 borderRadius: '3px',
                 cursor: 'pointer',
                 userSelect: 'text',
               }}
             >
-              {part}
+              {word}
             </span>
           )
         }
-        return <span key={i}>{part}</span>
+        return <span key={i}>{seg.segment}</span>
       })}
     </>
   )
