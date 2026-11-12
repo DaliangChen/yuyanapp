@@ -29,15 +29,26 @@ const active_sentence_index = computed(() =>
   return ''
 })
 
-let old_active_sentence_index = 'xxxxxxxxxxxxxxxxxxxxx'
-
+/**
+ * 监听播放时间，实现跳过未显示（已掌握）的句子
+ */
 effect(() =>
 {
-  if (old_active_sentence_index === active_sentence_index.value) return
-  old_active_sentence_index = active_sentence_index.value
-  const currentSentenceIndex = sentence_list.value.findIndex((s) => s.index === active_sentence_index.value)
-  if (currentSentenceIndex === -1 || currentSentenceIndex === sentence_list.value.length - 1) return
-  video_player.player.value?.seekTo(sentence_list.value[currentSentenceIndex + 1].start_time, true)
+  if (!video_player.is_skip_familiar.value) return
+  const time = video_player.current_time.value
+  const list = sentence_list.value
+  if (list.length === 0) return
+
+  // 检查当前时间是否处于任何一个“过滤后可见句子”的范围之内
+  const in_any_visible = list.some(s => time >= s.start_time && time <= s.end_time)
+  if (in_any_visible) return
+
+  // 如果不在任何可见句子范围内，说明当前落在了被跳过的已掌握句子区间，需要找到下一个最近的未掌握句子
+  const next_sentence = list.find(s => s.start_time > time)
+  if (next_sentence)
+  {
+    video_player.player.value?.seekTo(next_sentence.start_time, true)
+  }
 })
 
 export function SrtPart()
