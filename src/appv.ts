@@ -1,29 +1,21 @@
-import { effect, signal } from '@preact/signals'
-import { type AppData, InfoError } from './util'
+import { signal } from '@preact/signals'
+import * as localforage from 'localforage'
+import { type AppData } from './util'
 
 const STORAGE_KEY = 'yuyan_app_data'
 
-export const data = signal<AppData>(loadInitialData())
+export const data = signal<AppData>({ videos: [], word_stat: {} })
+localforage.getItem(STORAGE_KEY).then((value) =>
+{
+  if (value) data.value = value as AppData
+})
+
+export const visibilitychange = () =>
+{
+  if (document.visibilityState === 'visible') return
+  localforage.setItem(STORAGE_KEY, data.value)
+}
 
 export const show_page = signal<'video_list' | 'video_player' | 'vocabulary' | 'srt_editer'>('video_list')
 
 export const err_info = signal<string | null>(null)
-
-function loadInitialData(): AppData
-{
-  const saved = localStorage.getItem(STORAGE_KEY)
-  if (saved) return JSON.parse(saved) as AppData
-
-  return { videos: [], word_stat: {} }
-}
-
-effect(() =>
-{
-  try
-  {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data.value))
-  } catch (e)
-  {
-    throw new InfoError('数据保存失败')
-  }
-})

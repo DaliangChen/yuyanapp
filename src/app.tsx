@@ -10,6 +10,16 @@ export function App()
 {
   useOnError()
 
+  useEffect(() =>
+  {
+    window.addEventListener('visibilitychange', app.visibilitychange)
+
+    return () =>
+    {
+      window.removeEventListener('visibilitychange', app.visibilitychange)
+    }
+  }, [])
+
   return (
     <div id='app-container' style={{ padding: '0 100px' }}>
       <Nav />
