@@ -4,6 +4,9 @@ import * as app from '../appv'
 import type { Sentense } from '../util'
 import * as video_player from './value'
 
+/**
+ * UI上显示的句子列表
+ */
 const sentence_list = computed(() =>
   video_player.video_info.value?.sentense_list.filter((sentence) =>
   {
@@ -26,14 +29,15 @@ const active_sentence_index = computed(() =>
   return ''
 })
 
+let old_active_sentence_index = 'xxxxxxxxxxxxxxxxxxxxx'
+
 effect(() =>
 {
-  if (!active_sentence_index.value) return
-
-  const currentSentence = sentence_list.value.find((s) => s.index === active_sentence_index.value)
-  if (!currentSentence) return
-
-  video_player.player.value?.seekTo(currentSentence.start_time, true)
+  if (old_active_sentence_index === active_sentence_index.value) return
+  old_active_sentence_index = active_sentence_index.value
+  const currentSentenceIndex = sentence_list.value.findIndex((s) => s.index === active_sentence_index.value)
+  if (currentSentenceIndex === -1 || currentSentenceIndex === sentence_list.value.length - 1) return
+  video_player.player.value?.seekTo(sentence_list.value[currentSentenceIndex + 1].start_time, true)
 })
 
 export function SrtPart()
