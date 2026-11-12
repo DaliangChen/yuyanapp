@@ -137,31 +137,32 @@ export function SrtPart()
             </div>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
-              {sentense.words.map((word, word_index) =>
-              {
-                const isPassed = app.data.value.word_stat[word] === true
-                return (
-                  <span
-                    key={word + word_index}
-                    onClick={(e) =>
-                    {
-                      e.stopPropagation()
-                      on_toggle_word(word)
-                    }}
-                    style={{
-                      fontSize: '0.75rem',
-                      padding: '2px 6px',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      backgroundColor: isPassed ? 'rgba(46, 160, 67, 0.15)' : 'rgba(235, 87, 87, 0.15)',
-                      color: isPassed ? '#2ea043' : '#eb5757',
-                      border: `1px solid ${isPassed ? '#2ea043' : '#eb5757'}`,
-                    }}
-                  >
-                    {word}
-                  </span>
-                )
-              })}
+              {sentense.words
+                .filter((word) => !app.data.value.word_stat[word])
+                .map((word, word_index) =>
+                {
+                  return (
+                    <span
+                      key={word + word_index}
+                      onClick={(e) =>
+                      {
+                        e.stopPropagation()
+                        on_toggle_word(word)
+                      }}
+                      style={{
+                        fontSize: '0.75rem',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        backgroundColor: 'rgba(46, 160, 67, 0.15)',
+                        color: '#2ea043',
+                        border: '1px solid #2ea043',
+                      }}
+                    >
+                      {word}
+                    </span>
+                  )
+                })}
             </div>
           </article>
         )
