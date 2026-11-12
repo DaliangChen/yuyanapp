@@ -34,7 +34,7 @@ async function on_click_add_translation()
   let parser = new SrtParser()
   let srt_array = parser.fromSrt(srt_text)
 
-  if (srt_array.length !== srt_edit.edit_data.value.sentense_list.length)
+  if (srt_array.length !== srt_edit.edit_data.value?.sentense_list.length)
   {
     throw new InfoError('Srt array length does not match')
   }

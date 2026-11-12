@@ -14,7 +14,7 @@ export function TablePart()
           </tr>
         </thead>
         <tbody>
-          {srt_edit.edit_data.value.sentense_list.map((sentense) => (
+          {srt_edit.edit_data.value?.sentense_list.map((sentense) => (
             <tr key={sentense.index}>
               <td scope='row'>
                 {sentense.index}
