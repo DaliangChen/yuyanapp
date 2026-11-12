@@ -52,7 +52,13 @@ export type AppData = //
     /** 视频列表 */
     videos: VideoInfo[]
 
-    /** 单词统计 */
+    /**
+     * 单词统计
+     *
+     * 结构如下：
+     * - key: 单词
+     * - value: true表示已掌握，false表示未掌握
+     */
     word_stat: Record<string, boolean>
   }
 
