@@ -1,46 +1,42 @@
-import { useEffect, useMemo, useRef } from 'preact/hooks'
+import { computed } from '@preact/signals'
+import { useEffect, useRef } from 'preact/hooks'
 import * as app from '../appv'
 import type { Subtitle } from '../util'
 import * as video_player from './value'
+
+const sentences = computed(() => video_player.video_info.value?.sentense_list ?? [])
+const current_time = computed(() => video_player.current_time.value)
+const active_index = computed(() =>
+{
+  if (sentences.value.length === 0) return -1
+
+  const exact = sentences.value.findIndex(
+    (s) => current_time.value >= s.start_time && current_time.value <= s.end_time,
+  )
+  if (exact !== -1) return exact
+
+  for (let i = 0; i < sentences.value.length; i++)
+  {
+    const s = sentences.value[i]
+    if (current_time.value >= s.start_time && current_time.value - s.end_time < 0.5)
+    {
+      return i
+    }
+  }
+
+  return -1
+})
 
 export function SrtPart()
 {
   const list_ref_dom = useRef<HTMLDivElement>(null)
   const item_refs = useRef<(HTMLElement | null)[]>([])
 
-  const sentences = video_player.video_info.value?.sentense_list ?? []
-  const currentTime = video_player.current_time.value
-
-  // Find active sentence index according to current playback time
-  const activeIndex = useMemo(() =>
-  {
-    if (sentences.length === 0) return -1
-
-    // Exact match: current_time falls between start_time and end_time
-    const exact = sentences.findIndex(
-      (s) => currentTime >= s.start_time && currentTime <= s.end_time,
-    )
-    if (exact !== -1) return exact
-
-    // If within a short gap right after a sentence, keep it active
-    for (let i = 0; i < sentences.length; i++)
-    {
-      const s = sentences[i]
-      if (currentTime >= s.start_time && currentTime - s.end_time < 0.5)
-      {
-        return i
-      }
-    }
-
-    return -1
-  }, [currentTime, sentences])
-
-  // Smoothly scroll the container so the active subtitle is centered
   useEffect(() =>
   {
-    if (activeIndex < 0) return
+    if (active_index.value < 0) return
     const container = list_ref_dom.current
-    const activeEl = item_refs.current[activeIndex]
+    const activeEl = item_refs.current[active_index.value]
     if (!container || !activeEl) return
 
     const targetTop = activeEl.offsetTop
@@ -52,23 +48,21 @@ export function SrtPart()
       top: Math.max(0, targetScrollTop),
       behavior: 'smooth',
     })
-  }, [activeIndex])
+  }, [active_index.value])
 
-  // Handle "Skip familiar" mode if enabled
   useEffect(() =>
   {
     if (!video_player.is_skip_familiar.value || !video_player.is_playing.value) return
-    if (activeIndex < 0) return
+    if (active_index.value < 0) return
 
-    const currentSentence = sentences[activeIndex]
+    const currentSentence = sentences.value[active_index.value]
     if (!currentSentence || currentSentence.words.length === 0) return
 
     const isAllFamiliar = currentSentence.words.every((w) => app.data.value.word_stat[w] === true)
     if (!isAllFamiliar) return
 
-    // Find next sentence with at least one unfamiliar word
-    const nextUnfamiliar = sentences.slice(activeIndex + 1).find((s) =>
-      s.words.some((w) => !app.data.value.word_stat[w]),
+    const nextUnfamiliar = sentences.value.slice(active_index.value + 1).find((s) =>
+      s.words.some((w) => !app.data.value.word_stat[w])
     )
 
     if (nextUnfamiliar)
@@ -76,39 +70,14 @@ export function SrtPart()
       video_player.player.value?.seekTo(nextUnfamiliar.start_time, true)
       video_player.current_time.value = nextUnfamiliar.start_time
     }
-  }, [activeIndex, video_player.is_skip_familiar.value, video_player.is_playing.value])
-
-  if (!video_player.video_info.value)
-  {
-    return (
-      <div style={{ textAlign: 'center', padding: '30px 10px', color: 'var(--pico-muted-color)' }}>
-        No video selected
-      </div>
-    )
-  }
-
-  if (sentences.length === 0)
-  {
-    return (
-      <div style={{ textAlign: 'center', padding: '30px 10px', color: 'var(--pico-muted-color)' }}>
-        <p>No subtitles loaded for this video.</p>
-        <button
-          className='outline'
-          style={{ width: 'auto' }}
-          onClick={() => (app.show_page.value = 'video_list')}
-        >
-          Load Subtitles in Video List
-        </button>
-      </div>
-    )
-  }
+  }, [active_index.value, video_player.is_skip_familiar.value, video_player.is_playing.value])
 
   return (
     <div
       ref={list_ref_dom}
       style={{
         position: 'relative',
-        height: 'calc(100vh - 130px)',
+        height: 'calc(100vh - 82px)',
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
@@ -117,14 +86,17 @@ export function SrtPart()
         boxSizing: 'border-box',
       }}
     >
-      {sentences.map((sentense, index) =>
+      {sentences.value.map((sentense, index) =>
       {
-        const isActive = index === activeIndex
+        const isActive = index === active_index.value
 
         return (
           <article
             key={sentense.index}
-            ref={(el) => { item_refs.current[index] = el }}
+            ref={(el) =>
+            {
+              item_refs.current[index] = el
+            }}
             onClick={() => on_click_sentence(sentense)}
             style={{
               cursor: 'pointer',
@@ -166,48 +138,46 @@ export function SrtPart()
               {sentense.text}
             </div>
 
-            {sentense.translation && (
-              <div
-                style={{
-                  marginTop: '6px',
-                  fontSize: '0.85rem',
-                  color: 'var(--pico-muted-color)',
-                }}
-              >
-                {sentense.translation}
-              </div>
-            )}
+            <div
+              style={{
+                marginTop: '6px',
+                fontSize: '0.85rem',
+                color: 'var(--pico-muted-color)',
+              }}
+            >
+              {sentense.translation}
+            </div>
 
-            {sentense.words && sentense.words.length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
-                {sentense.words.map((word) =>
-                {
-                  const isPassed = app.data.value.word_stat[word] === true
-                  return (
-                    <span
-                      key={word}
-                      onClick={(e) =>
-                      {
-                        e.stopPropagation()
-                        on_toggle_word(word)
-                      }}
-                      title={isPassed ? `${word} (Mastered - click to review)` : `${word} (Review - click to mark mastered)`}
-                      style={{
-                        fontSize: '0.75rem',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        backgroundColor: isPassed ? 'rgba(46, 160, 67, 0.15)' : 'rgba(235, 87, 87, 0.15)',
-                        color: isPassed ? '#2ea043' : '#eb5757',
-                        border: `1px solid ${isPassed ? '#2ea043' : '#eb5757'}`,
-                      }}
-                    >
-                      {word} {isPassed ? '✓' : '●'}
-                    </span>
-                  )
-                })}
-              </div>
-            )}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
+              {sentense.words.map((word) =>
+              {
+                const isPassed = app.data.value.word_stat[word] === true
+                return (
+                  <span
+                    key={word}
+                    onClick={(e) =>
+                    {
+                      e.stopPropagation()
+                      on_toggle_word(word)
+                    }}
+                    title={isPassed
+                      ? `${word} (Mastered - click to review)`
+                      : `${word} (Review - click to mark mastered)`}
+                    style={{
+                      fontSize: '0.75rem',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      backgroundColor: isPassed ? 'rgba(46, 160, 67, 0.15)' : 'rgba(235, 87, 87, 0.15)',
+                      color: isPassed ? '#2ea043' : '#eb5757',
+                      border: `1px solid ${isPassed ? '#2ea043' : '#eb5757'}`,
+                    }}
+                  >
+                    {word}
+                  </span>
+                )
+              })}
+            </div>
           </article>
         )
       })}

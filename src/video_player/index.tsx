@@ -15,18 +15,16 @@ export function VideoPlayerPage()
         display: 'grid',
         gridTemplateColumns: 'minmax(0, 1.45fr) minmax(320px, 1fr)',
         gap: '24px',
-        alignItems: 'start',
+        alignItems: 'center',
         height: '100%',
       }}
     >
-      <PlayerPart />
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', height: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', height: 'fit-content' }}>
+        <PlayerPart />
         <ControlPart />
-        <div style={{ flex: 1, minHeight: 0 }}>
-          <SrtPart />
-        </div>
       </div>
+
+      <SrtPart />
     </div>
   )
 }
