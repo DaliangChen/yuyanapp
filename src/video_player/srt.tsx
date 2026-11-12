@@ -153,7 +153,6 @@ export function SrtPart()
                           on_toggle_word(word)
                         }}
                         style={{
-                          fontSize: '0.75rem',
                           padding: '2px 6px',
                           borderRadius: '4px',
                           cursor: 'pointer',
