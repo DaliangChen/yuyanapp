@@ -1,4 +1,3 @@
-import { skip_if_current_familiar } from './srt'
 import * as video_player from './value'
 
 export function ControlPart()
@@ -9,7 +8,7 @@ export function ControlPart()
         {video_player.is_playing.value ? '⏸ Pause' : '▶ Play'}
       </button>
       <button className='outline' style={{ width: 'auto' }} onClick={on_toggle_skip_familiar}>
-        ⏭ Skip familiar: {video_player.auto_skip_familiar.value ? 'ON' : 'OFF'}
+        ⏭ Skip familiar: {video_player.is_skip_familiar.value ? 'ON' : 'OFF'}
       </button>
     </div>
   )
@@ -17,15 +16,10 @@ export function ControlPart()
 
 function on_toggle_skip_familiar()
 {
-  video_player.auto_skip_familiar.value = !video_player.auto_skip_familiar.value
-  if (video_player.auto_skip_familiar.value)
-  {
-    skip_if_current_familiar()
-  }
+  video_player.is_skip_familiar.value = !video_player.is_skip_familiar.value
 }
 
 function on_toggle_play()
 {
-  if (video_player.is_playing.value) video_player.player.value?.pauseVideo()
-  else video_player.player.value?.playVideo()
+  video_player.is_playing.value = !video_player.is_playing.value
 }
