@@ -1,5 +1,5 @@
 import SrtParser from 'srt-parser-2'
-import { InfoError } from '../util'
+import { InfoError, openTextFile } from '../util'
 import * as srt_edit from './value'
 
 export function ActionPart()
@@ -15,8 +15,8 @@ export function ActionPart()
 
 async function on_click_add_translation()
 {
-  const [handle] = await window.showOpenFilePicker({
-    multiple: false,
+  const srt_text = await openTextFile({
+    acceptInput: '.srt,text/plain,text/srt',
     types: [
       {
         description: 'Srt',
@@ -27,8 +27,6 @@ async function on_click_add_translation()
     ],
   })
 
-  const file = await handle.getFile()
-  const srt_text = await file.text()
   if (!srt_text) return
 
   let parser = new SrtParser()

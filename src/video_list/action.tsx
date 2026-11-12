@@ -1,4 +1,5 @@
 import * as app from '../appv'
+import { openTextFile, saveTextFile } from '../util'
 import * as video_list from './value'
 
 export function ActionPart()
@@ -31,9 +32,9 @@ function on_click_add()
 async function on_click_export()
 {
   const json_content = JSON.stringify(app.data.value, null, 2)
-
-  const handle = await window.showSaveFilePicker({
+  await saveTextFile(json_content, {
     suggestedName: 'yuyan_data.json',
+    mimeType: 'application/json',
     types: [
       {
         description: 'Json',
@@ -43,26 +44,21 @@ async function on_click_export()
       },
     ],
   })
-
-  const writable = await handle.createWritable()
-  await writable.write(json_content)
-  await writable.close()
 }
 
 async function on_click_import()
 {
-  const [handle] = await window.showOpenFilePicker({
+  const text = await openTextFile({
+    acceptInput: '.json,application/json',
     types: [{
       description: 'Json',
       accept: {
         'application/json': ['.json'],
       },
     }],
-    multiple: false,
   })
 
-  const file = await handle.getFile()
-  const text = await file.text()
+  if (!text) return
   const parsed_json = JSON.parse(text)
 
   app.data.value = {

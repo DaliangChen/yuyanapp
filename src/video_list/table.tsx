@@ -2,7 +2,7 @@ import { computed } from '@preact/signals'
 import SrtParser from 'srt-parser-2'
 import * as app from '../appv'
 import * as srt_edit from '../srt_editer/value'
-import { type VideoInfo } from '../util'
+import { openTextFile, type VideoInfo } from '../util'
 import * as video_player from '../video_player/value'
 import * as video_list from './value'
 
@@ -86,22 +86,18 @@ function on_click_edit(video: VideoInfo)
 
 async function on_click_load(video: VideoInfo)
 {
-  const [handle] = await window.showOpenFilePicker(
-    {
-      multiple: false,
-      types: [
-        {
-          description: 'VTT / SRT',
-          accept: {
-            'text/vtt': ['.vtt'],
-            'text/srt': ['.srt'],
-          },
+  const srt_text = await openTextFile({
+    acceptInput: '.srt,.vtt,text/plain,text/vtt',
+    types: [
+      {
+        description: 'VTT / SRT',
+        accept: {
+          'text/vtt': ['.vtt'],
+          'text/srt': ['.srt'],
         },
-      ],
-    },
-  )
-  const file = await handle.getFile()
-  const srt_text = await file.text()
+      },
+    ],
+  })
   if (!srt_text) return
 
   let parser = new SrtParser()
