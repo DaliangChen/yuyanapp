@@ -8,7 +8,7 @@ export function ControlPart()
         {video_player.is_playing.value ? '⏸ Pause' : '▶ Play'}
       </button>
       <button className='outline' style={{ width: 'auto' }} onClick={on_toggle_skip_familiar}>
-        ⏭ Skip familiar: {video_player.is_skip_familiar.value ? 'ON' : 'OFF'}
+        ⏭ Skip familiar is: {video_player.is_skip_familiar.value ? 'ON' : 'OFF'}
       </button>
     </div>
   )

@@ -128,41 +128,26 @@ export function SrtPart()
               <span>{sentense.start_time_str} → {sentense.end_time_str}</span>
             </div>
 
-            <div
-              style={{
-                fontSize: '1rem',
-                lineHeight: '1.4',
-                fontWeight: isActive ? 'bold' : 'normal',
-              }}
-            >
+            <div style={{ fontSize: '1rem', lineHeight: '1.4', fontWeight: isActive ? 'bold' : 'normal' }}>
               {sentense.text}
             </div>
 
-            <div
-              style={{
-                marginTop: '6px',
-                fontSize: '0.85rem',
-                color: 'var(--pico-muted-color)',
-              }}
-            >
+            <div style={{ marginTop: '6px', fontSize: '0.85rem', color: 'var(--pico-muted-color)' }}>
               {sentense.translation}
             </div>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
-              {sentense.words.map((word) =>
+              {sentense.words.map((word, word_index) =>
               {
                 const isPassed = app.data.value.word_stat[word] === true
                 return (
                   <span
-                    key={word}
+                    key={word + word_index}
                     onClick={(e) =>
                     {
                       e.stopPropagation()
                       on_toggle_word(word)
                     }}
-                    title={isPassed
-                      ? `${word} (Mastered - click to review)`
-                      : `${word} (Review - click to mark mastered)`}
                     style={{
                       fontSize: '0.75rem',
                       padding: '2px 6px',
