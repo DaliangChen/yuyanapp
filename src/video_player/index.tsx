@@ -11,46 +11,22 @@ export function VideoPlayerPage()
   useInit()
   useKeyboardShortcuts()
 
-  if (!video_player.video_info.value)
-  {
-    app.show_page.value = 'video_list'
-    return null
-  }
-
   return (
-    <div>
-      <style>{`
-        .video-player-container {
-          display: grid;
-          grid-template-columns: minmax(0, 1.45fr) minmax(320px, 1fr);
-          gap: 24px;
-          align-items: start;
-          width: 100%;
-        }
-        @media (max-width: 860px) {
-          .video-player-container {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
+    <div
+      id='video-player-page'
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1.45fr) minmax(320px, 1fr)',
+        gap: '24px',
+        alignItems: 'start',
+        height: '100%',
+      }}
+    >
+      <PlayerPart />
 
-      <div className='video-player-container'>
-        <div
-          style={{
-            position: 'relative',
-            width: '100%',
-            aspectRatio: '16 / 9',
-            backgroundColor: '#000000',
-            borderRadius: 'var(--pico-border-radius)',
-            overflow: 'hidden',
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
-          }}
-        >
-          <PlayerPart />
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', minWidth: 0 }}>
-          <ControlPart />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', height: '100%' }}>
+        <ControlPart />
+        <div style={{ flex: 1, minHeight: 0 }}>
           <SrtPart />
         </div>
       </div>
@@ -93,7 +69,7 @@ function useInit()
   useEffect(() =>
   {
     const video_id = video_player.video_info.value?.video_id
-    const player = YouTubePlayer('video_player', {
+    const player = YouTubePlayer('video_player_div', {
       playerVars: { autoplay: 0, rel: 0 },
     })
     video_player.player.value = player

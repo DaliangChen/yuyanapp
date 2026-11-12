@@ -10,11 +10,13 @@ export function App()
   useOnError()
 
   return (
-    <div style={{ padding: '0 100px' }}>
+    <div id='app-container' style={{ padding: '0 100px' }}>
       <Nav />
-      {app.show_page.value === 'video_list' && <VideoListPage />}
-      {app.show_page.value === 'video_player' && <VideoPlayerPage />}
-      {app.show_page.value === 'vocabulary' && <VocabularyPage />}
+      <div id='page-container' style={{ height: 'calc(100vh - 82px)' }}>
+        {app.show_page.value === 'video_list' && <VideoListPage />}
+        {app.show_page.value === 'video_player' && <VideoPlayerPage />}
+        {app.show_page.value === 'vocabulary' && <VocabularyPage />}
+      </div>
       <ErrorInfo />
     </div>
   )

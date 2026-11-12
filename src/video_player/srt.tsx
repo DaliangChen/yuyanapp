@@ -157,7 +157,7 @@ export function SrtPart()
     <div
       ref={list_ref}
       style={{
-        maxHeight: '560px',
+        height: 'calc(100vh - 130px)',
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
