@@ -41,10 +41,10 @@ function useInit()
     const video_id = video_player.video_info.value?.video_id
     if (video_id)
     {
-      player.loadVideoById(video_id).then(() =>
+      player.loadVideoById(video_id).then(async () =>
       {
-        player.seekTo(video_player.current_time.value, true)
-        player.playVideo()
+        await player.seekTo(video_player.current_time.value, true)
+        await player.playVideo()
         video_player.is_playing.value = true
       })
     }

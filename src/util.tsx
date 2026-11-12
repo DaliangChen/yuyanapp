@@ -2,7 +2,7 @@
  * 类型定义
  */
 
-export type Subtitle = //
+export type Sentense = //
   {
     /** 序号 */
     index: string
@@ -38,7 +38,7 @@ export type VideoInfo = //
     srt: string
 
     /** 句子列表 */
-    sentense_list: Subtitle[]
+    sentense_list: Sentense[]
 
     /** 备注 */
     note: string
