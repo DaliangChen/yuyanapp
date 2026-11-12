@@ -158,8 +158,6 @@ export function SrtPart()
                           borderRadius: '4px',
                           cursor: 'pointer',
                           backgroundColor: 'rgba(46, 160, 67, 0.15)',
-                          color: '#2ea043',
-                          border: '1px solid #2ea043',
                         }}
                       >
                         {word}
