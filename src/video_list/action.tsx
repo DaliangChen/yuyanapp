@@ -19,10 +19,10 @@ function on_click_add()
   video_list.add_data.value = {
     video_info: {
       video_id: '',
-      srt_1: '',
-      srt_2: '',
+      srt: '',
       note: '',
       update_time: Date.now(),
+      sentense_list: [],
     },
     status: 'add',
   }

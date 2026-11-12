@@ -5,7 +5,7 @@ const STORAGE_KEY = 'yuyan_app_data'
 
 export const data = signal<AppData>(loadInitialData())
 
-export const show_page = signal<'video_list' | 'video_player' | 'vocabulary'>('video_list')
+export const show_page = signal<'video_list' | 'video_player' | 'vocabulary' | 'srt_editer'>('video_list')
 
 export const err_info = signal<string | null>(null)
 

@@ -19,7 +19,7 @@ export function TablePart()
       <thead>
         <tr>
           <th scope='col'>Word</th>
-          <th scope='col' style={{ width: '100px' }}>Status</th>
+          <th scope='col' style={{ width: '100px' }}>Passed</th>
           <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Action</th>
         </tr>
       </thead>
@@ -33,7 +33,7 @@ export function TablePart()
               </span>
             </td>
             <td>
-              <a href='#' onClick={() => on_toggle_pass(word)}>{is_passed ? '✓' : '✗'}</a>
+              <a href='#' onClick={() => on_toggle_pass(word)}>{is_passed ? 'Yes' : 'No'}</a>
             </td>
             <td>
               <span style={{ display: 'flex', gap: '10px' }}>

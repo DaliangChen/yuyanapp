@@ -1,5 +1,6 @@
 import { useEffect } from 'preact/hooks'
 import * as app from './appv'
+import { SrtEditerPage } from './srt_editer'
 import { InfoError, LogicError } from './util'
 import { VideoListPage } from './video_list'
 import { VideoPlayerPage } from './video_player'
@@ -16,6 +17,7 @@ export function App()
         {app.show_page.value === 'video_list' && <VideoListPage />}
         {app.show_page.value === 'video_player' && <VideoPlayerPage />}
         {app.show_page.value === 'vocabulary' && <VocabularyPage />}
+        {app.show_page.value === 'srt_editer' && <SrtEditerPage />}
       </div>
       <ErrorInfo />
     </div>

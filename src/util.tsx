@@ -2,16 +2,43 @@
  * 类型定义
  */
 
+export type Subtitle = //
+  {
+    /** 序号 */
+    index: string
+
+    /** 开始时间 */
+    start_time_str: string
+
+    /** 结束时间 */
+    end_time_str: string
+
+    /** 开始时间(秒) */
+    start_time: number
+
+    /** 结束时间(秒) */
+    end_time: number
+
+    /** 内容 */
+    text: string
+
+    /** 单词列表 */
+    words: string[]
+
+    /** 翻译 */
+    translation?: string
+  }
+
 export type VideoInfo = //
   {
     /** 视频ID */
     video_id: string
 
-    /** 第一语种字幕 */
-    srt_1: string
+    /** 字幕 */
+    srt: string
 
-    /** 第二语种字幕 */
-    srt_2: string
+    /** 句子列表 */
+    sentense_list: Subtitle[]
 
     /** 备注 */
     note: string
