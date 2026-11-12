@@ -10,10 +10,16 @@ export interface Subtitle
   text2?: string
 }
 
+/**
+ * Parse SRT subtitle content.
+ * @param srt - The SRT subtitle content.
+ * @returns An array of subtitle objects, each containing start/end times and text.
+ */
 export function parse_srt(srt: string)
 {
   if (!srt) return []
-  const pattern = /(?:(\d{1,2}:)?(\d{2}:\d{2}[,.]\d{3}))\s*-->\s*(?:(\d{1,2}:)?(\d{2}:\d{2}[,.]\d{3}))\s*\n([\s\S]*?)(?=\n\s*\n|$)/g
+  const pattern =
+    /(?:(\d{1,2}:)?(\d{2}:\d{2}[,.]\d{3}))\s*-->\s*(?:(\d{1,2}:)?(\d{2}:\d{2}[,.]\d{3}))\s*\n([\s\S]*?)(?=\n\s*\n|$)/g
   const to_seconds = (str: string) =>
   {
     const parts = str.replace(',', '.').split(':')
@@ -135,24 +141,6 @@ export function SrtPart()
     }
   }
 
-  if (all_subtitles.length === 0)
-  {
-    return (
-      <article style={{ textAlign: 'center', color: 'var(--pico-muted-color)' }}>
-        No subtitles loaded. Please import subtitles in Video List.
-      </article>
-    )
-  }
-
-  if (subtitles.length === 0)
-  {
-    return (
-      <article style={{ textAlign: 'center', color: 'var(--pico-muted-color)' }}>
-        🎉 所有句子均已掌握 (已过滤熟句)
-      </article>
-    )
-  }
-
   return (
     <div
       ref={list_ref}
@@ -174,7 +162,12 @@ export function SrtPart()
         return (
           <article
             key={`${sub.start}-${idx}`}
-            ref={is_active ? (el => { active_ref.current = el }) : null}
+            ref={is_active
+              ? (el =>
+              {
+                active_ref.current = el
+              })
+              : null}
             onClick={() => video_player.player.value?.seekTo(sub.start, true)}
             style={{
               margin: 0,
