@@ -48,9 +48,6 @@ function Nav()
           <a href='#' onClick={() => app.show_page.value = 'video_list'}>Video List</a>
         </li>
         <li>
-          <a href='#' onClick={() => app.show_page.value = 'video_player'}>Video Player</a>
-        </li>
-        <li>
           <a href='#' onClick={() => app.show_page.value = 'vocabulary'}>Vocabulary</a>
         </li>
       </ul>
