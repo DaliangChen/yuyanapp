@@ -20,12 +20,15 @@ const table_data = computed(() =>
 
 export function TablePart()
 {
+  const word_stat = app.data.value.word_stat
+
   return (
     <table>
       <thead>
         <tr>
           <th scope='col' style={{ width: '200px' }}>Video Id</th>
           <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Srt</th>
+          <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>New Words</th>
           <th scope='col'>Note</th>
           <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Action</th>
         </tr>
@@ -51,6 +54,9 @@ export function TablePart()
                 )}
             </td>
             <td>
+              {video.srt ? count_unfamiliar_words(video, word_stat) : '-'}
+            </td>
+            <td>
               {video.note}
             </td>
             <td>
@@ -64,6 +70,22 @@ export function TablePart()
       </tbody>
     </table>
   )
+}
+
+function count_unfamiliar_words(video: VideoInfo, word_stat: Record<string, boolean>): number
+{
+  const unfamiliar_words = new Set<string>()
+  for (const sentense of video.sentense_list)
+  {
+    for (const word of sentense.words)
+    {
+      if (!word_stat[word])
+      {
+        unfamiliar_words.add(word)
+      }
+    }
+  }
+  return unfamiliar_words.size
 }
 
 function on_click_srt_edit(video: VideoInfo)
