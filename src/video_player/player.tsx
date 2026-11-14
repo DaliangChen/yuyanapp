@@ -35,7 +35,16 @@ function useInit()
 {
   useEffect(() =>
   {
-    const player = YouTubePlayer('video_player_div', { playerVars: { autoplay: 0, rel: 0 } })
+    const isMobile = window.matchMedia('(max-width: 768px)').matches
+    const player = YouTubePlayer('video_player_div', {
+      playerVars: {
+        autoplay: 0,
+        rel: 0,
+        playsinline: 1,
+        iv_load_policy: 3,
+        ...(isMobile ? { controls: 0, fs: 0, disablekb: 1 } : {}),
+      },
+    })
     video_player.player.value = player
 
     const video_id = video_player.video_info.value?.video_id
