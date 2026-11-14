@@ -14,11 +14,11 @@ export function PagerPart(
 
   return (
     <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-      <a href='#' onClick={() => on_click_first(current_page)}>{'<<'}</a>
-      <a href='#' onClick={() => on_click_prev(current_page)}>{'<'}</a>
+      <a href='#' onClick={() => on_click_first(current_page)}>&lt;&lt;</a>
+      <a href='#' onClick={() => on_click_prev(current_page)}>&lt;</a>
       <a href='#'>{current_page.value} / {total_pages_num}</a>
-      <a href='#' onClick={() => on_click_next(current_page, total_pages_num)}>{'>'}</a>
-      <a href='#' onClick={() => on_click_last(current_page, total_pages_num)}>{'>>'}</a>
+      <a href='#' onClick={() => on_click_next(current_page, total_pages_num)}>&gt;</a>
+      <a href='#' onClick={() => on_click_last(current_page, total_pages_num)}>&gt;&gt;</a>
     </div>
   )
 }
