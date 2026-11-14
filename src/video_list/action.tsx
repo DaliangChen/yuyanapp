@@ -5,8 +5,8 @@ import * as video_list from './value'
 export function ActionPart()
 {
   return (
-    <div style={{ display: 'flex', justifyContent: 'end' }}>
-      <div role='group' style={{ width: 'fit-content' }}>
+    <div className='video-list-actions'>
+      <div role='group' className='video-list-action-group'>
         <button className='outline' onClick={on_click_import}>Import</button>
         <button className='outline' onClick={on_click_export}>Export</button>
         <button className='outline' onClick={on_click_add}>Add</button>

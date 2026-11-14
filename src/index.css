@@ -7,8 +7,8 @@ body,
 #app {
   margin: 0;
   padding: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  min-height: 100dvh;
 }
 
 :root,
@@ -20,4 +20,276 @@ body,
 
 a {
   text-decoration: none;
+}
+
+#app-container {
+  padding: 0 100px;
+}
+
+#app-nav {
+  border-bottom: 1px solid var(--pico-primary);
+  margin-bottom: 20px;
+}
+
+#page-container {
+  min-height: calc(100dvh - 82px);
+}
+
+.video-list-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.video-list-action-group {
+  width: fit-content;
+}
+
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.video-id-col {
+  width: 200px;
+}
+
+#video-player-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 1fr);
+  gap: 24px;
+  align-items: center;
+  height: calc(100dvh - 82px);
+}
+
+.video-player-left {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: fit-content;
+}
+
+.video-player-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.video-player-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+#video_player_div,
+#video_player_div iframe {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  display: block;
+}
+
+.video-controls {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.srt-list {
+  position: relative;
+  height: calc(100dvh - 82px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 6px;
+  box-sizing: border-box;
+}
+
+.vocab-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.vocab-search {
+  flex: 1;
+  min-width: 220px;
+  max-width: 360px;
+}
+
+.vocab-search input {
+  margin-bottom: 0;
+}
+
+.vocab-filter-group {
+  width: fit-content;
+  margin-bottom: 0;
+}
+
+.srt-editor-table-wrap {
+  height: calc(100dvh - 140px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pager-bar {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+@media (max-width: 1024px) {
+  #app-container {
+    padding: 0 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  #app-container {
+    padding: 0 12px;
+  }
+
+  #app-nav {
+    margin-bottom: 12px;
+  }
+
+  #app-nav ul li {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  #app-nav h3 {
+    font-size: 1.15rem;
+  }
+
+  #app-nav a {
+    font-size: 0.9rem;
+  }
+
+  #page-container {
+    min-height: calc(100dvh - 68px);
+  }
+
+  .video-list-actions {
+    justify-content: stretch;
+  }
+
+  .video-list-action-group[role='group'] {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    box-shadow: none;
+  }
+
+  .video-list-action-group[role='group'] button {
+    margin: 0;
+    border-radius: var(--pico-border-radius);
+    font-size: 0.85rem;
+    padding: 0.45rem 0.5rem;
+  }
+
+  .table-scroll table th,
+  .table-scroll table td {
+    font-size: 0.85rem;
+    padding: 0.45rem 0.5rem;
+  }
+
+  .video-id-col {
+    width: auto;
+    min-width: 120px;
+  }
+
+  #video-player-page {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+    height: calc(100dvh - 68px);
+    overflow: hidden;
+  }
+
+  .video-player-left {
+    width: 100%;
+    flex-shrink: 0;
+    gap: 8px;
+  }
+
+  .video-player-frame {
+    width: min(100%, calc(38dvh * 16 / 9));
+    margin: 0 auto;
+  }
+
+  .video-controls {
+    gap: 8px;
+  }
+
+  .video-controls button {
+    flex: 1;
+    font-size: 0.82rem;
+    padding: 0.4rem 0.5rem;
+    white-space: nowrap;
+  }
+
+  .srt-list {
+    height: auto;
+    flex: 1;
+    min-height: 0;
+    padding-right: 2px;
+    padding-bottom: 12px;
+  }
+
+  .srt-card {
+    padding: 10px 12px !important;
+  }
+
+  .vocab-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .vocab-search {
+    min-width: 0;
+    max-width: none;
+    width: 100%;
+  }
+
+  .vocab-filter-group {
+    width: 100%;
+    display: flex;
+  }
+
+  .vocab-filter-group button {
+    flex: 1;
+    font-size: 0.82rem;
+    padding: 0.45rem 0.35rem;
+    white-space: nowrap;
+  }
+
+  .srt-editor-table-wrap {
+    height: calc(100dvh - 130px);
+  }
+
+  .pager-bar {
+    gap: 10px;
+    padding: 10px 0 20px;
+  }
+
+  .pager-bar a {
+    padding: 6px 10px;
+  }
+
+  dialog > article {
+    width: min(92vw, 540px);
+    max-height: 90dvh;
+    overflow-y: auto;
+    margin: 16px auto;
+  }
 }

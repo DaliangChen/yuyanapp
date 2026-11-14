@@ -77,16 +77,7 @@ export function SrtPart()
   return (
     <div
       ref={list_ref_dom}
-      style={{
-        position: 'relative',
-        height: 'calc(100vh - 82px)',
-        overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px',
-        paddingRight: '6px',
-        boxSizing: 'border-box',
-      }}
+      className='srt-list'
     >
       {sentence_list.value
         .map((sentense) =>
@@ -96,6 +87,7 @@ export function SrtPart()
           return (
             <article
               key={sentense.index}
+              className='srt-card'
               ref={(el) =>
               {
                 item_refs.current[sentense.index] = el

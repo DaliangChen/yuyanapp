@@ -13,7 +13,7 @@ export function PagerPart(
   const total_pages_num = typeof total_pages === 'number' ? total_pages : total_pages.value
 
   return (
-    <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
+    <div className='pager-bar'>
       <a href='#' onClick={() => on_click_first(current_page)}>&lt;&lt;</a>
       <a href='#' onClick={() => on_click_prev(current_page)}>&lt;</a>
       <a href='#'>{current_page.value} / {total_pages_num}</a>

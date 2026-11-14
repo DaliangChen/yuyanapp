@@ -3,7 +3,7 @@ import * as srt_edit from './value'
 export function TablePart()
 {
   return (
-    <div style={{ height: 'calc(100vh - 140px)', overflowY: 'scroll' }}>
+    <div className='srt-editor-table-wrap table-scroll'>
       <table>
         <thead style={{ position: 'sticky', top: 0 }}>
           <tr>
