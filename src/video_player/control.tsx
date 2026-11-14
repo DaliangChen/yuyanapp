@@ -3,7 +3,7 @@ import * as video_player from './value'
 export function ControlPart()
 {
   return (
-    <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
+    <div className='video-controls'>
       <button className='outline' style={{ width: 'auto' }} onClick={on_toggle_play}>
         {video_player.is_playing.value ? '⏸ Pause' : '▶ Play'}
       </button>

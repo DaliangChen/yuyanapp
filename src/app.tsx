@@ -21,9 +21,9 @@ export function App()
   }, [])
 
   return (
-    <div id='app-container' style={{ padding: '0 100px' }}>
+    <div id='app-container'>
       <Nav />
-      <div id='page-container' style={{ height: 'calc(100vh - 82px)' }}>
+      <div id='page-container'>
         {app.show_page.value === 'video_list' && <VideoListPage />}
         {app.show_page.value === 'video_player' && <VideoPlayerPage />}
         {app.show_page.value === 'vocabulary' && <VocabularyPage />}
@@ -37,7 +37,7 @@ export function App()
 function Nav()
 {
   return (
-    <nav style={{ borderBottom: '1px solid var(--pico-primary)', marginBottom: '20px' }}>
+    <nav id='app-nav'>
       <ul>
         <li>
           <h3 style={{ margin: '0' }}>YuYan</h3>

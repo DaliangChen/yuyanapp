@@ -3,8 +3,8 @@ import * as vocabulary from './value'
 export function ActionPart()
 {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-      <div style={{ flex: '1', minWidth: '220px', maxWidth: '360px' }}>
+    <div className='vocab-actions'>
+      <div className='vocab-search'>
         <input
           type='search'
           placeholder='Search word...'
@@ -13,7 +13,7 @@ export function ActionPart()
         />
       </div>
 
-      <div role='group' style={{ width: 'fit-content' }}>
+      <div role='group' className='vocab-filter-group'>
         <button
           className={vocabulary.filter.value === 'all' ? '' : 'outline'}
           onClick={() => on_filter('all')}

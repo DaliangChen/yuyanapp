@@ -15,35 +15,37 @@ export function TablePart()
   }
 
   return (
-    <table>
-      <thead>
-        <tr>
-          <th scope='col'>Word</th>
-          <th scope='col' style={{ width: '100px' }}>Passed</th>
-          <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {entries.map(([word, is_passed]) => (
-          <tr key={word}>
-            <td scope='row'>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                <span style={is_passed ? { color: 'var(--pico-muted-color)' } : { fontWeight: 'bold' }}>{word}</span>
-                <a href='#' onClick={() => on_pronounce(word)}>🔊</a>
-              </span>
-            </td>
-            <td>
-              <a href='#' onClick={() => on_toggle_pass(word)}>{is_passed ? 'Yes' : 'No'}</a>
-            </td>
-            <td>
-              <span style={{ display: 'flex', gap: '10px' }}>
-                <a href='#' onClick={() => on_delete(word)}>Delete</a>
-              </span>
-            </td>
+    <div className='table-scroll'>
+      <table>
+        <thead>
+          <tr>
+            <th scope='col'>Word</th>
+            <th scope='col' style={{ width: '100px' }}>Passed</th>
+            <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Action</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {entries.map(([word, is_passed]) => (
+            <tr key={word}>
+              <td scope='row'>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={is_passed ? { color: 'var(--pico-muted-color)' } : { fontWeight: 'bold' }}>{word}</span>
+                  <a href='#' onClick={() => on_pronounce(word)}>🔊</a>
+                </span>
+              </td>
+              <td>
+                <a href='#' onClick={() => on_toggle_pass(word)}>{is_passed ? 'Yes' : 'No'}</a>
+              </td>
+              <td>
+                <span style={{ display: 'flex', gap: '10px' }}>
+                  <a href='#' onClick={() => on_delete(word)}>Delete</a>
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }
 

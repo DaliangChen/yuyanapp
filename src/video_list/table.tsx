@@ -23,52 +23,54 @@ export function TablePart()
   const word_stat = app.data.value.word_stat
 
   return (
-    <table>
-      <thead>
-        <tr>
-          <th scope='col' style={{ width: '200px' }}>Video Id</th>
-          <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Srt</th>
-          <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>New Words</th>
-          <th scope='col'>Note</th>
-          <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {table_data.value.map((video) => (
-          <tr key={video.video_id}>
-            <td scope='row'>
-              <a onClick={() => on_click_play(video)} href='#'>▶&nbsp;&nbsp;{video.video_id}</a>
-            </td>
-            <td>
-              {video.srt
-                ? (
-                  <span style={{ display: 'flex', gap: '10px' }}>
-                    <a href='#' onClick={() => on_click_srt_edit(video)}>Edit</a>
-                    <a href='#' onClick={() => on_click_srt_delete(video)}>Delete</a>
-                  </span>
-                )
-                : (
-                  <a href='#' onClick={() => on_click_load(video)}>
-                    Load
-                  </a>
-                )}
-            </td>
-            <td>
-              {video.srt ? count_unfamiliar_words(video, word_stat) : '-'}
-            </td>
-            <td>
-              {video.note}
-            </td>
-            <td>
-              <span style={{ display: 'flex', gap: '10px' }}>
-                <a href='#' onClick={() => on_click_edit(video)}>Edit</a>
-                <a href='#' onClick={() => on_click_delete(video.video_id)}>Delete</a>
-              </span>
-            </td>
+    <div className='table-scroll'>
+      <table>
+        <thead>
+          <tr>
+            <th scope='col' className='video-id-col'>Video Id</th>
+            <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Srt</th>
+            <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>New Words</th>
+            <th scope='col'>Note</th>
+            <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Action</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {table_data.value.map((video) => (
+            <tr key={video.video_id}>
+              <td scope='row'>
+                <a onClick={() => on_click_play(video)} href='#'>▶&nbsp;&nbsp;{video.video_id}</a>
+              </td>
+              <td>
+                {video.srt
+                  ? (
+                    <span style={{ display: 'flex', gap: '10px' }}>
+                      <a href='#' onClick={() => on_click_srt_edit(video)}>Edit</a>
+                      <a href='#' onClick={() => on_click_srt_delete(video)}>Delete</a>
+                    </span>
+                  )
+                  : (
+                    <a href='#' onClick={() => on_click_load(video)}>
+                      Load
+                    </a>
+                  )}
+              </td>
+              <td>
+                {video.srt ? count_unfamiliar_words(video, word_stat) : '-'}
+              </td>
+              <td>
+                {video.note}
+              </td>
+              <td>
+                <span style={{ display: 'flex', gap: '10px' }}>
+                  <a href='#' onClick={() => on_click_edit(video)}>Edit</a>
+                  <a href='#' onClick={() => on_click_delete(video.video_id)}>Delete</a>
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }
 

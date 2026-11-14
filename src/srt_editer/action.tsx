@@ -17,14 +17,7 @@ async function on_click_add_translation()
 {
   const [handle] = await window.showOpenFilePicker({
     multiple: false,
-    types: [
-      {
-        description: 'Srt',
-        accept: {
-          'text/srt': ['.srt'],
-        },
-      },
-    ],
+    types: [{ description: 'Srt', accept: { 'text/srt': ['.srt'] } }],
   })
 
   const file = await handle.getFile()
