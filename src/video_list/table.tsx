@@ -2,13 +2,19 @@ import { computed } from '@preact/signals'
 import SrtParser from 'srt-parser-2'
 import * as app from '../appv'
 import * as srt_edit from '../srt_editer/value'
+import * as util from '../util'
 import { type VideoInfo } from '../util'
 import * as video_player from '../video_player/value'
 import * as video_list from './value'
 
 const table_data = computed(() =>
 {
-  const sorted_videos = [...app.data.value.videos].sort((a, b) => b.update_time - a.update_time)
+  const sorted_videos = [...app.data.value.videos].sort((a, b) =>
+  {
+    if (a.pass) return 1
+    if (b.pass) return -1
+    return b.update_time - a.update_time
+  })
   const page_size = 15
   const current_page = video_list.current_page.value
   const start_index = (current_page - 1) * page_size
@@ -29,9 +35,15 @@ export function TablePart()
           <tr>
             <th scope='col' className='video-id-col'>Video Id</th>
             <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Srt</th>
+            <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Pass</th>
             <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>New Words</th>
-            <th scope='col'>Note</th>
-            <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Action</th>
+            {!util.is_mobile
+              && (
+                <>
+                  <th scope='col'>Note</th>
+                  <th scope='col' style={{ width: '1%', whiteSpace: 'nowrap' }}>Action</th>
+                </>
+              )}
           </tr>
         </thead>
         <tbody>
@@ -55,23 +67,42 @@ export function TablePart()
                   )}
               </td>
               <td>
+                <input
+                  type='checkbox'
+                  checked={!!video.pass}
+                  onChange={(e) => on_click_pass(video, !!e.currentTarget.checked)}
+                />
+              </td>
+              <td>
                 {video.srt ? count_unfamiliar_words(video, word_stat) : '-'}
               </td>
-              <td>
-                {video.note}
-              </td>
-              <td>
-                <span style={{ display: 'flex', gap: '10px' }}>
-                  <a href='#' onClick={() => on_click_edit(video)}>Edit</a>
-                  <a href='#' onClick={() => on_click_delete(video.video_id)}>Delete</a>
-                </span>
-              </td>
+              {!util.is_mobile
+                && (
+                  <>
+                    <td>
+                      {video.note}
+                    </td>
+                    <td>
+                      <span style={{ display: 'flex', gap: '10px' }}>
+                        <a href='#' onClick={() => on_click_edit(video)}>Edit</a>
+                        <a href='#' onClick={() => on_click_delete(video.video_id)}>Delete</a>
+                      </span>
+                    </td>
+                  </>
+                )}
             </tr>
           ))}
         </tbody>
       </table>
     </div>
   )
+}
+
+function on_click_pass(video: VideoInfo, pass: boolean)
+{
+  video.pass = pass ? 1 : undefined
+  video.update_time = Date.now()
+  app.data.value = { ...app.data.value }
 }
 
 function count_unfamiliar_words(video: VideoInfo, word_stat: Record<string, boolean>): number
