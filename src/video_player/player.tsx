@@ -1,5 +1,6 @@
 import { useEffect } from 'preact/hooks'
 import YouTubePlayer from 'youtube-player'
+import * as util from '../util'
 import * as video_player from './value'
 
 export function PlayerPart()
@@ -35,14 +36,13 @@ function useInit()
 {
   useEffect(() =>
   {
-    const isMobile = window.matchMedia('(max-width: 768px)').matches
     const player = YouTubePlayer('video_player_div', {
       playerVars: {
         autoplay: 0,
         rel: 0,
         playsinline: 1,
         iv_load_policy: 3,
-        ...(isMobile ? { controls: 0, fs: 0, disablekb: 1 } : {}),
+        ...(util.is_mobile ? { controls: 0, fs: 0, disablekb: 1 } : {}),
       },
     })
     video_player.player.value = player

@@ -43,6 +43,9 @@ export type VideoInfo = //
     /** 备注 */
     note: string
 
+    /** 是否已通过 */
+    pass?: 1
+
     /** 更新时间 */
     update_time: number
   }
@@ -92,3 +95,5 @@ export function default_never(x: never): never
 {
   return x as never
 }
+
+export const is_mobile = window.matchMedia('(max-width: 768px)').matches
