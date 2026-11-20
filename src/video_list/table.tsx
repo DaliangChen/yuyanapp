@@ -107,18 +107,10 @@ function on_click_pass(video: VideoInfo, pass: boolean)
 
 function count_unfamiliar_words(video: VideoInfo, word_stat: Record<string, boolean>): number
 {
-  const unfamiliar_words = new Set<string>()
-  for (const sentense of video.sentense_list)
-  {
-    for (const word of sentense.words)
-    {
-      if (!word_stat[word])
-      {
-        unfamiliar_words.add(word)
-      }
-    }
-  }
-  return unfamiliar_words.size
+  const unfamiliar_words_array = video.sentense_list.flatMap(sentense => sentense.words).filter(word =>
+    !word_stat[word]
+  )
+  return new Set(unfamiliar_words_array).size
 }
 
 function on_click_srt_edit(video: VideoInfo)
