@@ -12,6 +12,6 @@ export const add_data = signal<{ video_info: VideoInfo; status: 'add' | 'edit' }
  * 分页数据
  */
 
-export const page_size = signal(15)
+export const page_size = signal(10)
 export const current_page = signal(1)
 export const total_pages = computed(() => Math.ceil(app.data.value.videos.length / page_size.value))
