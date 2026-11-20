@@ -15,10 +15,9 @@ const table_data = computed(() =>
     if (b.pass) return -1
     return b.update_time - a.update_time
   })
-  const page_size = 15
   const current_page = video_list.current_page.value
-  const start_index = (current_page - 1) * page_size
-  const end_index = Math.min(start_index + page_size, sorted_videos.length)
+  const start_index = (current_page - 1) * video_list.page_size.value
+  const end_index = Math.min(start_index + video_list.page_size.value, sorted_videos.length)
   const paginated_videos = sorted_videos.slice(start_index, end_index)
 
   return paginated_videos
