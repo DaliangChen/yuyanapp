@@ -58,7 +58,7 @@ function on_click_add()
 
 async function on_click_export()
 {
-  const json_content = JSON.stringify(app.data.value, null, 2)
+  const json_content = JSON.stringify(app.data.value)
 
   const handle = await window.showSaveFilePicker({
     suggestedName: 'yuyan_data.json',
