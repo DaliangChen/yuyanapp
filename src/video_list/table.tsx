@@ -130,9 +130,8 @@ async function on_click_load(video: VideoInfo)
       multiple: false,
       types: [
         {
-          description: 'VTT / SRT',
+          description: 'SRT',
           accept: {
-            'text/vtt': ['.vtt'],
             'text/srt': ['.srt'],
           },
         },
