@@ -1,5 +1,4 @@
 import { computed } from '@preact/signals'
-import SrtParser from 'srt-parser-2'
 import * as app from '../appv'
 import * as srt_edit from '../srt_editer/value'
 import * as util from '../util'
@@ -83,7 +82,6 @@ export function TablePart()
                     </td>
                     <td>
                       <span style={{ display: 'flex', gap: '10px' }}>
-                        <a href='#' onClick={() => on_click_edit(video)}>Edit</a>
                         <a href='#' onClick={() => on_click_delete(video.video_id)}>Delete</a>
                       </span>
                     </td>
@@ -125,11 +123,6 @@ function on_click_srt_delete(video: VideoInfo)
   app.data.value = { ...app.data.value }
 }
 
-function on_click_edit(video: VideoInfo)
-{
-  video_list.add_data.value = { video_info: video, status: 'edit' }
-}
-
 async function on_click_load(video: VideoInfo)
 {
   const [handle] = await window.showOpenFilePicker(
@@ -146,43 +139,7 @@ async function on_click_load(video: VideoInfo)
       ],
     },
   )
-  const file = await handle.getFile()
-  const srt_text = await file.text()
-  if (!srt_text) return
-
-  let parser = new SrtParser()
-  let srt_array = parser.fromSrt(srt_text)
-  const segmenter = new Intl.Segmenter('de-DE', { granularity: 'word' })
-
-  video.sentense_list = srt_array.map(it =>
-  {
-    const segments = Array.from(segmenter.segment(it.text))
-    const words = segments
-      .filter(item => item.isWordLike)
-      .map(item => item.segment)
-
-    words.forEach(word =>
-    {
-      if (!(word in app.data.value.word_stat))
-      {
-        app.data.value.word_stat[word] = false
-      }
-    })
-
-    return {
-      start_time_str: it.startTime,
-      end_time_str: it.endTime,
-      start_time: it.startSeconds,
-      end_time: it.endSeconds,
-      text: it.text,
-      index: it.id,
-      words: words,
-    }
-  })
-
-  video.srt = srt_text
-  video.update_time = Date.now()
-  app.data.value = { ...app.data.value }
+  await video_list.add_srt_by_handle(handle, video)
 }
 
 function on_click_delete(video_id: string)

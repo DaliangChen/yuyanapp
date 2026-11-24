@@ -1,6 +1,6 @@
 import * as app from '../appv'
 import type { VideoInfo } from '../util'
-import * as video_list from './value'
+import * as video_list from '../video_list/value'
 
 export function ActionPart()
 {
@@ -9,8 +9,8 @@ export function ActionPart()
       <div role='group' className='video-list-action-group'>
         <button className='outline' onClick={on_click_import}>Import</button>
         <button className='outline' onClick={on_click_export}>Export</button>
-        <button className='outline' onClick={on_click_add}>Add</button>
         <button className='outline' onClick={on_click_paste_video_list}>Paste Video List</button>
+        <button className='outline' onClick={on_click_add_srt}>Add Srt</button>
       </div>
     </div>
   )
@@ -42,17 +42,23 @@ async function on_click_paste_video_list()
   }
 }
 
-function on_click_add()
+async function on_click_add_srt()
 {
-  video_list.add_data.value = {
-    video_info: {
-      video_id: '',
-      srt: '',
-      note: '',
-      update_time: Date.now(),
-      sentense_list: [],
-    },
-    status: 'add',
+  // 选取文件夹
+  const dir_handle = await window.showDirectoryPicker()
+
+  // 读取文件夹下的所有 srt 文件
+  const entries = await Array.fromAsync(dir_handle.entries())
+  const srt_file_list = entries.filter(([name]) => name.endsWith('.srt'))
+
+  // 根据文件名匹配视频文件
+  for (const [name, handle] of srt_file_list)
+  {
+    if (handle.kind === 'directory') continue
+
+    const video_name = name.replace('.srt', '')
+    const video = app.data.value.videos.find(v => v.video_id === video_name)
+    if (video) await video_list.add_srt_by_handle(handle, video)
   }
 }
 
