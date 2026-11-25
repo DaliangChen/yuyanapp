@@ -5,14 +5,14 @@ import { type AppData } from './util'
 const STORAGE_KEY = 'yuyan_app_data'
 
 export const data = signal<AppData>({ videos: [], word_stat: {} })
+
 localforage.getItem(STORAGE_KEY).then((value) =>
 {
   if (value) data.value = value as AppData
 })
 
-export const visibilitychange = () =>
+export const save_data = () =>
 {
-  if (document.visibilityState === 'visible') return
   localforage.setItem(STORAGE_KEY, data.value)
 }
 

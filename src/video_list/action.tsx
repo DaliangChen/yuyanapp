@@ -1,5 +1,6 @@
 import * as app from '../appv'
-import type { VideoInfo } from '../util'
+import { save_data } from '../appv'
+import { is_mobile, type VideoInfo } from '../util'
 import * as video_list from '../video_list/value'
 
 export function ActionPart()
@@ -9,8 +10,14 @@ export function ActionPart()
       <div role='group' className='video-list-action-group'>
         <button className='outline' onClick={on_click_import}>Import</button>
         <button className='outline' onClick={on_click_export}>Export</button>
-        <button className='outline' onClick={on_click_paste_video_list}>Paste Video List</button>
-        <button className='outline' onClick={on_click_add_srt}>Add Srt</button>
+        {!is_mobile
+          && (
+            <>
+              <button className='outline' onClick={on_click_paste_video_list}>Paste Video List</button>
+              <button className='outline' onClick={on_click_add_srt}>Add Srt</button>
+            </>
+          )}
+        <button className='outline' onClick={save_data}>Save Data</button>
       </div>
     </div>
   )

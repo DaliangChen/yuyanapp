@@ -10,16 +10,6 @@ export function App()
 {
   useOnError()
 
-  useEffect(() =>
-  {
-    window.addEventListener('visibilitychange', app.visibilitychange)
-
-    return () =>
-    {
-      window.removeEventListener('visibilitychange', app.visibilitychange)
-    }
-  }, [])
-
   return (
     <div id='app-container'>
       <Nav />
